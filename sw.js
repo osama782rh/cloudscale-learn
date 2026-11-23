@@ -6,7 +6,7 @@
  *
  * Incrémenter VERSION à chaque nouvelle mise en ligne pour forcer la mise à jour.
  */
-const VERSION = "cloudscale-263dd59d";
+const VERSION = "cloudscale-060b0443";
 
 const FICHIERS = [
   "./",

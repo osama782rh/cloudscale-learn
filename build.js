@@ -53,53 +53,52 @@ const DOMAINES = [
    une `url` reste possible pour une certification servie par trainer.html.
    ============================================================ */
 const CERTIFS = [
-  { id:"az900", famille:"azure", etat:"", etatTexte:"fondamentaux",
+  { id:"az900", famille:"azure",
     code:"AZ-900", titre:"Azure Fundamentals", domaines:3,
     examen:"40 à 60 questions · 45 min · 700/1000 requis",
     desc:"Le socle cloud et Azure : modèles de service, régions, coûts, gouvernance. Idéal avant l'AZ-104." },
 
-  { id:"az104", famille:"azure", etat:"focus",
+  { id:"az104", famille:"azure",
     code:"AZ-104", titre:"Azure Administrator Associate", domaines:5,
     examen:"40 à 60 questions · ~100 min · 700/1000 requis",
-    desc:"Identités et gouvernance, stockage, compute, réseau, supervision. L'examen d'administration Azure le plus large.",
-    miseEnAvant:"Créneau d'examen réservé. La banque couvre les 5 domaines officiels sur 3 niveaux, du vocabulaire aux diagnostics réseau, plus les commandes az, le Bicep, le KQL et 10 labs sur ton abonnement." },
+    desc:"Identités et gouvernance, stockage, compute, réseau, supervision. L'examen d'administration Azure le plus large." },
 
-  { id:"az204", famille:"azure", etat:"", etatTexte:"à venir",
+  { id:"az204", famille:"azure",
     code:"AZ-204", titre:"Azure Developer Associate", domaines:5,
     examen:"40 à 60 questions · ~120 min · 700/1000 requis",
     desc:"App Service, Functions, conteneurs, Cosmos DB, Key Vault, Service Bus, Event Grid et APIM." },
 
-  { id:"az305", famille:"azure", etat:"", etatTexte:"après l'AZ-104",
+  { id:"az305", famille:"azure",
     code:"AZ-305", titre:"Designing Azure Infrastructure Solutions", domaines:4,
     examen:"40 à 60 questions · ~100 à 120 min · 700/1000 requis",
     desc:"Le niveau conception : identité et gouvernance, données, continuité d'activité, infrastructure. Calculs de SLA, choix de redondance et arbitrages de coût." },
 
-  { id:"az400", famille:"azure", etat:"", etatTexte:"après l'AZ-204",
+  { id:"az400", famille:"azure",
     code:"AZ-400", titre:"Azure DevOps Engineer Expert", domaines:5,
     examen:"40 à 60 questions · ~150 min · 700/1000 requis",
     desc:"Pipelines, IaC, stratégie de branches, artefacts, sécurité de la chaîne et observabilité." },
 
-  { id:"clf", famille:"aws", etat:"", etatTexte:"fondamentaux",
+  { id:"clf", famille:"aws",
     code:"CLF-C02", titre:"AWS Cloud Practitioner", domaines:4,
     examen:"65 questions · 90 min · 700/1000 requis",
     desc:"Le socle AWS : concepts, responsabilité partagée, services clés, facturation et support." },
 
-  { id:"aws-devops", famille:"aws", etat:"", etatTexte:"bon d'examen en main",
+  { id:"aws-devops", famille:"aws",
     code:"DOP-C02", titre:"AWS DevOps Engineer – Professional", domaines:6,
     examen:"75 questions · 180 min · 750/1000 requis",
     desc:"CI/CD, IaC CloudFormation et CDK, résilience, supervision, sécurité et gouvernance multi-comptes." },
 
-  { id:"gcp-devops", famille:"gcp", etat:"", etatTexte:"à venir",
+  { id:"gcp-devops", famille:"gcp",
     code:"PCDE", titre:"Google Cloud Professional Cloud DevOps Engineer", domaines:5,
     examen:"~50 questions · 120 min · niveau Professional",
     desc:"SRE et budgets d'erreur, CI/CD sur Cloud Build et Cloud Deploy, GKE, Cloud Logging et Monitoring, gestion d'incidents." },
 
-  { id:"terraform", famille:"hashi", etat:"obtenue",
+  { id:"terraform", famille:"hashi",
     code:"HCTA-004", titre:"HashiCorp Terraform Associate", domaines:9,
     examen:"57 questions · 60 min · closed book",
-    desc:"Obtenue le 27 juillet 2026, valable jusqu'en juillet 2028. Un cours avancé complète le simulateur pour l'IaC de l'AZ-400." },
+    desc:"Langage, état, modules et patrons multi-environnements. Un cours avancé complète le simulateur pour l'IaC de l'AZ-400." },
 
-  { id:"cka", famille:"k8s", etat:"", etatTexte:"plus tard",
+  { id:"cka", famille:"k8s",
     code:"CKA", titre:"Certified Kubernetes Administrator", domaines:5,
     examen:"15 à 20 tâches 100 % pratiques · 2 h · 66 % requis",
     desc:"Format à part : des drills de commandes kubectl à taper, pas des QCM, plus des labs sur cluster réel." }
@@ -182,8 +181,7 @@ const CATALOGUE = [];
 CERTIFS.forEach(c => {
   const base = {
     id: c.id, code: c.code, titre: c.titre, desc: c.desc, famille: c.famille,
-    etat: c.etat, etatTexte: c.etatTexte || "", examen: c.examen, domaines: c.domaines,
-    miseEnAvant: c.miseEnAvant || ""
+    examen: c.examen, domaines: c.domaines
   };
 
   if (c.externe) {
@@ -226,8 +224,6 @@ const COMPTEURS = {
   certifs: CATALOGUE.length,
   certifsQuestions: CATALOGUE.reduce((n, c) => n + c.questions, 0),
   trainer: TRAINER.total,
-  az305: TRAINER.az,
-  gcp: TRAINER.gcp,
   tf: TRAINER.tf
 };
 CATALOGUE.forEach(c => { COMPTEURS[c.id] = c.questions; });

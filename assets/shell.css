@@ -117,8 +117,6 @@ body.csl-has-shell{padding-top:var(--csl-bar,54px)}
   font-variant-numeric:tabular-nums;background:var(--csl-surface2);border-radius:20px;padding:1px 7px}
 .csl-nav a.on .csl-n{background:color-mix(in srgb,var(--csl-accent) 18%,transparent);color:var(--csl-accent)}
 .csl-nav a .csl-dot{flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:var(--csl-c,var(--csl-faint))}
-.csl-nav a .csl-chip{flex:0 0 auto;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
-  color:var(--csl-ok);background:color-mix(in srgb,var(--csl-ok) 15%,transparent);border-radius:5px;padding:1px 5px}
 
 /* Groupes dépliables (fournisseurs) */
 .csl-grp{margin:2px 0}

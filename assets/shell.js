@@ -53,7 +53,7 @@
         { label: "AZ-900 · Fundamentals",        href: "certifs/az900/index.html", count: "az900" },
         { label: "AZ-104 · Administrator",       href: "certifs/az104/index.html", count: "az104" },
         { label: "AZ-204 · Developer",           href: "certifs/az204/index.html", count: "az204" },
-        { label: "AZ-305 · Solutions Architect", href: "trainer.html#/quiz/az",    count: "az305" },
+        { label: "AZ-305 · Solutions Architect", href: "certifs/az305/index.html", count: "az305" },
         { label: "AZ-400 · DevOps Expert",       href: "certifs/az400/index.html", count: "az400" }
       ]},
       { label: "Amazon Web Services", color: "aws", items: [
@@ -61,10 +61,10 @@
         { label: "DOP-C02 · DevOps Pro",         href: "certifs/aws-devops/index.html", count: "aws-devops" }
       ]},
       { label: "Google Cloud", color: "gcp", items: [
-        { label: "PCDE · Cloud DevOps Engineer", href: "trainer.html#/quiz/gcp", count: "gcp" }
+        { label: "PCDE · Cloud DevOps Engineer", href: "certifs/gcp-devops/index.html", count: "gcp-devops" }
       ]},
       { label: "HashiCorp", color: "hashi", items: [
-        { label: "Terraform Associate", href: "certifs/terraform/index.html", count: "terraform", done: true },
+        { label: "Terraform Associate", href: "certifs/terraform/index.html", count: "terraform" },
         { label: "Terraform avancé",    href: "trainer.html#/quiz/tf",        count: "tf" }
       ]},
       { label: "Kubernetes / CNCF", color: "k8s", items: [
@@ -117,7 +117,6 @@
     a.innerHTML =
       (it.icon ? ico(it.icon) : (it.dot ? '<span class="csl-dot"></span>' : "")) +
       '<span class="csl-lbl">' + it.label + "</span>" +
-      (it.done ? '<span class="csl-chip">ok</span>' : "") +
       (it.count && n(it.count) !== "" ? '<span class="csl-n">' + n(it.count) + "</span>" : "");
     a.dataset.q = it.label.toLowerCase();
     if (it.href === best) a.className = "on";

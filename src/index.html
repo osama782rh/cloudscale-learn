@@ -31,8 +31,6 @@
   a.mini-c .code{font-size:11.5px;font-weight:800;letter-spacing:.05em;color:var(--c,var(--accent))}
   a.mini-c .nom{font-weight:650;font-size:14.3px;line-height:1.3}
   a.mini-c .m{font-size:12.3px;color:var(--muted);font-variant-numeric:tabular-nums}
-  a.mini-c .st{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--faint)}
-  a.mini-c .st.ok{color:var(--ok)} a.mini-c .st.go{color:var(--warn)}
   .box ul{margin:6px 0 0;padding-left:20px}
   .box li{margin:5px 0;font-size:14.3px;color:var(--muted)}
   .box li b{color:var(--ink)}
@@ -153,16 +151,12 @@ $("#familles").innerHTML = FAM.map(([f, label]) => {
   const q = liste.reduce((s, c) => s + (c.questions || 0), 0);
   return `<div class="fam c-${f}">
     <h3><span class="dot"></span>${label}<span class="n">${liste.length} certif${liste.length > 1 ? "s" : ""} · ${q} questions</span></h3>
-    <div class="mini">${liste.map(c => {
-      const st = c.etat === "obtenue" ? '<span class="st ok">✓ obtenue</span>'
-               : c.etat === "focus"   ? '<span class="st go">● en cours</span>'
-               : `<span class="st">${esc(c.etatTexte || "à venir")}</span>`;
-      return `<a class="mini-c" href="${esc(c.url)}">
+    <div class="mini">${liste.map(c => `
+      <a class="mini-c" href="${esc(c.url)}">
         <span class="code">${esc(c.code)}</span>
         <span class="nom">${esc(c.titre)}</span>
         <span class="m">${c.questions} questions${c.labs ? " · " + c.labs + " labs" : ""}</span>
-        ${st}</a>`;
-    }).join("")}</div>
+      </a>`).join("")}</div>
   </div>`;
 }).join("");
 
