@@ -1,6 +1,7 @@
-# Module 13 - Preparation aux certifications Cloud
+# Parcours de certification approfondis
 
-Ce module regroupe la preparation a deux certifications cloud, plus un **socle Terraform avance** (votre outil principal) qui sert aux deux :
+Ce dossier regroupe les trois parcours servis par **trainer.html** (barre laterale :
+*Quiz par fournisseur*), plus un **socle Terraform avance** qui sert aux deux premiers :
 
 | Parcours | Editeur | Dossier | Niveau |
 |----------|---------|---------|--------|
@@ -16,7 +17,7 @@ Contenu de chaque dossier :
 | `approfondissement.md` (GCP, AZ-305) | **Theorie avancee** : mecanismes, calculs, criteres de decision, etudes de cas |
 | `questions.md` | Questions d'entrainement de base, avec reponses expliquees (blocs `<details>`) |
 | `questions-avancees.md` (GCP, AZ-305) | Questions **difficiles** : multi-contraintes, calculs, lecture de configuration |
-| `labs/` (Terraform) | **6 labs pratiques** avec solutions (local, GCP, Azure, CI/CD) |
+| `labs/README.md` (Terraform) | **6 labs pratiques** avec solutions (local, GCP, Azure, CI/CD) |
 
 Volume total : GCP 37 + 32 questions, AZ-305 42 + 34 questions (+ 2 etudes de cas), Terraform 58 questions.
 
@@ -67,17 +68,16 @@ Volume total : GCP 37 + 32 questions, AZ-305 42 + 34 questions (+ 2 etudes de ca
 
 ---
 
-## Lien avec le reste du lab
+## Lien avec les fiches d'etude du site
 
-| Sujet de certification | Module du lab a reviser avant |
-|------------------------|-------------------------------|
-| IaC (Terraform, Bicep) | 08 - Terraform / IaC |
-| Reseau cloud (VPC, VNet, peering, LB) | 04 - Reseau TCP/IP, 10 - Cloud |
-| DNS prive / hybride | 06 - DNS / IPAM |
-| Load balancing L4/L7 | 07 - HAProxy, 10 - Cloud |
-| Monitoring, SLI/SLO, alerting | 11 - Supervision |
-| Git, GitOps, CI/CD | 09 - Git |
-| Scripts gcloud / az / API | 01-03 - Python, API REST |
+| Sujet de certification | Fiche d'etude a relire avant |
+|------------------------|------------------------------|
+| IaC (Terraform, Bicep) | Terraform & IaC, Ansible |
+| Reseau cloud (VPC, VNet, peering, LB) | Reseau, Azure, AWS |
+| Conteneurs et orchestration | Docker & conteneurs, Kubernetes, Helm / GitOps |
+| Monitoring, SLI/SLO, alerting | Observabilite & SRE |
+| Git, GitOps, CI/CD | Git & workflows, CI/CD |
+| Securite, gouvernance, FinOps | Securite & conformite, Architecture |
 
 ---
 

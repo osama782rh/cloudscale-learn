@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Genere quiz.html (application autonome) a partir des fichiers Markdown du module 13.
+"""Genere trainer.html (application autonome) a partir des fichiers Markdown de contenus/.
 
-Usage :  python build_quiz.py      puis ouvrir quiz.html dans le navigateur.
-Les questions sont lues dans questions*.md, les cours dans README.md / approfondissement.md.
+Usage :  python3 contenus/build-trainer.py
+Le fichier est ecrit a la racine du site (trainer.html) et les compteurs par
+parcours dans assets/trainer-counts.json, lus ensuite par build.js.
+Les questions sont lues dans questions*.md, les cours dans README.md,
+approfondissement.md et labs/README.md.
 """
 import json
 import re
@@ -12,16 +15,20 @@ from pathlib import Path
 ROOT = Path(__file__).parent
 
 TRACKS = {
-    "gcp": {"dir": "gcp-devops-engineer", "name": "GCP DevOps Engineer", "short": "GCP"},
-    "az": {"dir": "az-305", "name": "AZ-305 Azure Solutions Architect", "short": "AZ-305"},
-    "tf": {"dir": "terraform", "name": "Terraform (Associate -> avance)", "short": "Terraform"},
+    "gcp": {"dir": "gcp-devops-engineer",
+            "name": "PCDE \u2014 Google Cloud Professional Cloud DevOps Engineer", "short": "PCDE"},
+    "az": {"dir": "az-305",
+           "name": "AZ-305 \u2014 Designing Azure Infrastructure Solutions", "short": "AZ-305"},
+    "tf": {"dir": "terraform",
+           "name": "Terraform \u2014 de l'Associate au niveau avanc\u00e9", "short": "Terraform"},
 }
 QUESTION_FILES = {
     "questions.md": "Base",
-    "questions-avancees.md": "Avancees",
-    "questions-complementaires.md": "Complementaires",
+    "questions-avancees.md": "Avanc\u00e9es",
+    "questions-complementaires.md": "Compl\u00e9mentaires",
 }
-COURSE_FILES = {"README.md": "Cours", "approfondissement.md": "Approfondissement"}
+COURSE_FILES = {"README.md": "Cours", "approfondissement.md": "Approfondissement",
+                "labs/README.md": "Labs"}
 SKIP_SECTIONS = ("grille", "pour aller plus loin", "correction globale", "mini etudes", "mini études")
 
 RE_Q = re.compile(r"^###\s+Q(\d+)\s*$")
@@ -121,10 +128,19 @@ def main():
     courses.append({"track": "all", "doc": "Vue d'ensemble",
                     "md": (ROOT / "README.md").read_text(encoding="utf-8")})
     data = {"tracks": TRACKS, "questions": questions, "courses": courses}
-    tpl = (ROOT / "quiz_template.html").read_text(encoding="utf-8")
+    tpl = (ROOT / "trainer_template.html").read_text(encoding="utf-8")
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
-    (ROOT / "quiz.html").write_text(tpl.replace("/*__DATA__*/null", payload), encoding="utf-8")
-    print(f"=> quiz.html : {len(questions)} questions, {len(courses)} documents de cours")
+    site = ROOT.parent
+    (site / "trainer.html").write_text(tpl.replace("/*__DATA__*/null", payload), encoding="utf-8")
+
+    compte = {tid: sum(1 for q in questions if q["track"] == tid) for tid in TRACKS}
+    compte["total"] = len(questions)
+    compte["cours"] = len(courses)
+    (site / "assets").mkdir(exist_ok=True)
+    (site / "assets" / "trainer-counts.json").write_text(
+        json.dumps(compte, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"=> trainer.html : {len(questions)} questions, {len(courses)} documents de cours")
+    print("   " + " · ".join(f"{k} {v}" for k, v in compte.items()))
 
 
 if __name__ == "__main__":

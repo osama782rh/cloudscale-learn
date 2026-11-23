@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentation — CloudScale Learn</title>
+<meta name="description" content="Documentation de référence Azure, AWS, Google Cloud, Terraform, Kubernetes, CI/CD, SRE et sécurité, avec l'essentiel intégré.">
+<meta name="theme-color" content="#0b0f17">
+<link rel="stylesheet" href="assets/page.css">
+</head>
+<body>
+<main class="page" id="csl-main">
+
+  <header class="ph">
+    <div class="eyebrow">Documentation</div>
+    <h1>La doc utile, <span>sans le bruit</span></h1>
+    <p>Pour chaque domaine : <b>l'essentiel intégré</b> dans la page — à lire ici, sans sortir du site — puis
+       la documentation de référence triée par usage. Les liens externes s'ouvrent dans un nouvel onglet.</p>
+  </header>
+
+  <div class="chips" id="raccourcis"></div>
+
+  <div class="filt">
+    <input type="search" id="q" placeholder="Rechercher dans la documentation (ex. KQL, budget d'erreur, for_each, NSG…)" aria-label="Rechercher">
+    <span class="res" id="res"></span>
+  </div>
+
+  <div id="sections"></div>
+
+  <footer class="pf">
+    <a href="index.html">← Tableau de bord</a>
+    <a href="cours.html">Bibliothèque de cours</a>
+    <a href="etude.html">Fiches d'étude</a>
+    <span class="sp">Les mémos sont relus à chaque mise à jour ; la doc officielle fait toujours foi.</span>
+  </footer>
+</main>
+
+<script>
+/*__DOCS__*/
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nbLiens = d => d.liens.reduce((n, g) => n + g.l.length, 0);
+
+/* ---------- raccourcis ---------- */
+$("#raccourcis").innerHTML = DOCS.map(d =>
+  `<a href="#${d.id}">${esc(d.titre)}<span class="n">${nbLiens(d)}</span></a>`).join("");
+
+/* ---------- sections ---------- */
+$("#sections").innerHTML = DOCS.map(d => `
+  <section class="sec${d.couleur ? " c-" + d.couleur : ""}" id="${d.id}">
+    <header>
+      <h3>${esc(d.titre)}</h3>
+      <span class="cnt">${nbLiens(d)} références</span>
+    </header>
+    <p class="lead">${esc(d.accroche)}</p>
+    <details class="memo" open>
+      <summary>L'essentiel à retenir</summary>
+      <div class="memo-in"><dl>
+        ${d.memo.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join("")}
+      </dl></div>
+    </details>
+    ${d.liens.map(g => `
+      <div class="grp">
+        <h4>${esc(g.g)}</h4>
+        <div class="links">
+          ${g.l.map(x => `
+            <a class="lnk" href="${esc(x.u)}" target="_blank" rel="noopener noreferrer"
+               data-q="${esc((x.t + " " + x.d + " " + x.k + " " + d.titre + " " + g.g).toLowerCase())}">
+              <span class="k">${esc(x.k)}</span>
+              <span class="t">${esc(x.t)}</span>
+              <span class="d">${esc(x.d)}</span>
+            </a>`).join("")}
+        </div>
+      </div>`).join("")}
+  </section>`).join("");
+
+/* ---------- recherche ---------- */
+const liens = [...document.querySelectorAll("a.lnk")];
+const total = liens.length;
+
+function filtrer() {
+  const q = $("#q").value.trim().toLowerCase();
+  let vus = 0;
+  liens.forEach(a => {
+    const ok = !q || a.dataset.q.includes(q);
+    a.classList.toggle("hidden", !ok);
+    if (ok) vus++;
+  });
+  document.querySelectorAll(".grp").forEach(g => {
+    g.classList.toggle("hidden", !g.querySelector("a.lnk:not(.hidden)"));
+  });
+  document.querySelectorAll("section.sec").forEach(s => {
+    const n = s.querySelectorAll("a.lnk:not(.hidden)").length;
+    s.classList.toggle("hidden", q && !n);
+    const memo = s.querySelector(".memo");
+    if (memo) memo.classList.toggle("hidden", !!q);
+    const cnt = s.querySelector(".cnt");
+    if (cnt) cnt.textContent = (q ? n : s.querySelectorAll("a.lnk").length) + " références";
+  });
+  $("#res").textContent = q ? `${vus} / ${total} références` : `${total} références`;
+}
+
+$("#q").addEventListener("input", filtrer);
+filtrer();
+
+/* Ouvre la bonne section quand on arrive par une ancre de la barre latérale. */
+function viserAncre() {
+  const id = location.hash.slice(1);
+  if (!id) return;
+  const el = document.getElementById(id);
+  if (el) { $("#q").value = ""; filtrer(); el.scrollIntoView({ block: "start" }); }
+}
+addEventListener("hashchange", viserAncre);
+viserAncre();
+</script>
+</body>
+</html>

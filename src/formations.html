@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Formations — Entretien BNP</title>
+<title>Révision par domaine — CloudScale Learn</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icone.svg">
 <meta name="theme-color" content="#0d111a">
@@ -77,7 +77,7 @@ if("serviceWorker" in navigator && (location.protocol==="https:" || location.hos
 <body>
 <div class="wrap">
   <header class="top">
-    <h1>Formations <span>par bloc</span></h1>
+    <h1>Révision <span>par domaine</span></h1>
     <div class="hstats" id="hstats"></div>
   </header>
 
@@ -91,13 +91,6 @@ if("serviceWorker" in navigator && (location.protocol==="https:" || location.hos
     <div class="grille" id="grille"></div>
     <div class="resume" id="resume"></div>
     <div id="avert"></div>
-    <div class="liens">
-      <a href="index.html">← Accueil</a>
-      <a href="qcm.html">Tous les QCM</a>
-      <a href="quiz.html">Toutes les réponses libres</a>
-      <a href="etude.html">Fiches d'étude</a>
-      <a href="certifications.html">Certifications</a>
-    </div>
   </div>
 </div>
 
@@ -109,21 +102,21 @@ const TITRES = {1:"Vocabulaire & fondations",2:"Bases opérationnelles",3:"Usage
   9:"Résilience, coûts, gouvernance",10:"Entretien senior"};
 
 function lire(cle){ try{ return (JSON.parse(localStorage.getItem(cle))||{}).q || {}; }catch(e){ return {}; } }
-const ETAT = { libre: lire("bnp_devops_v1"), qcm: lire("bnp_qcm_v1") };
+const ETAT = { libre: lire("csl_quiz_v1"), qcm: lire("csl_qcm_v1") };
 
-let mode = localStorage.getItem("bnp_form_mode") || "qcm";
-let courante = localStorage.getItem("bnp_form_onglet") || INDEX[0].id;
+let mode = localStorage.getItem("csl_form_mode") || "qcm";
+let courante = localStorage.getItem("csl_form_onglet") || INDEX[0].id;
 if(!INDEX.some(f=>f.id===courante)) courante = INDEX[0].id;
 
 function setMode(m){
   mode = m;
-  localStorage.setItem("bnp_form_mode", m);
+  localStorage.setItem("csl_form_mode", m);
   document.querySelectorAll("#modes button").forEach(b=>b.classList.toggle("on", b.dataset.m===m));
   rendre();
 }
 function setOnglet(id){
   courante = id;
-  localStorage.setItem("bnp_form_onglet", id);
+  localStorage.setItem("csl_form_onglet", id);
   rendre();
 }
 

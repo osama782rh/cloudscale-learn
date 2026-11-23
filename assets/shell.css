@@ -1,0 +1,149 @@
+/* ============================================================
+   CloudScale Learn — coquille applicative partagée
+   Variables préfixées --csl-* : la barre latérale garde le même
+   rendu sur toutes les pages, quelle que soit leur palette locale.
+   ============================================================ */
+.csl-shell{
+  --csl-bg:#0b0f17;
+  --csl-surface:#121824;
+  --csl-surface2:#1a2230;
+  --csl-ink:#e4eaf4;
+  --csl-muted:#8996ae;
+  --csl-faint:#5f6c82;
+  --csl-accent:#6c8cff;
+  --csl-accent-ink:#ffffff;
+  --csl-accent-soft:#1a2440;
+  --csl-border:#232c3c;
+  --csl-azure:#4aa8ff;
+  --csl-aws:#f0a340;
+  --csl-gcp:#ff7a6b;
+  --csl-hashi:#b57cff;
+  --csl-k8s:#4ecdc4;
+  --csl-ok:#3ecf8e;
+  --csl-shadow:0 18px 40px rgba(0,0,0,.45);
+  --csl-w:268px;
+  --csl-bar:54px;
+}
+@media (prefers-color-scheme: light){
+  .csl-shell:not([data-csl-theme="dark"]){
+    --csl-bg:#eef1f7;
+    --csl-surface:#ffffff;
+    --csl-surface2:#f1f4fa;
+    --csl-ink:#141b28;
+    --csl-muted:#56637a;
+    --csl-faint:#7e8899;
+    --csl-accent:#2b5fd9;
+    --csl-accent-soft:#e6edfc;
+    --csl-border:#dbe1ed;
+    --csl-azure:#0b66c2;
+    --csl-aws:#a86a00;
+    --csl-gcp:#c4382a;
+    --csl-hashi:#6f36bd;
+    --csl-k8s:#0d7c74;
+    --csl-ok:#1e7a46;
+    --csl-shadow:0 18px 40px rgba(20,27,40,.18);
+  }
+}
+
+/* ---------- Décalage du contenu de la page hôte ---------- */
+body.csl-has-shell{padding-top:var(--csl-bar,54px)}
+@media (min-width:1080px){
+  body.csl-has-shell{padding-top:0;padding-left:268px}
+}
+
+/* ---------- Lien d'évitement ---------- */
+.csl-skip{position:fixed;top:-60px;left:10px;z-index:1000;background:var(--csl-accent);color:var(--csl-accent-ink);
+  padding:.6rem 1rem;border-radius:0 0 10px 10px;text-decoration:none;font:600 14px/1.2 inherit;transition:top .15s}
+.csl-skip:focus{top:0}
+
+/* ---------- Barre supérieure (mobile / tablette) ---------- */
+.csl-topbar{position:fixed;top:0;left:0;right:0;height:var(--csl-bar);z-index:60;display:flex;align-items:center;
+  gap:10px;padding:0 12px;background:color-mix(in srgb,var(--csl-bg) 94%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--csl-border);
+  font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,sans-serif;color:var(--csl-ink)}
+@media (min-width:1080px){.csl-topbar{display:none}}
+.csl-burger{display:grid;place-items:center;width:38px;height:38px;flex:0 0 auto;border:1px solid var(--csl-border);
+  background:var(--csl-surface);color:var(--csl-ink);border-radius:10px;cursor:pointer;padding:0}
+.csl-burger svg{width:18px;height:18px}
+.csl-topbar .csl-here{font-size:14px;font-weight:650;color:var(--csl-muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- Marque ---------- */
+.csl-brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--csl-ink);
+  font-weight:750;font-size:15.5px;letter-spacing:-.01em;white-space:nowrap}
+.csl-brand .csl-logo{flex:0 0 auto;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#6c8cff,#38bdf8);box-shadow:0 2px 8px rgba(56,189,248,.3)}
+.csl-brand .csl-logo svg{width:17px;height:17px}
+.csl-brand em{font-style:normal;font-weight:500;color:var(--csl-muted)}
+
+/* ---------- Barre latérale ---------- */
+.csl-side{position:fixed;top:0;left:0;bottom:0;width:var(--csl-w);z-index:80;display:flex;flex-direction:column;
+  background:var(--csl-surface);border-right:1px solid var(--csl-border);
+  font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:14px;line-height:1.5;color:var(--csl-ink);
+  transform:translateX(-100%);transition:transform .22s ease;box-shadow:var(--csl-shadow)}
+.csl-side.open{transform:none}
+@media (min-width:1080px){.csl-side{transform:none;box-shadow:none}}
+.csl-overlay{position:fixed;inset:0;z-index:70;background:rgba(5,8,14,.55);opacity:0;pointer-events:none;transition:opacity .22s}
+.csl-overlay.on{opacity:1;pointer-events:auto}
+@media (min-width:1080px){.csl-overlay{display:none}}
+
+.csl-side-head{display:flex;align-items:center;gap:8px;padding:14px 16px 12px;border-bottom:1px solid var(--csl-border)}
+.csl-side-head .csl-close{margin-left:auto;width:32px;height:32px;display:grid;place-items:center;border:0;
+  background:none;color:var(--csl-muted);border-radius:8px;cursor:pointer;font-size:19px;line-height:1}
+.csl-side-head .csl-close:hover{background:var(--csl-surface2);color:var(--csl-ink)}
+@media (min-width:1080px){.csl-side-head .csl-close{display:none}}
+
+.csl-search{padding:12px 14px 6px}
+.csl-search input{width:100%;background:var(--csl-bg);color:var(--csl-ink);border:1px solid var(--csl-border);
+  border-radius:9px;padding:.5rem .7rem;font:inherit;font-size:13.5px}
+.csl-search input::placeholder{color:var(--csl-faint)}
+.csl-search input:focus{outline:2px solid var(--csl-accent);outline-offset:1px;border-color:var(--csl-accent)}
+
+.csl-nav{flex:1;overflow-y:auto;padding:6px 10px 14px;scrollbar-width:thin}
+.csl-nav::-webkit-scrollbar{width:8px}
+.csl-nav::-webkit-scrollbar-thumb{background:var(--csl-border);border-radius:4px}
+
+.csl-sec{margin:14px 0 2px;padding:0 8px;font-size:10.5px;font-weight:750;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--csl-faint)}
+.csl-nav a{display:flex;align-items:center;gap:9px;padding:7px 9px;margin:1px 0;border-radius:9px;
+  color:var(--csl-muted);text-decoration:none;font-weight:550;transition:.12s}
+.csl-nav a:hover{background:var(--csl-surface2);color:var(--csl-ink)}
+.csl-nav a.on{background:var(--csl-accent-soft);color:var(--csl-accent);font-weight:700}
+.csl-nav a .csl-ico{flex:0 0 auto;width:17px;height:17px;display:grid;place-items:center;opacity:.9}
+.csl-nav a .csl-ico svg{width:16px;height:16px}
+.csl-nav a .csl-lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.csl-nav a .csl-n{flex:0 0 auto;font-size:11px;font-weight:700;color:var(--csl-faint);
+  font-variant-numeric:tabular-nums;background:var(--csl-surface2);border-radius:20px;padding:1px 7px}
+.csl-nav a.on .csl-n{background:color-mix(in srgb,var(--csl-accent) 18%,transparent);color:var(--csl-accent)}
+.csl-nav a .csl-dot{flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:var(--csl-c,var(--csl-faint))}
+.csl-nav a .csl-chip{flex:0 0 auto;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--csl-ok);background:color-mix(in srgb,var(--csl-ok) 15%,transparent);border-radius:5px;padding:1px 5px}
+
+/* Groupes dépliables (fournisseurs) */
+.csl-grp{margin:2px 0}
+.csl-grp>summary{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:9px;cursor:pointer;
+  color:var(--csl-ink);font-weight:650;list-style:none;transition:.12s}
+.csl-grp>summary::-webkit-details-marker{display:none}
+.csl-grp>summary:hover{background:var(--csl-surface2)}
+.csl-grp>summary .csl-dot{width:8px;height:8px;border-radius:50%;background:var(--csl-c,var(--csl-accent));flex:0 0 auto}
+.csl-grp>summary .csl-lbl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.csl-grp>summary .csl-caret{flex:0 0 auto;color:var(--csl-faint);transition:transform .15s;font-size:10px}
+.csl-grp[open]>summary .csl-caret{transform:rotate(90deg)}
+.csl-grp>summary .csl-n{flex:0 0 auto;font-size:11px;font-weight:700;color:var(--csl-faint);
+  font-variant-numeric:tabular-nums}
+.csl-grp .csl-grp-in{margin:1px 0 6px;padding-left:17px;border-left:1px solid var(--csl-border);margin-left:12px}
+.csl-grp .csl-grp-in a{font-size:13.3px;font-weight:550}
+
+.csl-empty{padding:14px 10px;color:var(--csl-faint);font-size:13px}
+
+.csl-foot{border-top:1px solid var(--csl-border);padding:10px 14px;display:flex;align-items:center;gap:8px;
+  font-size:12px;color:var(--csl-faint)}
+.csl-foot button{border:1px solid var(--csl-border);background:var(--csl-bg);color:var(--csl-muted);
+  border-radius:8px;padding:.3rem .6rem;font:inherit;font-size:12px;cursor:pointer}
+.csl-foot button:hover{color:var(--csl-ink);border-color:var(--csl-accent)}
+.csl-foot .csl-ver{margin-left:auto;font-variant-numeric:tabular-nums}
+
+@media print{.csl-side,.csl-topbar,.csl-overlay,.csl-skip{display:none}body.csl-has-shell{padding:0}}
+
+@media (max-width:480px){.csl-topbar .csl-here{display:none}}

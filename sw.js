@@ -6,16 +6,23 @@
  *
  * Incrémenter VERSION à chaque nouvelle mise en ligne pour forcer la mise à jour.
  */
-const VERSION = "prepa-bnp-v12";
+const VERSION = "cloudscale-85c94003";
 
 const FICHIERS = [
   "./",
   "./index.html",
-  "./formations.html",
-  "./certifications.html",
   "./qcm.html",
   "./quiz.html",
+  "./formations.html",
   "./etude.html",
+  "./certifications.html",
+  "./documentation.html",
+  "./cours.html",
+  "./trainer.html",
+  "./assets/shell.css",
+  "./assets/page.css",
+  "./assets/shell.js",
+  "./assets/data.js",
   "./manifest.webmanifest",
   "./icone.svg"
 ];

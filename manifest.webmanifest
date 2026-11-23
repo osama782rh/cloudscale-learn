@@ -1,13 +1,14 @@
 {
-  "name": "Prépa entretien BNP — DevOps",
-  "short_name": "Prépa BNP",
-  "description": "610 questions DevOps sur 10 niveaux + fiches d'étude, utilisable hors ligne.",
+  "name": "CloudScale Learn — plateforme cloud & DevOps",
+  "short_name": "CloudScale",
+  "description": "Quiz, certifications Azure/AWS/Google Cloud/HashiCorp/Kubernetes, documentation et cours. Fonctionne hors ligne.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#0d111a",
-  "theme_color": "#0d111a",
+  "background_color": "#0b0f17",
+  "theme_color": "#0b0f17",
+  "lang": "fr",
+  "categories": ["education", "productivity"],
   "icons": [
     { "src": "./icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
     { "src": "./icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cours — CloudScale Learn</title>
+<meta name="description" content="Plan de travail, fiches d'étude, cours de certification, labs pratiques et ressources externes.">
+<meta name="theme-color" content="#0b0f17">
+<link rel="stylesheet" href="assets/page.css">
+</head>
+<body>
+<main class="page" id="csl-main">
+
+  <header class="ph">
+    <div class="eyebrow">Cours</div>
+    <h1>Comprendre <span>avant</span> de retenir</h1>
+    <p>La documentation répond à « comment ». Les cours répondent à « pourquoi », et dans quel ordre.
+       Commence par le plan de travail, puis descends vers ce dont tu as besoin.</p>
+  </header>
+
+  <div class="chips">
+    <a href="#parcours">Plan de travail</a>
+    <a href="#fiches">Fiches d'étude<span class="n" id="n-fiches"></span></a>
+    <a href="#certification">Cours de certification<span class="n" id="n-certif"></span></a>
+    <a href="#labs">Labs pratiques<span class="n" id="n-labs"></span></a>
+    <a href="#externe">Ressources externes<span class="n" id="n-ext"></span></a>
+  </div>
+
+  <!-- ======== PLAN DE TRAVAIL ======== -->
+  <section class="sec" id="parcours">
+    <h2 class="sh">Plan de travail</h2>
+    <p class="shd">Six étapes, dans cet ordre. Chaque étape dit quoi lire, sur quoi s'entraîner et comment vérifier
+       que c'est acquis. Rien n'oblige à les finir : on avance, on revient.</p>
+    <div id="etapes"></div>
+  </section>
+
+  <!-- ======== FICHES ======== -->
+  <section class="sec" id="fiches">
+    <h2 class="sh">Fiches d'étude</h2>
+    <p class="shd">Des cours courts et denses, écrits pour être <b>dits à voix haute</b> en entretien :
+       ce qu'il faut savoir, les pièges classiques, et la formulation qui fait bonne impression.</p>
+    <div class="grid gauto" id="g-fiches"></div>
+  </section>
+
+  <!-- ======== COURS DE CERTIFICATION ======== -->
+  <section class="sec" id="certification">
+    <h2 class="sh">Cours de certification</h2>
+    <p class="shd">Les cours longs, organisés par domaine d'examen. Ils s'ouvrent dans le lecteur intégré,
+       avec sommaire, et un bouton pour s'entraîner immédiatement sur le même sujet.</p>
+    <div class="grid gauto" id="g-certif"></div>
+  </section>
+
+  <!-- ======== LABS ======== -->
+  <section class="sec" id="labs">
+    <h2 class="sh">Labs pratiques</h2>
+    <p class="shd">Six labs Terraform progressifs, énoncé puis solution commentée. Les trois premiers ne demandent
+       <b>aucun compte cloud</b>. Les solutions sont dans le dépôt, sous <code>contenus/terraform/labs/</code>.</p>
+    <div class="note info">Chaque lab se termine par la destruction de ce qu'il a créé : rien ne reste facturé.
+       Pour les labs 4 et 5, <code>terraform init -backend=false &amp;&amp; terraform validate</code> suffit à travailler
+       sans dépenser un centime.</div>
+    <div class="wrapx"><table class="t" id="t-labs"></table></div>
+    <p class="shd" style="margin-top:14px">Les simulateurs de certification contiennent en plus leurs propres labs
+       guidés (AZ-104, AZ-204, AZ-400, DOP-C02, CKA, Terraform) —
+       <a href="certifications.html">voir la page certifications</a>.</p>
+  </section>
+
+  <!-- ======== EXTERNE ======== -->
+  <section class="sec" id="externe">
+    <h2 class="sh">Ressources externes</h2>
+    <p class="shd">Une sélection courte et gratuite. Rien d'obligatoire : ce sont les sources où retourner
+       quand un sujet résiste.</p>
+    <div id="g-ext"></div>
+  </section>
+
+  <footer class="pf">
+    <a href="index.html">← Tableau de bord</a>
+    <a href="documentation.html">Documentation</a>
+    <a href="certifications.html">Certifications</a>
+  </footer>
+</main>
+
+<script>
+/*__COURS__*/
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- plan de travail ---------- */
+$("#etapes").innerHTML = PARCOURS.map(e => `
+  <div class="etape${e.couleur ? " c-" + e.couleur : ""}">
+    <div class="num">${e.n}</div>
+    <div>
+      <h3>${esc(e.titre)} <span class="duree">· ${esc(e.duree)}</span></h3>
+      <p>${esc(e.quoi)}</p>
+      <div class="actions">
+        ${e.faire.map(([quoi, href, label]) =>
+          `<a href="${esc(href)}"><i>${esc(quoi)}</i> ${esc(label)}</a>`).join("")}
+      </div>
+    </div>
+  </div>`).join("");
+
+/* ---------- fiches ---------- */
+$("#g-fiches").innerHTML = FICHES.map(f => `
+  <a class="card" href="etude.html#${esc(f.id)}">
+    <b>${esc(f.titre)}</b>
+    <p>${esc(f.lead || "")}</p>
+    <span class="go">Lire la fiche →</span>
+  </a>`).join("");
+$("#n-fiches").textContent = FICHES.length;
+
+/* ---------- cours de certification ---------- */
+$("#g-certif").innerHTML = CERTIF.map(c => `
+  <a class="card lcol${c.couleur ? " c-" + c.couleur : ""}"
+     href="trainer.html#/course/${esc(c.track)}/${encodeURIComponent(c.doc)}">
+    <span class="pill">${esc(c.pour)}</span>
+    <b>${esc(c.titre)}</b>
+    <p>${esc(c.desc)}</p>
+    <span class="go">Ouvrir le cours →</span>
+  </a>`).join("");
+$("#n-certif").textContent = CERTIF.length;
+
+/* ---------- labs ---------- */
+$("#t-labs").innerHTML =
+  "<thead><tr><th>Lab</th><th>Thème</th><th>Ce qu'on y travaille</th><th>Cloud requis</th></tr></thead><tbody>" +
+  LABS.map(l => `<tr>
+    <td><b>${l.n}</b></td>
+    <td>${esc(l.titre)}</td>
+    <td>${l.quoi}</td>
+    <td>${l.cloud === "Aucun" ? '<span class="pill ok">Aucun</span>' : '<span class="pill">' + esc(l.cloud) + "</span>"}</td>
+  </tr>`).join("") + "</tbody>";
+$("#n-labs").textContent = LABS.length;
+
+/* ---------- externe ---------- */
+$("#g-ext").innerHTML = EXTERNE.map(g => `
+  <div class="grp">
+    <h4>${esc(g.g)}</h4>
+    <div class="links">
+      ${g.l.map(x => `
+        <a class="lnk" href="${esc(x.u)}" target="_blank" rel="noopener noreferrer">
+          <span class="k">${esc(x.k)}</span>
+          <span class="t">${esc(x.t)}</span>
+          <span class="d">${esc(x.d)}</span>
+        </a>`).join("")}
+    </div>
+  </div>`).join("");
+$("#n-ext").textContent = EXTERNE.reduce((n, g) => n + g.l.length, 0);
+</script>
+</body>
+</html>

@@ -1,36 +1,101 @@
-# Préparation entretien DevOps
+# CloudScale Learn
 
-Quiz d'entraînement (610 questions, 10 niveaux) et fiches d'étude sur Terraform,
-Kubernetes, AWS, Azure, Linux, réseau, CI/CD, sécurité, observabilité, SRE et SQL.
+Plateforme d'entraînement et de montée en compétences **cloud & DevOps**.
+Site statique, sans dépendance, installable hors ligne (PWA).
 
-Réponses libres à taper — pas de QCM — avec répétition espacée.
+👉 <https://osama782rh.github.io/prepa-entretien-devops/>
 
-## Utilisation
+## Ce que contient le site
 
-Ouvrir `index.html`. Aucune dépendance, aucun serveur nécessaire :
-`quiz.html` et `etude.html` sont autonomes.
+Une barre latérale unique, présente sur **toutes** les pages, donne accès à quatre espaces.
 
-Le menu **Certifications** (`certifications.html`) donne accès à un simulateur
-d'examen par certification, dans `certifs/<id>/index.html` : AZ-104, AZ-204,
-AZ-400, DOP-C02, CKA, Terraform Associate, AZ-900 et CLF-C02. Chacun est un
-fichier autonome avec ses trois niveaux, ses labs et sa répétition espacée.
+### 1. Quiz
 
-Installable en application hors ligne (PWA) quand le site est servi en HTTPS.
+| Page | Contenu |
+|------|---------|
+| `qcm.html` | Choix multiples, 10 niveaux, explication de chaque mauvaise réponse |
+| `quiz.html` | Réponses libres à taper, mêmes niveaux, mode exigeant |
+| `formations.html` | Révision par domaine (11 domaines × 10 niveaux, dans les deux modes) |
+
+Les deux banques ont leur propre répétition espacée (6 paliers) et leur « révision du jour ».
+
+### 2. Quiz par fournisseur
+
+Un entraînement par certification, regroupé par éditeur dans la barre latérale.
+
+| Éditeur | Certifications |
+|---------|----------------|
+| Microsoft Azure | AZ-900, AZ-104, AZ-204, AZ-305, AZ-400 |
+| Amazon Web Services | CLF-C02, DOP-C02 |
+| Google Cloud | PCDE (Professional Cloud DevOps Engineer) |
+| HashiCorp | Terraform Associate, Terraform avancé |
+| Kubernetes / CNCF | CKA |
+
+Deux moteurs cohabitent :
+
+- `certifs/<id>/index.html` — simulateurs autonomes (3 niveaux, labs, examen blanc pondéré
+  sur les pourcentages officiels, répétition espacée) ;
+- `trainer.html` — module de cours et de questions pour **AZ-305**, **PCDE** et **Terraform avancé**,
+  construit à partir des fichiers Markdown de `contenus/`. La route `#/quiz/<az|gcp|tf>`
+  présélectionne le parcours, `#/course/<track>/<doc>` ouvre un cours.
+
+`certifications.html` reprend l'ensemble avec filtre par éditeur et tableau des examens blancs.
+
+### 3. Documentation — `documentation.html`
+
+Neuf domaines (Azure, AWS, Google Cloud, Terraform/IaC, Kubernetes, CI/CD & GitOps,
+Observabilité & SRE, socle Linux/réseau/Git, Sécurité & FinOps). Pour chacun :
+
+- **l'essentiel intégré** dans la page, à lire sans sortir du site ;
+- la documentation de référence triée par usage, avec recherche plein texte.
+
+Le catalogue est dans `tools/documentation.js`.
+
+### 4. Cours — `cours.html`
+
+Plan de travail en 6 étapes, fiches d'étude, cours de certification, labs Terraform
+et ressources externes. Le catalogue est dans `tools/cours.js`.
 
 ## Développement
 
-Les questions sont dans `data/`, les fiches dans `fiches/`, les gabarits dans `src/`.
-
 ```bash
-node build.js         # régénère quiz.html, qcm.html, etude.html et formations.html
-node sync-certifs.js  # recopie les simulateurs de certification + régénère certifications.html
-node serve.js         # serveur local, accessible depuis le réseau
+node build.js              # tout régénérer (c'est la seule commande à connaître)
+node build.js --no-trainer # sauter la régénération de trainer.html (pas de python3)
+node serve.js              # serveur local, accessible depuis le réseau
+node verifier.js           # contrôle d'intégrité des banques de questions
+node audit.js              # trous de couverture et biais de longueur des QCM
 ```
 
-Après toute modification de `data/` ou `fiches/`, relancer `node build.js`.
-Après toute modification d'un simulateur de certification (les dossiers
-`../<nom>-quiz/`), relancer `node sync-certifs.js`.
-Dans les deux cas, incrémenter `VERSION` dans `sw.js` pour forcer la mise à
-jour du cache hors ligne.
+`node build.js` :
 
-`certifs/` et `certifications.html` sont générés : ne pas les éditer à la main.
+1. régénère `trainer.html` via `python3 contenus/build-trainer.py` ;
+2. compte les questions et les labs des simulateurs de `certifs/` ;
+3. écrit `assets/data.js` (compteurs + catalogue de certifications) ;
+4. génère les pages du site depuis `src/` en y inlinant les questions et les fiches ;
+5. injecte la barre latérale partagée dans toutes les pages, y compris `certifs/*/index.html` ;
+6. recalcule `VERSION` dans `sw.js` à partir du contenu produit — plus rien à incrémenter à la main.
+
+### Où éditer quoi
+
+| À modifier | Fichier |
+|------------|---------|
+| Questions (réponses libres) | `data/*.js` |
+| Questions (choix multiples) | `qcm/*.js` |
+| Fiches d'étude | `fiches/*.js` |
+| Cours de certification (AZ-305, PCDE, Terraform) | `contenus/<parcours>/*.md` |
+| Liens de documentation | `tools/documentation.js` |
+| Plan de travail, labs, ressources externes | `tools/cours.js` |
+| Entrées de la barre latérale | `assets/shell.js` (constante `NAV`) |
+| Catalogue des certifications | `build.js` (constante `CERTIFS`) |
+| Gabarits de pages | `src/*.html` |
+
+**Généré, à ne pas éditer à la main** : les `.html` de la racine, `assets/data.js`,
+`assets/trainer-counts.json` et la section `FICHIERS` de `sw.js`.
+Les simulateurs `certifs/*/index.html` sont éditables, mais `build.js` y réinjecte
+la barre latérale entre les marqueurs `<!--CSL:HEAD-->` et `<!--CSL:FOOT-->`.
+
+### Progression
+
+Tout est stocké dans le `localStorage` du navigateur :
+`csl_quiz_v1`, `csl_qcm_v1`, `certif-trainer-v1` et une clé par simulateur de certification.
+La progression enregistrée sous les anciennes clés est reprise automatiquement au premier chargement.

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Quiz DevOps — Entretien BNP</title>
+<title>Réponses libres — CloudScale Learn</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icone.svg">
 <meta name="theme-color" content="#0d111a">
@@ -84,7 +84,7 @@ if("serviceWorker" in navigator && (location.protocol==="https:" || location.hos
 <body>
 <div class="wrap">
   <header class="top">
-    <h1>Quiz <span>DevOps</span> — Entretien BNP</h1>
+    <h1>Réponses <span>libres</span></h1>
     <div class="hstats" id="hstats"></div>
   </header>
   <div id="app"></div>
@@ -106,7 +106,16 @@ const LEVEL_TITLES = {
   9:"Résilience, coûts, gouvernance",
   10:"Entretien senior — arbitrages"
 };
-const STORE = "bnp_devops_v1";
+/* Reprise de la progression enregistree sous l'ancien nom de plateforme. */
+function reprendre(ancien, nouveau){
+  try{
+    if(!localStorage.getItem(nouveau) && localStorage.getItem(ancien)){
+      localStorage.setItem(nouveau, localStorage.getItem(ancien));
+    }
+  }catch(e){}
+}
+reprendre("bnp_devops_v1", "csl_quiz_v1");
+const STORE = "csl_quiz_v1";
 let ST = load();
 function load(){ try{ return JSON.parse(localStorage.getItem(STORE)) || {q:{},lvl:{}}; }catch(e){ return {q:{},lvl:{}}; } }
 function save(){ try{ localStorage.setItem(STORE, JSON.stringify(ST)); }catch(e){} }
@@ -222,7 +231,7 @@ function home(){
     </div>
     <div class="levels">${lv}</div>
     <div class="card" style="font-size:13.5px;color:var(--muted)">
-      <b style="color:var(--ink)">Méthode anti-dump.</b> Le but n'est pas de reconnaître une réponse mais de savoir l'expliquer à voix haute. Avant de valider, formule ta réponse comme si un chef de projet BNP était en face. Les questions ratées reviennent plus vite (répétition espacée, 6 paliers).
+      <b style="color:var(--ink)">Méthode anti-dump.</b> Le but n'est pas de reconnaître une réponse mais de savoir l'expliquer à voix haute. Avant de valider, formule ta réponse comme si un architecte cloud était en face. Les questions ratées reviennent plus vite (répétition espacée, 6 paliers).
       <div class="row">
         <button class="ghost tiny" onclick="location.href='qcm.html'">← Mode choix multiples</button>
         <button class="ghost tiny" onclick="location.href='etude.html'">Fiches d'étude →</button>

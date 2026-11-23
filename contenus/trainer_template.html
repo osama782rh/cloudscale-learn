@@ -3,14 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Certif Trainer</title>
+<title>Cours &amp; quiz de certification — CloudScale Learn</title>
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--ink:#1c2230;--mute:#667085;--line:#e3e6ec;--acc:#2f6fed;--acc-ink:#fff;--ok:#12805c;--okbg:#e4f5ee;--ko:#c0352b;--kobg:#fdeceb;--warn:#a96b00;--code:#eef0f4}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#12151c;--card:#1b202b;--ink:#e8ebf2;--mute:#9aa3b5;--line:#2c3342;--acc:#6b9bff;--acc-ink:#0c1020;--ok:#4cc79a;--okbg:#14382c;--ko:#ff8a80;--kobg:#3c1d1b;--warn:#e5b04a;--code:#252b38}}
 :root[data-theme=dark]{--bg:#12151c;--card:#1b202b;--ink:#e8ebf2;--mute:#9aa3b5;--line:#2c3342;--acc:#6b9bff;--acc-ink:#0c1020;--ok:#4cc79a;--okbg:#14382c;--ko:#ff8a80;--kobg:#3c1d1b;--warn:#e5b04a;--code:#252b38}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-header{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:1px solid var(--line)}
+header{position:sticky;top:54px;z-index:10;background:var(--card);border-bottom:1px solid var(--line)}
+@media (min-width:1080px){header{top:0}}
 .bar{max-width:1100px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:8px;min-height:56px;flex-wrap:wrap}
 .brand{font-weight:700;margin-right:12px}
 nav{display:flex;gap:4px;flex-wrap:wrap;flex:1}
@@ -62,7 +63,7 @@ pre code{background:none;padding:0}
 table.t{border-collapse:collapse;width:100%}
 table.t th,table.t td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);font-size:14px}
 .course{display:grid;grid-template-columns:240px 1fr;gap:24px}
-.toc{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 96px);overflow:auto;font-size:14px}
+.toc{position:sticky;top:130px;align-self:start;max-height:calc(100vh - 96px);overflow:auto;font-size:14px}
 .toc a{display:block;color:var(--mute);text-decoration:none;padding:4px 8px;border-left:2px solid var(--line)}
 .toc a:hover{color:var(--ink);border-color:var(--acc)}
 .md{overflow-wrap:anywhere}
@@ -78,9 +79,9 @@ table.t th,table.t td{text-align:left;padding:8px 10px;border-bottom:1px solid v
 </head>
 <body>
 <header><div class="bar">
-  <span class="brand">Certif Trainer</span>
+  <span class="brand">Cours &amp; quiz de certification</span>
   <nav aria-label="Navigation principale" id="nav"></nav>
-  <button class="icon" id="theme" title="Changer de theme" aria-label="Changer de theme">Theme</button>
+  <button class="icon" id="theme" title="Changer de thème" aria-label="Changer de thème">Thème</button>
 </div></header>
 <main id="app"></main>
 
@@ -143,6 +144,10 @@ let timerId = null;
 function route(){
   clearInterval(timerId);
   const [, r='home', a, b] = location.hash.split('/');
+  /* #/quiz/<track> : arrivee depuis la barre laterale, on preselectionne la certification. */
+  if (r === 'quiz' && a && T[a] && !(run && !run.done)) {
+    setup.tracks = [a]; setup.sources = []; setup.section = '';
+  }
   renderNav(['home','quiz','course','notebook'].includes(r) ? r : 'home');
   window.scrollTo(0,0);
   ({home:viewHome, quiz:viewQuiz, course:()=>viewCourse(a,b), notebook:viewNotebook}[r] || viewHome)();
@@ -167,27 +172,27 @@ function viewHome(){
     const s = trackStats(tid);
     return `<div class="card">
       <h2 style="margin-top:0">${t.name}</h2>
-      <div class="bigstat">${pct(s.mastered,s.total)}%</div><div class="mute small">maitrise (derniere reponse juste)</div>
+      <div class="bigstat">${pct(s.mastered,s.total)}%</div><div class="mute small">maîtrise (dernière réponse juste)</div>
       <div class="meter"><i class="g" style="width:${pct(s.mastered,s.total)}%"></i></div>
-      <p class="small mute">${s.all} questions · ${s.seen} deja vues · ${s.mastered} acquises</p>
-      <div class="row"><a class="btn" href="#/quiz" data-start="${tid}">S'entrainer</a>
+      <p class="small mute">${s.all} questions · ${s.seen} déjà vues · ${s.mastered} acquises</p>
+      <div class="row"><a class="btn" href="#/quiz" data-start="${tid}">S'entraîner</a>
       <a class="btn sec" href="#/course/${tid}/Cours" style="text-decoration:none">Cours</a></div></div>`;
   }).join('');
   const nf = failed().length;
-  $('#app').innerHTML = `<h1>Preparation aux certifications</h1>
-    <p class="sub">${Q.length} questions · ${DATA.courses.length} documents de cours. Votre progression est enregistree dans ce navigateur.</p>
+  $('#app').innerHTML = `<h1>Cours et quiz de certification</h1>
+    <p class="sub">${Q.length} questions · ${DATA.courses.length} documents de cours. Votre progression est enregistrée dans ce navigateur.</p>
     <div class="grid">${cards}</div>
-    <h2>Revision rapide</h2>
+    <h2>Révision rapide</h2>
     <div class="row">
       <button class="btn" id="quick">Quiz express (10 questions au hasard)</button>
       <a class="btn sec" style="text-decoration:none" href="#/notebook">Carnet d'erreurs${nf?` (${nf})`:''}</a>
       ${run && !run.done ? '<a class="btn sec" style="text-decoration:none" href="#/quiz">Reprendre le quiz en cours</a>' : ''}
     </div>
-    <h2>Methode conseillee</h2>
+    <h2>Méthode conseillée</h2>
     <div class="card"><ol style="margin:0;padding-left:20px">
-      <li>Lire le chapitre du <strong>Cours</strong>, puis faire les questions du meme domaine en mode <em>Entrainement</em>.</li>
-      <li>Passer ensuite en mode <em>Examen</em> (chronometre, correction a la fin).</li>
-      <li>Revoir uniquement le <strong>Carnet d'erreurs</strong> jusqu'a ce qu'il soit vide.</li>
+      <li>Lire le chapitre du <strong>Cours</strong>, puis faire les questions du même domaine en mode <em>Entraînement</em>.</li>
+      <li>Passer ensuite en mode <em>Examen</em> (chronométré, correction à la fin).</li>
+      <li>Revoir uniquement le <strong>Carnet d'erreurs</strong> jusqu'à ce qu'il soit vide.</li>
     </ol></div>`;
   $('#quick').onclick = () => { startRun({tracks:[], sources:[], section:'', n:10, mode:'train', only:'all'}); };
   document.querySelectorAll('[data-start]').forEach(a => a.onclick = () => { setup.tracks = [a.dataset.start]; });
@@ -212,22 +217,22 @@ function viewSetup(){
   const secs = [...new Set(Q.filter(q => !setup.tracks.length || setup.tracks.includes(q.track)).map(sectionOf))];
   const chip = (group, val, label) => `<button data-g="${group}" data-v="${val}" class="${(Array.isArray(setup[group])?setup[group].includes(val):setup[group]===val)?'on':''}">${label}</button>`;
   const n = pool(setup).length;
-  $('#app').innerHTML = `<h1>Quiz</h1><p class="sub">Configurez votre session.</p>
+  $('#app').innerHTML = `<h1>Quiz</h1><p class="sub">Configure ta session : certification, niveau, domaine, mode.</p>
   <div class="card" style="display:grid;gap:18px">
     <div><label class="f">Certification</label><div class="seg">
       ${Object.entries(T).map(([k,t])=>chip('tracks',k,t.short)).join('')}</div>
-      <span class="small mute"> (aucune selection = toutes)</span></div>
+      <span class="small mute"> (aucune sélection = toutes)</span></div>
     <div><label class="f">Niveau / source</label><div class="seg">${sources.map(s=>chip('sources',s,s)).join('')}</div></div>
     <div class="row">
       <div><label class="f" for="sec">Domaine</label><select id="sec"><option value="">Tous</option>
         ${secs.map(s=>`<option ${s===setup.section?'selected':''}>${esc(s)}</option>`).join('')}</select></div>
       <div><label class="f" for="only">Filtre</label><select id="only">
-        ${[['all','Toutes'],['new','Jamais vues'],['failed','Ratees / marquees']].map(([v,l])=>`<option value="${v}" ${setup.only===v?'selected':''}>${l}</option>`).join('')}</select></div>
+        ${[['all','Toutes'],['new','Jamais vues'],['failed','Ratées / marquées']].map(([v,l])=>`<option value="${v}" ${setup.only===v?'selected':''}>${l}</option>`).join('')}</select></div>
       <div><label class="f" for="n">Nombre de questions</label><select id="n">
         ${[10,20,40,60,0].map(v=>`<option value="${v}" ${setup.n===v?'selected':''}>${v||'Toutes'}</option>`).join('')}</select></div>
     </div>
-    <div><label class="f">Mode</label><div class="seg">${chip('mode','train','Entrainement (correction immediate)')}${chip('mode','exam','Examen (chrono, correction a la fin)')}</div></div>
-    <div class="row"><button class="btn" id="go" ${n?'':'disabled'}>Demarrer (${Math.min(n, setup.n||n)} / ${n} disponibles)</button></div>
+    <div><label class="f">Mode</label><div class="seg">${chip('mode','train','Entraînement (correction immédiate)')}${chip('mode','exam','Examen (chrono, correction à la fin)')}</div></div>
+    <div class="row"><button class="btn" id="go" ${n?'':'disabled'}>Démarrer (${Math.min(n, setup.n||n)} / ${n} disponibles)</button></div>
   </div>`;
   document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
     const g=b.dataset.g, v=b.dataset.v;
@@ -335,16 +340,16 @@ function viewResult(){
   gradable.forEach(x => { const k = T[x.q.track].short+' - '+sectionOf(x.q); (by[k] = by[k]||{ok:0,n:0}); by[k].n++; if(x.ok) by[k].ok++; });
   const sc = pct(good, gradable.length);
   const wrong = run.qs.filter(x => x.ok===false || (!x.done && !x.q.open)).map(x=>x.q.id);
-  $('#app').innerHTML = `<h1>Resultat</h1>
+  $('#app').innerHTML = `<h1>Résultat</h1>
   <div class="card row" style="justify-content:space-between">
     <div><div class="bigstat">${good} / ${gradable.length} <span class="mute" style="font-size:18px">(${sc} %)</span></div>
-    <div class="mute small">Duree : ${fmt(run.elapsed)} · ${run.cfg.mode==='exam'?'mode examen':'mode entrainement'}</div></div>
+    <div class="mute small">Durée : ${fmt(run.elapsed)} · ${run.cfg.mode==='exam'?'mode examen':'mode entraînement'}</div></div>
     <div class="row"><button class="btn" id="again">Nouvelle session</button>
     <button class="btn sec" id="redo" ${wrong.length?'':'disabled'}>Refaire les erreurs (${wrong.length})</button></div>
   </div>
   <h2>Par domaine</h2>
   <div class="card"><table class="t">${Object.entries(by).map(([k,v])=>`<tr><td>${esc(k)}</td><td style="width:50%"><div class="meter" style="margin:0"><i class="${pct(v.ok,v.n)>=70?'g':''}" style="width:${pct(v.ok,v.n)}%"></i></div></td><td>${v.ok}/${v.n}</td></tr>`).join('')}</table></div>
-  <h2>Correction detaillee</h2>
+  <h2>Correction détaillée</h2>
   ${run.qs.map((it,i) => { const q=it.q; return `<details class="card" style="margin-bottom:10px"><summary><strong>${i+1}.</strong> ${it.ok?'OK':it.ok===false?'Faux':'-'} · ${T[q.track].short} ${q.num}</summary>
     <div class="stem">${mini(q.q)}</div>
     ${q.open?'':`<ul>${q.opts.map(o=>`<li>${q.ans.includes(o.k)?'<strong>[bonne]</strong> ':''}${it.sel.includes(o.k)?'<em>[votre choix]</em> ':''}${inline(o.t)}</li>`).join('')}</ul>`}
@@ -372,7 +377,7 @@ function viewCourse(track, doc){
   $('#toc').innerHTML = hs.map((h,i)=>`<a href="#" data-h="h${i}">${esc(h.textContent)}</a>`).join('');
   $('#toc').onclick = e => { const a=e.target.closest('[data-h]'); if(a){e.preventDefault(); document.getElementById(a.dataset.h).scrollIntoView({behavior:'smooth'});} };
   $('#md').onclick = e => { const a=e.target.closest('a'); if(a && !/^https?:/.test(a.getAttribute('href')||'')) e.preventDefault(); };
-  if (track!=='all') $('#md').insertAdjacentHTML('afterbegin', `<p><a class="btn" style="text-decoration:none;color:var(--acc-ink)" href="#/quiz" id="trainhere">S'entrainer sur ${T[track].short}</a></p>`);
+  if (track!=='all') $('#md').insertAdjacentHTML('afterbegin', `<p><a class="btn" style="text-decoration:none;color:var(--acc-ink)" href="#/quiz" id="trainhere">S'entraîner sur ${T[track].short}</a></p>`);
   const th = $('#trainhere'); if (th) th.onclick = () => { setup.tracks=[track]; setup.sources=[]; setup.section=''; };
 }
 
@@ -380,13 +385,13 @@ function viewCourse(track, doc){
 function viewNotebook(){
   const list = failed();
   $('#app').innerHTML = `<h1>Carnet d'erreurs</h1>
-  <p class="sub">Questions dont la derniere reponse etait fausse, ou que vous avez marquees. Elles disparaissent quand vous y repondez juste.</p>
-  <div class="row" style="margin-bottom:14px"><button class="btn" id="rev" ${list.length?'':'disabled'}>Reviser ces ${list.length} questions</button>
-    <button class="btn sec" id="clr" ${Object.keys(store.stats).length?'':'disabled'}>Reinitialiser la progression</button></div>
+  <p class="sub">Questions dont la dernière réponse était fausse, ou que tu as marquées. Elles disparaissent quand tu y réponds juste.</p>
+  <div class="row" style="margin-bottom:14px"><button class="btn" id="rev" ${list.length?'':'disabled'}>Réviser ces ${list.length} questions</button>
+    <button class="btn sec" id="clr" ${Object.keys(store.stats).length?'':'disabled'}>Réinitialiser la progression</button></div>
   ${list.length ? list.map(q => `<details class="card" style="margin-bottom:10px"><summary><span class="tag">${T[q.track].short}</span> ${q.num} - ${esc(q.q.split('\n').find(l=>l.trim()&&!l.startsWith('```'))||'').slice(0,110)}</summary>
     <div class="stem">${mini(q.q)}</div>${q.open?'':`<ul>${q.opts.map(o=>`<li>${q.ans.includes(o.k)?'<strong>[bonne]</strong> ':''}${inline(o.t)}</li>`).join('')}</ul>`}
     <div class="fb neutral exp">${mini(q.exp)}</div></details>`).join('')
-    : '<div class="card mute">Rien a revoir pour le moment.</div>'}`;
+    : '<div class="card mute">Rien à revoir pour le moment.</div>'}`;
   $('#rev').onclick = () => startRun({tracks:[],sources:[],section:'',n:0,mode:'train',only:'all'}, shuffle(list.map(q=>q.id)));
   $('#clr').onclick = () => { if (confirm('Effacer toute la progression ?')) { store.stats={}; store.flags={}; save(); route(); } };
 }

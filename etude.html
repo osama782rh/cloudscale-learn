@@ -3,15 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fiches d'étude — Entretien BNP</title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icone.svg">
+<title>Fiches d'étude — CloudScale Learn</title>
 <meta name="theme-color" content="#0d111a">
-<script>
-if("serviceWorker" in navigator && (location.protocol==="https:" || location.hostname==="localhost")){
-  window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
-}
-</script>
 <style>
   :root{
     --bg:#0d111a; --surface:#151b27; --surface2:#1d2432; --ink:#dde4f0; --muted:#8d9ab2;
@@ -61,7 +54,7 @@ if("serviceWorker" in navigator && (location.protocol==="https:" || location.hos
   .toc a:hover{border-color:var(--accent)}
   .toc a b{display:block;font-size:15px}
   .toc a span{font-size:12.5px;color:var(--muted)}
-  @media(max-width:860px){
+  @media(max-width:1240px){
     .layout{flex-direction:column;padding:16px 12px 60px}
     article{padding:20px}
     nav{width:100%;position:static;max-height:none;order:-1;display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;border-bottom:1px solid var(--border)}
@@ -70,13 +63,20 @@ if("serviceWorker" in navigator && (location.protocol==="https:" || location.hos
     nav a.on{border-left:none;border-bottom-color:var(--accent)}
   }
 </style>
+
+<!--CSL:HEAD-->
+<link rel="stylesheet" href="assets/shell.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icone.svg">
+<script src="assets/data.js"></script>
+<!--/CSL:HEAD-->
 </head>
 <body>
 <div class="layout">
   <nav id="nav"></nav>
   <main>
     <header class="top">
-      <h1>Fiches <span>d'étude</span> — Entretien BNP</h1>
+      <h1>Fiches <span>d'étude</span></h1>
       <a class="btn" href="quiz.html">Aller au quiz →</a>
     </header>
     <div id="content"></div>
@@ -2239,5 +2239,14 @@ function show(id){
 window.addEventListener("hashchange", ()=>show(location.hash.slice(1)));
 show(location.hash.slice(1) || F[0].id);
 </script>
+
+<!--CSL:FOOT-->
+<script src="assets/shell.js" data-csl-root="./"></script>
+<script>
+if("serviceWorker" in navigator && (location.protocol==="https:"||location.hostname==="localhost")){
+  addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
+<!--/CSL:FOOT-->
 </body>
 </html>

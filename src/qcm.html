@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>QCM DevOps — Entretien BNP</title>
+<title>Choix multiples — CloudScale Learn</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icone.svg">
 <meta name="theme-color" content="#0d111a">
@@ -95,7 +95,7 @@ if("serviceWorker" in navigator && (location.protocol==="https:" || location.hos
 <body>
 <div class="wrap">
   <header class="top">
-    <h1>QCM <span>DevOps</span> — Entretien BNP</h1>
+    <h1>Choix <span>multiples</span></h1>
     <div class="hstats" id="hstats"></div>
   </header>
   <div id="app"></div>
@@ -167,7 +167,16 @@ const LEVEL_TITLES = {
   9:"Résilience, coûts, gouvernance",
   10:"Entretien senior — arbitrages"
 };
-const STORE = "bnp_qcm_v1";
+/* Reprise de la progression enregistree sous l'ancien nom de plateforme. */
+function reprendre(ancien, nouveau){
+  try{
+    if(!localStorage.getItem(nouveau) && localStorage.getItem(ancien)){
+      localStorage.setItem(nouveau, localStorage.getItem(ancien));
+    }
+  }catch(e){}
+}
+reprendre("bnp_qcm_v1", "csl_qcm_v1");
+const STORE = "csl_qcm_v1";
 let ST = load();
 function load(){ try{ return JSON.parse(localStorage.getItem(STORE)) || {q:{}}; }catch(e){ return {q:{}}; } }
 function save(){ try{ localStorage.setItem(STORE, JSON.stringify(ST)); }catch(e){} }

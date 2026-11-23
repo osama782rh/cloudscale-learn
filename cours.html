@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cours — CloudScale Learn</title>
+<meta name="description" content="Plan de travail, fiches d'étude, cours de certification, labs pratiques et ressources externes.">
+<meta name="theme-color" content="#0b0f17">
+<link rel="stylesheet" href="assets/page.css">
+
+<!--CSL:HEAD-->
+<link rel="stylesheet" href="assets/shell.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icone.svg">
+<script src="assets/data.js"></script>
+<!--/CSL:HEAD-->
+</head>
+<body>
+<main class="page" id="csl-main">
+
+  <header class="ph">
+    <div class="eyebrow">Cours</div>
+    <h1>Comprendre <span>avant</span> de retenir</h1>
+    <p>La documentation répond à « comment ». Les cours répondent à « pourquoi », et dans quel ordre.
+       Commence par le plan de travail, puis descends vers ce dont tu as besoin.</p>
+  </header>
+
+  <div class="chips">
+    <a href="#parcours">Plan de travail</a>
+    <a href="#fiches">Fiches d'étude<span class="n" id="n-fiches"></span></a>
+    <a href="#certification">Cours de certification<span class="n" id="n-certif"></span></a>
+    <a href="#labs">Labs pratiques<span class="n" id="n-labs"></span></a>
+    <a href="#externe">Ressources externes<span class="n" id="n-ext"></span></a>
+  </div>
+
+  <!-- ======== PLAN DE TRAVAIL ======== -->
+  <section class="sec" id="parcours">
+    <h2 class="sh">Plan de travail</h2>
+    <p class="shd">Six étapes, dans cet ordre. Chaque étape dit quoi lire, sur quoi s'entraîner et comment vérifier
+       que c'est acquis. Rien n'oblige à les finir : on avance, on revient.</p>
+    <div id="etapes"></div>
+  </section>
+
+  <!-- ======== FICHES ======== -->
+  <section class="sec" id="fiches">
+    <h2 class="sh">Fiches d'étude</h2>
+    <p class="shd">Des cours courts et denses, écrits pour être <b>dits à voix haute</b> en entretien :
+       ce qu'il faut savoir, les pièges classiques, et la formulation qui fait bonne impression.</p>
+    <div class="grid gauto" id="g-fiches"></div>
+  </section>
+
+  <!-- ======== COURS DE CERTIFICATION ======== -->
+  <section class="sec" id="certification">
+    <h2 class="sh">Cours de certification</h2>
+    <p class="shd">Les cours longs, organisés par domaine d'examen. Ils s'ouvrent dans le lecteur intégré,
+       avec sommaire, et un bouton pour s'entraîner immédiatement sur le même sujet.</p>
+    <div class="grid gauto" id="g-certif"></div>
+  </section>
+
+  <!-- ======== LABS ======== -->
+  <section class="sec" id="labs">
+    <h2 class="sh">Labs pratiques</h2>
+    <p class="shd">Six labs Terraform progressifs, énoncé puis solution commentée. Les trois premiers ne demandent
+       <b>aucun compte cloud</b>. Les solutions sont dans le dépôt, sous <code>contenus/terraform/labs/</code>.</p>
+    <div class="note info">Chaque lab se termine par la destruction de ce qu'il a créé : rien ne reste facturé.
+       Pour les labs 4 et 5, <code>terraform init -backend=false &amp;&amp; terraform validate</code> suffit à travailler
+       sans dépenser un centime.</div>
+    <div class="wrapx"><table class="t" id="t-labs"></table></div>
+    <p class="shd" style="margin-top:14px">Les simulateurs de certification contiennent en plus leurs propres labs
+       guidés (AZ-104, AZ-204, AZ-400, DOP-C02, CKA, Terraform) —
+       <a href="certifications.html">voir la page certifications</a>.</p>
+  </section>
+
+  <!-- ======== EXTERNE ======== -->
+  <section class="sec" id="externe">
+    <h2 class="sh">Ressources externes</h2>
+    <p class="shd">Une sélection courte et gratuite. Rien d'obligatoire : ce sont les sources où retourner
+       quand un sujet résiste.</p>
+    <div id="g-ext"></div>
+  </section>
+
+  <footer class="pf">
+    <a href="index.html">← Tableau de bord</a>
+    <a href="documentation.html">Documentation</a>
+    <a href="certifications.html">Certifications</a>
+  </footer>
+</main>
+
+<script>
+const PARCOURS = [{"n":1,"titre":"Consolider le socle","duree":"1 semaine","couleur":"","quoi":"Linux, réseau, Git, Docker. Sans ce socle, les sujets cloud deviennent du par-cœur.","faire":[["Lire","etude.html#linux","Fiches Linux, Réseau, Git, Docker"],["S'entraîner","qcm.html","Niveaux 1 à 3 en choix multiples"],["Vérifier","quiz.html","Les mêmes niveaux en réponses libres"]]},{"n":2,"titre":"Terraform, l'outil transverse","duree":"1 semaine","couleur":"hashi","quoi":"Il sert sur les trois clouds et c'est la certification la plus rentable à obtenir en premier.","faire":[["Cours","trainer.html#/course/tf/Cours","Cours Terraform complet"],["Labs","cours.html#labs","Labs 1 à 3 — aucun compte cloud nécessaire"],["Examen blanc","certifs/terraform/index.html","Simulateur Terraform Associate"]]},{"n":3,"titre":"Azure en profondeur","duree":"3 à 4 semaines","couleur":"azure","quoi":"AZ-104 d'abord (l'administration), puis AZ-305 (la conception) ou AZ-400 (la chaîne de livraison).","faire":[["Lire","etude.html#azure","Fiche Azure"],["S'entraîner","certifs/az104/index.html","AZ-104 : 3 niveaux + 10 labs"],["Concevoir","trainer.html#/course/az/Cours","Cours AZ-305 par domaine d'examen"],["Approfondir","trainer.html#/course/az/Approfondissement","Calculs de SLA, critères de décision"]]},{"n":4,"titre":"Google Cloud et la culture SRE","duree":"3 à 4 semaines","couleur":"gcp","quoi":"Le PCDE est autant un examen de SRE que de Google Cloud : SLO, budget d'erreur, incidents.","faire":[["Cours","trainer.html#/course/gcp/Cours","Cours PCDE par domaine"],["Approfondir","trainer.html#/course/gcp/Approfondissement","Burn rate, canary, postmortems"],["S'entraîner","trainer.html#/quiz/gcp","Questions de base puis avancées"]]},{"n":5,"titre":"AWS et Kubernetes","duree":"au rythme des besoins","couleur":"aws","quoi":"CLF-C02 pour le vocabulaire, DOP-C02 pour le niveau professionnel, CKA pour la pratique kubectl.","faire":[["Fondamentaux","certifs/clf/index.html","CLF-C02 Cloud Practitioner"],["Professionnel","certifs/aws-devops/index.html","DOP-C02 DevOps Engineer"],["Pratique","certifs/cka/index.html","CKA : drills de commandes"]]},{"n":6,"titre":"Entretien : savoir le dire","duree":"en continu","couleur":"","quoi":"Reconnaître une réponse ne suffit pas. L'objectif est de l'expliquer à voix haute, avec des chiffres.","faire":[["Lire","etude.html#entretien","Jour J — posture et pièges"],["Lire","etude.html#architecture","Architecture & system design"],["S'entraîner","quiz.html","Niveaux 7 à 10 en réponses libres"]]}];
+const CERTIF = [{"track":"gcp","doc":"Cours","couleur":"gcp","titre":"Google Cloud Professional Cloud DevOps Engineer — cours","desc":"Les 5 domaines d'examen : bootstrapping d'organisation, pipelines CI/CD, pratiques SRE, supervision, optimisation des performances.","pour":"PCDE"},{"track":"gcp","doc":"Approfondissement","couleur":"gcp","titre":"PCDE — approfondissement","desc":"Mécanismes internes, calculs de budget d'erreur et de burn rate, critères de décision, études de cas.","pour":"PCDE"},{"track":"az","doc":"Cours","couleur":"azure","titre":"AZ-305 Designing Azure Infrastructure Solutions — cours","desc":"Identité et gouvernance, stockage de données, continuité d'activité, infrastructure : le raisonnement de conception, service par service.","pour":"AZ-305"},{"track":"az","doc":"Approfondissement","couleur":"azure","titre":"AZ-305 — approfondissement","desc":"SLA composites, arbitrages coût/disponibilité/effort opérationnel, comparaisons SQL DB / MI / Cosmos, études de cas.","pour":"AZ-305"},{"track":"tf","doc":"Cours","couleur":"hashi","titre":"Terraform — du niveau Associate à l'avancé","desc":"Langage, état, modules, boucles, tests natifs, CI/CD, patrons multi-environnements et multi-clouds.","pour":"Terraform Associate"},{"track":"all","doc":"Vue d'ensemble","couleur":"","titre":"Vue d'ensemble des parcours de certification","desc":"Format, durée, score requis et domaines d'examen des certifications couvertes, avec le planning conseillé.","pour":"Toutes"}];
+const LABS = [{"n":1,"titre":"Générateur de configuration multi-environnements","cloud":"Aucun","quoi":"Types complexes, <code>for</code>, <code>optional</code>, <code>validation</code>, <code>templatefile</code>, <code>for_each</code>.","dossier":"contenus/terraform/labs/solutions/lab1-generator"},{"n":2,"titre":"Refactoring sans destruction","cloud":"Aucun","quoi":"Blocs <code>moved</code> et <code>removed</code>, <code>-replace</code>, manipulation d'état sans recréer de ressource.","dossier":"contenus/terraform/labs/solutions/lab2-refactor"},{"n":3,"titre":"Tests natifs <code>terraform test</code>","cloud":"Aucun","quoi":"Fichiers <code>.tftest.hcl</code>, assertions, erreurs attendues — tester un module sans rien déployer.","dossier":"contenus/terraform/labs/solutions/lab1-generator/tests"},{"n":4,"titre":"GCP : plateforme CI/CD de base","cloud":"Google Cloud","quoi":"Workload Identity Federation, Cloud Run, Artifact Registry, sink de logs, alerte.","dossier":"contenus/terraform/labs/solutions/lab4-gcp"},{"n":5,"titre":"Azure : hub-spoke sécurisé","cloud":"Azure","quoi":"Peering hub-spoke, NSG en <code>dynamic</code>, Private Endpoint, Azure Policy.","dossier":"contenus/terraform/labs/solutions/lab5-azure"},{"n":6,"titre":"CI/CD GitHub Actions avec OIDC","cloud":"GitHub + cloud","quoi":"Plan sur pull request, apply après approbation, aucune clé statique.","dossier":"contenus/terraform/labs/solutions/lab6-ci"}];
+const EXTERNE = [{"g":"Fondations gratuites","l":[{"t":"Site Reliability Engineering (Google)","u":"https://sre.google/books/","d":"Les deux livres SRE, intégralement en ligne. La référence du PCDE et de toute discussion sur la fiabilité.","k":"livre"},{"t":"Pro Git (français)","u":"https://git-scm.com/book/fr/v2","d":"Le livre Git complet, traduit. Les chapitres 3, 6 et 7 suffisent pour un entretien.","k":"livre"},{"t":"The Twelve-Factor App","u":"https://12factor.net/fr/","d":"Douze principes courts qui structurent toute réponse sur la conception d'application cloud.","k":"guide"},{"t":"Kubernetes — Tutoriels officiels","u":"https://kubernetes.io/docs/tutorials/","d":"Parcours progressif, de « hello world » aux StatefulSets.","k":"cours"}]},{"g":"Labs et bacs à sable","l":[{"t":"Google Cloud Skills Boost","u":"https://www.cloudskillsboost.google/","d":"Labs guidés sur un vrai projet temporaire ; le parcours Cloud DevOps Engineer suit le programme du PCDE.","k":"labs"},{"t":"Microsoft Learn","u":"https://learn.microsoft.com/training/","d":"Modules officiels avec bac à sable Azure gratuit, alignés sur AZ-104, AZ-305 et AZ-400.","k":"cours"},{"t":"AWS Skill Builder","u":"https://skillbuilder.aws/","d":"Cours officiels AWS, dont des parcours gratuits et les examens blancs officiels.","k":"cours"},{"t":"Killercoda","u":"https://killercoda.com/","d":"Terminaux Kubernetes et Linux prêts à l'emploi, idéals pour les drills du CKA.","k":"labs"},{"t":"Play with Docker","u":"https://labs.play-with-docker.com/","d":"Un démon Docker dans le navigateur, sans rien installer.","k":"labs"}]},{"g":"Approfondir l'architecture","l":[{"t":"Azure Architecture Center","u":"https://learn.microsoft.com/azure/architecture/","d":"Architectures de référence commentées — le meilleur entraînement à l'AZ-305.","k":"guide"},{"t":"AWS Architecture Center","u":"https://aws.amazon.com/architecture/","d":"Patrons, livres blancs et décisions expliquées.","k":"guide"},{"t":"Google Cloud Architecture Center","u":"https://cloud.google.com/architecture","d":"Guides de migration et d'architecture, souvent chiffrés.","k":"guide"},{"t":"The System Design Primer","u":"https://github.com/donnemartin/system-design-primer","d":"Le dépôt qui structure une réponse de system design, avec les ordres de grandeur.","k":"guide"}]},{"g":"Rester à jour","l":[{"t":"DORA — rapports State of DevOps","u":"https://dora.dev/","d":"Les quatre métriques et les pratiques qui les améliorent, chiffres à l'appui.","k":"référence"},{"t":"CNCF Landscape","u":"https://landscape.cncf.io/","d":"Situer un outil dans l'écosystème avant d'en parler en entretien.","k":"outil"},{"t":"Nouveautés Azure","u":"https://azure.microsoft.com/updates/","d":"Les changements de service qui invalident les vieilles réponses.","k":"veille"},{"t":"Nouveautés Google Cloud","u":"https://cloud.google.com/release-notes","d":"Notes de version, tous produits.","k":"veille"}]}];
+const FICHES = [{"id":"plan","titre":"Plan de révision 15 jours","lead":"Comment utiliser ce dossier pour arriver prêt le jour J."},{"id":"linux","titre":"Linux & Bash","lead":"Le socle. Un DevOps qui bafouille sur Linux perd la confiance des seniors en 3 minutes."},{"id":"reseau","titre":"Réseau (TCP/IP, DNS, TLS, HTTP)","lead":"Le domaine où les seniors coincent le plus de candidats, parce que tout le monde le survole."},{"id":"git","titre":"Git & workflows","lead":"Outil quotidien, donc domaine où l'approximation se remarque immédiatement."},{"id":"docker","titre":"Docker & conteneurs","lead":"Savoir expliquer ce qu'est RÉELLEMENT un conteneur vaut plus que connaître 40 options de la CLI."},{"id":"kubernetes","titre":"Kubernetes","lead":"Le domaine le plus challengé en entretien DevOps. Vise la profondeur : le cycle de vie, le réseau, le troubleshooting."},{"id":"helm-gitops","titre":"Helm, Kustomize & GitOps","lead":"Comment on déploie réellement dans Kubernetes — et pourquoi le GitOps est la réponse attendue en banque."},{"id":"terraform","titre":"Terraform & IaC","lead":"Le state, le découpage et le workflow d'équipe : c'est là-dessus qu'on distingue un utilisateur d'un praticien."},{"id":"ansible","titre":"Ansible & gestion de configuration","lead":"Le parc de VM ne disparaîtra pas. En banque, Ansible reste omniprésent — et c'est un sujet où beaucoup de candidats cloud sont pris de court."},{"id":"aws","titre":"AWS","lead":"IAM, VPC et le modèle de responsabilité : le reste se déduit."},{"id":"azure","titre":"Azure","lead":"Le cloud dominant en banque française. Identité, réseau privé et gouvernance sont les trois axes attendus."},{"id":"cicd","titre":"CI/CD & stratégies de déploiement","lead":"Ici, ce qu'on évalue c'est ta capacité à livrer souvent SANS augmenter le risque. C'est un sujet de gouvernance autant que de technique."},{"id":"securite","titre":"Sécurité & conformité","lead":"En banque, c'est le domaine qui fait la différence entre un bon DevOps et un DevOps embauchable."},{"id":"obs-sre","titre":"Observabilité & SRE","lead":"Ce qui prouve que tu as vraiment exploité de la production, et pas seulement construit des pipelines."},{"id":"messagerie","titre":"Messagerie & flux (Kafka, files)","lead":"Le découplage asynchrone est la colonne vertébrale des SI bancaires. Savoir en parler correctement fait la différence au niveau architecture."},{"id":"sql","titre":"SQL & bases de données","lead":"En banque, la donnée est le sujet. Un DevOps qui ne sait pas lire un plan d'exécution plafonne vite."},{"id":"architecture","titre":"Architecture & system design","lead":"C'est là que trois chefs seniors passeront le plus de temps. Il n'y a pas de bonne réponse — il y a une méthode et des arbitrages assumés."},{"id":"entretien","titre":"Jour J — posture & pièges","lead":"Trois seniors qui te challengent : ce qui se joue là n'est plus seulement technique."}];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- plan de travail ---------- */
+$("#etapes").innerHTML = PARCOURS.map(e => `
+  <div class="etape${e.couleur ? " c-" + e.couleur : ""}">
+    <div class="num">${e.n}</div>
+    <div>
+      <h3>${esc(e.titre)} <span class="duree">· ${esc(e.duree)}</span></h3>
+      <p>${esc(e.quoi)}</p>
+      <div class="actions">
+        ${e.faire.map(([quoi, href, label]) =>
+          `<a href="${esc(href)}"><i>${esc(quoi)}</i> ${esc(label)}</a>`).join("")}
+      </div>
+    </div>
+  </div>`).join("");
+
+/* ---------- fiches ---------- */
+$("#g-fiches").innerHTML = FICHES.map(f => `
+  <a class="card" href="etude.html#${esc(f.id)}">
+    <b>${esc(f.titre)}</b>
+    <p>${esc(f.lead || "")}</p>
+    <span class="go">Lire la fiche →</span>
+  </a>`).join("");
+$("#n-fiches").textContent = FICHES.length;
+
+/* ---------- cours de certification ---------- */
+$("#g-certif").innerHTML = CERTIF.map(c => `
+  <a class="card lcol${c.couleur ? " c-" + c.couleur : ""}"
+     href="trainer.html#/course/${esc(c.track)}/${encodeURIComponent(c.doc)}">
+    <span class="pill">${esc(c.pour)}</span>
+    <b>${esc(c.titre)}</b>
+    <p>${esc(c.desc)}</p>
+    <span class="go">Ouvrir le cours →</span>
+  </a>`).join("");
+$("#n-certif").textContent = CERTIF.length;
+
+/* ---------- labs ---------- */
+$("#t-labs").innerHTML =
+  "<thead><tr><th>Lab</th><th>Thème</th><th>Ce qu'on y travaille</th><th>Cloud requis</th></tr></thead><tbody>" +
+  LABS.map(l => `<tr>
+    <td><b>${l.n}</b></td>
+    <td>${esc(l.titre)}</td>
+    <td>${l.quoi}</td>
+    <td>${l.cloud === "Aucun" ? '<span class="pill ok">Aucun</span>' : '<span class="pill">' + esc(l.cloud) + "</span>"}</td>
+  </tr>`).join("") + "</tbody>";
+$("#n-labs").textContent = LABS.length;
+
+/* ---------- externe ---------- */
+$("#g-ext").innerHTML = EXTERNE.map(g => `
+  <div class="grp">
+    <h4>${esc(g.g)}</h4>
+    <div class="links">
+      ${g.l.map(x => `
+        <a class="lnk" href="${esc(x.u)}" target="_blank" rel="noopener noreferrer">
+          <span class="k">${esc(x.k)}</span>
+          <span class="t">${esc(x.t)}</span>
+          <span class="d">${esc(x.d)}</span>
+        </a>`).join("")}
+    </div>
+  </div>`).join("");
+$("#n-ext").textContent = EXTERNE.reduce((n, g) => n + g.l.length, 0);
+</script>
+
+<!--CSL:FOOT-->
+<script src="assets/shell.js" data-csl-root="./"></script>
+<script>
+if("serviceWorker" in navigator && (location.protocol==="https:"||location.hostname==="localhost")){
+  addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
+<!--/CSL:FOOT-->
+</body>
+</html>

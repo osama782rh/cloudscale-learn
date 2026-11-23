@@ -3,243 +3,193 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard — Préparation DevOps</title>
+<title>CloudScale Learn</title>
+<meta name="description" content="Plateforme d'entraînement et de montée en compétences cloud : quiz, certifications Azure, AWS, Google Cloud, HashiCorp et Kubernetes, documentation et cours.">
+<meta name="theme-color" content="#0b0f17">
+<link rel="stylesheet" href="assets/page.css">
+<style>
+  .hero{background:linear-gradient(150deg,var(--accent-soft),var(--surface) 70%);
+    border:1px solid var(--border);border-radius:18px;padding:28px 30px;margin-bottom:22px}
+  .hero h1{font-size:33px;margin:0 0 8px;letter-spacing:-.02em;line-height:1.14}
+  .hero h1 span{color:var(--accent)}
+  .hero p{margin:0 0 18px;color:var(--muted);font-size:15.5px;max-width:74ch}
+  .hero .cta{display:flex;gap:10px;flex-wrap:wrap}
+  .hero .cta a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;font-size:14.5px;
+    padding:.65rem 1.25rem;border-radius:11px;background:var(--accent);color:#fff;border:1px solid var(--accent)}
+  .hero .cta a.sec{background:var(--surface);color:var(--ink);border-color:var(--border)}
+  .hero .cta a.sec:hover{border-color:var(--accent);color:var(--accent)}
+  @media(max-width:700px){.hero{padding:22px 20px}.hero h1{font-size:26px}}
+  .fam{margin:0 0 16px}
+  .fam>h3{display:flex;align-items:center;gap:9px;margin:0 0 9px;font-size:15px}
+  .fam>h3 .dot{width:9px;height:9px;border-radius:50%;background:var(--c,var(--accent))}
+  .fam>h3 .n{margin-left:auto;font-size:12.5px;color:var(--faint);font-weight:600;font-variant-numeric:tabular-nums}
+  .mini{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+  a.mini-c{display:flex;flex-direction:column;gap:3px;background:var(--surface);border:1px solid var(--border);
+    border-left:3px solid var(--c,var(--accent));border-radius:11px;padding:12px 14px;text-decoration:none;
+    color:inherit;transition:.13s}
+  a.mini-c:hover{border-color:var(--c,var(--accent));transform:translateY(-1px)}
+  a.mini-c .code{font-size:11.5px;font-weight:800;letter-spacing:.05em;color:var(--c,var(--accent))}
+  a.mini-c .nom{font-weight:650;font-size:14.3px;line-height:1.3}
+  a.mini-c .m{font-size:12.3px;color:var(--muted);font-variant-numeric:tabular-nums}
+  a.mini-c .st{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--faint)}
+  a.mini-c .st.ok{color:var(--ok)} a.mini-c .st.go{color:var(--warn)}
+  .box ul{margin:6px 0 0;padding-left:20px}
+  .box li{margin:5px 0;font-size:14.3px;color:var(--muted)}
+  .box li b{color:var(--ink)}
+  .box h3{margin:0 0 6px;font-size:15.5px;color:var(--accent)}
+</style>
+
+<!--CSL:HEAD-->
+<link rel="stylesheet" href="assets/shell.css">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icone.svg">
-<meta name="theme-color" content="#0d111a">
-<script>
-if("serviceWorker" in navigator && (location.protocol==="https:" || location.hostname==="localhost")){
-  window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
-}
-</script>
-<style>
-  :root{--bg:#0d111a;--surface:#151b27;--surface2:#1d2432;--ink:#dde4f0;--muted:#8d9ab2;
-        --accent:#6c8cff;--accent-soft:#1a2440;--border:#26303f;--ok:#3ecf8e;--ok-soft:#10301f;
-        --warn:#f0b04a;--warn-soft:#352a12;--azure:#4aa8ff;--aws:#f0a340;--k8s:#7c8cff;--hashi:#b57cff;--gcp:#ff7a6b}
-  @media (prefers-color-scheme: light){
-    :root{--bg:#f5f7fb;--surface:#fff;--surface2:#f0f3f9;--ink:#161d2b;--muted:#5c687d;
-          --accent:#2b5fd9;--accent-soft:#e6edfc;--border:#dce2ee;--ok:#1e7a46;--ok-soft:#e1f4ea;
-          --warn:#8a5a00;--warn-soft:#fdf1d8;--azure:#0b66c2;--aws:#b36200;--k8s:#3d4fd1;--hashi:#7a3fc4;--gcp:#c4382a}
-  }
-  *{box-sizing:border-box}
-  html{scroll-behavior:smooth;scroll-padding-top:70px}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;line-height:1.55}
-  a{color:inherit}
-
-  /* Barre de navigation fixe */
-  .top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
-  .top-in{max-width:1080px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-  .brand{font-weight:750;margin-right:auto;text-decoration:none;white-space:nowrap}
-  .brand span{color:var(--accent)}
-  .top a.l{font-size:14px;font-weight:600;padding:.4rem .8rem;border-radius:18px;text-decoration:none;color:var(--muted);border:1px solid transparent}
-  .top a.l:hover{color:var(--accent);border-color:var(--border)}
-  .top a.l.on{background:var(--accent-soft);color:var(--accent)}
-
-  .wrap{max-width:1080px;margin:0 auto;padding:30px 18px 80px}
-  h1{font-size:30px;margin:0 0 4px;line-height:1.2}
-  h1 span{color:var(--accent)}
-  .sub{color:var(--muted);margin:0 0 22px}
-  h2{font-size:13px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:38px 0 6px}
-  .h2sub{color:var(--muted);font-size:14px;margin:0 0 14px}
-
-  /* Chiffres clés */
-  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
-  .kpi b{display:block;font-size:26px;font-variant-numeric:tabular-nums;line-height:1.1}
-  .kpi span{font-size:13px;color:var(--muted)}
-
-  /* Cartes */
-  .grid{display:grid;gap:14px}
-  .g3{grid-template-columns:repeat(3,1fr)}
-  .g4{grid-template-columns:repeat(4,1fr)}
-  a.card{display:flex;flex-direction:column;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;text-decoration:none;transition:.15s}
-  a.card:hover{border-color:var(--accent);transform:translateY(-2px)}
-  a.card b{font-size:17px}
-  a.card p{margin:0;font-size:14px;color:var(--muted)}
-  a.card .go{margin-top:auto;padding-top:6px;font-size:13.5px;font-weight:650;color:var(--accent)}
-  a.card .step{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.05em}
-  a.start{border-color:var(--accent);background:linear-gradient(160deg,var(--accent-soft),var(--surface))}
-
-  /* Certifications */
-  .cert{border-left:4px solid var(--c,var(--accent))}
-  .cert .code{font-size:13px;font-weight:750;color:var(--c,var(--accent));letter-spacing:.04em}
-  .cert .meta{font-size:12.5px;color:var(--muted);margin-top:2px}
-  .cert.gcp{--c:var(--gcp)} .cert.azure{--c:var(--azure)} .cert.aws{--c:var(--aws)} .cert.k8s{--c:var(--k8s)} .cert.hashi{--c:var(--hashi)}
-  .tag{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:12px;background:var(--surface2);color:var(--muted);align-self:flex-start}
-  .tag.focus{background:var(--warn-soft);color:var(--warn)}
-  .tag.ok{background:var(--ok-soft);color:var(--ok)}
-  .counts{display:flex;gap:14px;font-size:13px;color:var(--ink);margin-top:4px}
-  .counts i{font-style:normal;color:var(--muted)}
-
-  .banner{background:var(--warn-soft);border:1px solid var(--warn);color:var(--ink);border-radius:12px;padding:12px 16px;font-size:14px;margin-bottom:14px}
-  .banner b{color:var(--warn)}
-
-  .box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 22px;font-size:14.5px}
-  .box h3{margin:0 0 8px;font-size:16px;color:var(--accent)}
-  .box ul{margin:6px 0;padding-left:20px}
-  .box li{margin:5px 0}
-  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  footer{margin-top:40px;color:var(--muted);font-size:13px;text-align:center}
-
-  @media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr 1fr}.kpis{grid-template-columns:repeat(3,1fr)}}
-  @media(max-width:600px){.g4,.g3,.two{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}h1{font-size:25px}.brand{width:100%}}
-</style>
+<script src="assets/data.js"></script>
+<!--/CSL:HEAD-->
 </head>
 <body>
+<main class="page" id="csl-main">
 
-<header class="top"><div class="top-in">
-  <a class="brand" href="index.html">DevOps <span>Prépa</span></a>
-  <a class="l on" href="index.html">Dashboard</a>
-  <a class="l" href="#entretien">Entretien</a>
-  <a class="l" href="#certifications">Certifications</a>
-  <a class="l" href="#cours">Cours</a>
-  <a class="l" href="etude.html#plan">Plan 15 jours</a>
-</div></header>
-
-<main class="wrap">
-  <h1>Ma préparation <span>DevOps</span></h1>
-  <p class="sub">Entretien · 8 certifications · Terraform · Kubernetes · Azure · AWS · Linux · Réseau · CI/CD · Sécurité · SRE · SQL</p>
-
-  <div class="kpis">
-    <div class="kpi"><b>2416</b><span>questions d'entretien</span></div>
-    <div class="kpi"><b>1739</b><span>questions de certification</span></div>
-    <div class="kpi"><b>9</b><span>certifications</span></div>
-    <div class="kpi"><b>45</b><span>labs pratiques</span></div>
-    <div class="kpi"><b>18</b><span>fiches d'étude</span></div>
+  <div class="hero">
+    <h1>CloudScale <span>Learn</span></h1>
+    <p>Une plateforme pour trois choses : <b>réussir les certifications</b> cloud, garder une
+       <b>documentation</b> exploitable sous la main, et <b>monter en compétences</b> avec des cours qui expliquent
+       plutôt que d'énumérer. Tout fonctionne hors ligne, la progression reste dans ce navigateur.</p>
+    <div class="cta">
+      <a href="qcm.html">Reprendre l'entraînement →</a>
+      <a class="sec" href="cours.html#parcours">Voir le plan de travail</a>
+      <a class="sec" href="documentation.html">Documentation</a>
+    </div>
   </div>
 
-  <!-- ENTRETIEN -->
-  <h2 id="entretien">1 · Préparer l'entretien</h2>
-  <p class="h2sub">Parcours conseillé : QCM pour les bases, puis réponses libres, avec les fiches à côté.</p>
-  <div class="grid g4">
-    <a class="card start" href="qcm.html">
-      <span class="step">ÉTAPE 1</span><b>Choix multiples</b>
-      <p>1152 questions, 10 niveaux, explication à chaque réponse. Commence ici.</p>
-      <span class="go">Ouvrir le QCM →</span>
-    </a>
-    <a class="card" href="quiz.html">
-      <span class="step">ÉTAPE 2</span><b>Réponses libres</b>
-      <p>1264 questions où tu formules avec tes mots. Le mode exigeant.</p>
-      <span class="go">Ouvrir le quiz →</span>
-    </a>
-    <a class="card" href="formations.html">
-      <span class="step">PAR SUJET</span><b>Réviser par bloc</b>
-      <p>11 domaines × 10 niveaux, dans les deux modes.</p>
-      <span class="go">Choisir un bloc →</span>
-    </a>
-    <a class="card" href="etude.html">
-      <span class="step">LIRE</span><b>Fiches d'étude</b>
-      <p>18 fiches denses : ce qu'il faut savoir dire en entretien.</p>
-      <span class="go">Ouvrir les fiches →</span>
-    </a>
-  </div>
+  <div class="kpis" id="kpis"></div>
 
-  <!-- CERTIFICATIONS -->
-  <h2 id="certifications">2 · Certifications</h2>
-  <p class="h2sub">Un simulateur par examen : 3 niveaux, labs, examen blanc pondéré sur les vrais pourcentages. <a href="certifications.html" style="color:var(--accent)">Voir la page détaillée →</a></p>
-  <div class="banner"><b>En priorité : AZ-104.</b> Créneau d'examen réservé, les 5 domaines officiels sont couverts avec 10 labs.</div>
+  <!-- ================= QUIZ ================= -->
+  <h2 class="sh">Quiz général</h2>
+  <p class="shd">Les banques transverses, tous sujets confondus : d'abord reconnaître, ensuite formuler.</p>
+  <div class="grid g4" id="g-quiz"></div>
 
-  <div class="grid g3">
-    <a class="card cert azure" href="certifs/az104/index.html">
-      <span class="tag focus">Prioritaire</span>
-      <span class="code">AZ-104</span><b>Azure Administrator</b>
-      <p>Identités, stockage, compute, réseau, supervision.</p>
-      <div class="counts"><span>328 <i>questions</i></span><span>10 <i>labs</i></span></div>
-      <span class="go">S'entraîner →</span>
-    </a>
-    <a class="card cert azure" href="certifs/az204/index.html">
-      <span class="tag">À venir</span>
-      <span class="code">AZ-204</span><b>Azure Developer</b>
-      <p>App Service, Functions, Cosmos DB, Service Bus, APIM.</p>
-      <div class="counts"><span>260 <i>questions</i></span><span>6 <i>labs</i></span></div>
-      <span class="go">S'entraîner →</span>
-    </a>
-    <a class="card cert azure" href="certifs/az400/index.html">
-      <span class="tag">Après l'AZ-204</span>
-      <span class="code">AZ-400</span><b>Azure DevOps Expert</b>
-      <p>Pipelines, IaC, branches, artefacts, sécurité de la chaîne.</p>
-      <div class="counts"><span>239 <i>questions</i></span><span>8 <i>labs</i></span></div>
-      <span class="go">S'entraîner →</span>
-    </a>
-    <a class="card cert azure" href="certifs/az900/index.html">
-      <span class="tag">Fondamentaux</span>
-      <span class="code">AZ-900</span><b>Azure Fundamentals</b>
-      <p>Socle cloud et Azure : modèles, régions, coûts, gouvernance.</p>
-      <div class="counts"><span>153 <i>questions</i></span></div>
-      <span class="go">S'entraîner →</span>
-    </a>
-    <a class="card cert aws" href="certifs/aws-devops/index.html">
-      <span class="tag">Bon d'examen en main</span>
-      <span class="code">DOP-C02</span><b>AWS DevOps Pro</b>
-      <p>CI/CD, CloudFormation et CDK, résilience, multi-comptes.</p>
-      <div class="counts"><span>229 <i>questions</i></span><span>8 <i>labs</i></span></div>
-      <span class="go">S'entraîner →</span>
-    </a>
-    <a class="card cert gcp" href="13-certifications/quiz.html#/course/gcp/Cours">
-      <span class="tag">Cours + questions</span>
-      <span class="code">PCDE</span><b>GCP DevOps Engineer</b>
-      <p>Google Cloud Professional : SRE, Cloud Build, GKE, supervision, incidents.</p>
-      <div class="counts"><span>82 <i>questions</i></span><span>cours complet</span></div>
-      <span class="go">Ouvrir le cours →</span>
-    </a>
-    <a class="card cert aws" href="certifs/clf/index.html">
-      <span class="tag">Fondamentaux</span>
-      <span class="code">CLF-C02</span><b>AWS Cloud Practitioner</b>
-      <p>Concepts, responsabilité partagée, services clés, facturation.</p>
-      <div class="counts"><span>137 <i>questions</i></span></div>
-      <span class="go">S'entraîner →</span>
-    </a>
-    <a class="card cert k8s" href="certifs/cka/index.html">
-      <span class="tag">Plus tard</span>
-      <span class="code">CKA</span><b>Kubernetes Administrator</b>
-      <p>Drills kubectl à taper, labs sur cluster réel.</p>
-      <div class="counts"><span>179 <i>questions</i></span><span>9 <i>labs</i></span></div>
-      <span class="go">S'entraîner →</span>
-    </a>
-    <a class="card cert hashi" href="certifs/terraform/index.html">
-      <span class="tag ok">✓ Obtenue</span>
-      <span class="code">HCTA-004</span><b>Terraform Associate</b>
-      <p>Obtenue le 27 juillet 2026, valable jusqu'en juillet 2028.</p>
-      <div class="counts"><span>132 <i>questions</i></span><span>4 <i>labs</i></span></div>
-      <span class="go">Réviser →</span>
-    </a>
-  </div>
+  <!-- ================= PAR FOURNISSEUR ================= -->
+  <h2 class="sh">Quiz par fournisseur</h2>
+  <p class="shd">Un entraînement dédié par certification : trois niveaux, examen blanc pondéré sur les vrais
+     pourcentages, labs guidés et répétition espacée. <a href="certifications.html">Page détaillée →</a></p>
+  <div id="familles"></div>
 
-  <!-- COURS -->
-  <h2 id="cours">3 · Cours et parcours approfondis</h2>
-  <p class="h2sub">Le module 13 : cours complets par domaine d'examen, questions avancées et études de cas.</p>
-  <div class="grid two">
-    <a class="card" href="13-certifications/quiz.html">
-      <b>Certif Trainer</b>
-      <p>Appli de quiz et de cours pour GCP DevOps Engineer, AZ-305 et Terraform avancé.</p>
-      <span class="go">Ouvrir →</span>
-    </a>
-    <a class="card" href="etude.html#plan">
-      <b>Plan de révision 15 jours</b>
-      <p>Le rythme jour par jour et les 10 sujets qui tombent presque à coup sûr.</p>
-      <span class="go">Voir le plan →</span>
-    </a>
-  </div>
+  <!-- ================= DOC & COURS ================= -->
+  <h2 class="sh">Documentation &amp; cours</h2>
+  <p class="shd">Deux usages différents : la doc quand on cherche une réponse précise, le cours quand on veut comprendre.</p>
+  <div class="grid g4" id="g-savoir"></div>
 
-  <!-- MÉTHODE -->
-  <h2>Méthode</h2>
-  <div class="two">
-    <div class="box">
-      <h3>La progression</h3>
+  <!-- ================= MÉTHODE ================= -->
+  <h2 class="sh">Méthode</h2>
+  <div class="grid g2">
+    <div class="card box">
+      <h3>La progression qui marche</h3>
       <ul>
-        <li><b>QCM</b> : tu reconnais la bonne réponse et tu lis pourquoi les autres sont fausses.</li>
-        <li><b>Réponses libres</b> : dès 85 % sur un niveau en QCM, refais-le en formulant avec tes mots.</li>
-        <li>Chaque mode a sa <b>répétition espacée</b> (6 paliers) et sa « Révision du jour ».</li>
-        <li>La progression est stockée dans ce navigateur : reste sur le même appareil.</li>
+        <li><b>Choix multiples</b> d'abord : on reconnaît la bonne réponse et on lit pourquoi les autres sont fausses.</li>
+        <li>Dès <b>85 %</b> sur un niveau, on refait le même niveau en <b>réponses libres</b>.</li>
+        <li>Chaque mode a sa <b>répétition espacée</b> (6 paliers) et sa révision du jour.</li>
+        <li>Sur les simulateurs de certification, la <b>Session Maîtrise</b> ressort en priorité les questions déjà
+            sues où l'on s'est retrompé — ce sont les plus coûteuses.</li>
       </ul>
     </div>
-    <div class="box">
+    <div class="card box">
       <h3>La règle qui fait la différence</h3>
-      <p>Même en QCM, formule la réponse <b>à voix haute</b> avant de cliquer, et la raison avec. Reconnaître une bonne réponse ne prouve rien ; savoir l'expliquer, si.</p>
+      <ul>
+        <li>Formuler la réponse <b>à voix haute</b> avant de cliquer, avec la raison.</li>
+        <li>Citer un <b>chiffre</b> ou une <b>valeur par défaut</b> quand il en existe un : c'est ce qui sépare
+            « j'ai lu la doc » de « je l'ai pratiqué ».</li>
+        <li>Pour un choix d'architecture, répondre d'abord à : <b>quelle est la contrainte principale</b> —
+            coût, disponibilité, sécurité, effort opérationnel ?</li>
+        <li>La progression est locale à ce navigateur : rester sur le même appareil.</li>
+      </ul>
     </div>
   </div>
 
-  <footer>Installable hors ligne (PWA) depuis le navigateur · <a href="#top" onclick="window.scrollTo(0,0);return false">Haut de page ↑</a></footer>
+  <footer class="pf">
+    <a href="documentation.html">Documentation</a>
+    <a href="cours.html">Cours</a>
+    <a href="certifications.html">Certifications</a>
+    <span class="sp">Installable hors ligne (PWA) depuis le navigateur.</span>
+  </footer>
 </main>
+
+<script>
+const N = window.CSL_COUNTS || {};
+const CERTIFS = window.CSL_CERTIFS || [];
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- chiffres clés ---------- */
+const totalCertifQ = CERTIFS.reduce((s, c) => s + (c.questions || 0), 0);
+const totalLabs = CERTIFS.reduce((s, c) => s + (c.labs || 0), 0) + (N.labs || 0);
+[
+  [(N.qcm || 0) + (N.libre || 0), "questions transverses"],
+  [totalCertifQ, "questions de certification"],
+  [CERTIFS.length, "certifications couvertes"],
+  [totalLabs, "labs pratiques"],
+  [N.fiches || 0, "fiches d'étude"],
+  [N.docs || 0, "références de doc"]
+].forEach(([v, k]) => {
+  $("#kpis").insertAdjacentHTML("beforeend",
+    `<div class="kpi"><b>${v}</b><span>${k}</span></div>`);
+});
+
+/* ---------- quiz général ---------- */
+$("#g-quiz").innerHTML = [
+  ["hero", "ÉTAPE 1", "Choix multiples", `${N.qcm || 0} questions sur 10 niveaux, avec l'explication de chaque mauvaise réponse.`, "qcm.html", "Ouvrir le QCM"],
+  ["", "ÉTAPE 2", "Réponses libres", `${N.libre || 0} questions où l'on formule avec ses mots. Le mode exigeant.`, "quiz.html", "Ouvrir le quiz"],
+  ["", "PAR SUJET", "Révision par domaine", `${N.domaines || 0} domaines × 10 niveaux, dans les deux modes.`, "formations.html", "Choisir un domaine"],
+  ["", "ERREURS", "Carnet d'erreurs", "Reprendre uniquement ce qui a été raté, sur les parcours de certification.", "trainer.html#/notebook", "Revoir mes erreurs"]
+].map(([cl, step, t, d, href, go]) => `
+  <a class="card ${cl}" href="${href}">
+    <span class="step">${step}</span><b>${t}</b><p>${d}</p>
+    <span class="go">${go} →</span>
+  </a>`).join("");
+
+/* ---------- familles de certifications ---------- */
+const FAM = [
+  ["azure", "Microsoft Azure"],
+  ["aws",   "Amazon Web Services"],
+  ["gcp",   "Google Cloud"],
+  ["hashi", "HashiCorp"],
+  ["k8s",   "Kubernetes / CNCF"]
+];
+$("#familles").innerHTML = FAM.map(([f, label]) => {
+  const liste = CERTIFS.filter(c => c.famille === f);
+  if (!liste.length) return "";
+  const q = liste.reduce((s, c) => s + (c.questions || 0), 0);
+  return `<div class="fam c-${f}">
+    <h3><span class="dot"></span>${label}<span class="n">${liste.length} certif${liste.length > 1 ? "s" : ""} · ${q} questions</span></h3>
+    <div class="mini">${liste.map(c => {
+      const st = c.etat === "obtenue" ? '<span class="st ok">✓ obtenue</span>'
+               : c.etat === "focus"   ? '<span class="st go">● en cours</span>'
+               : `<span class="st">${esc(c.etatTexte || "à venir")}</span>`;
+      return `<a class="mini-c" href="${esc(c.url)}">
+        <span class="code">${esc(c.code)}</span>
+        <span class="nom">${esc(c.titre)}</span>
+        <span class="m">${c.questions} questions${c.labs ? " · " + c.labs + " labs" : ""}</span>
+        ${st}</a>`;
+    }).join("")}</div>
+  </div>`;
+}).join("");
+
+/* ---------- documentation & cours ---------- */
+$("#g-savoir").innerHTML = [
+  ["Documentation", `${N.docs || 0} références triées par domaine et par usage, avec l'essentiel résumé dans la page.`, "documentation.html", "Ouvrir la doc"],
+  ["Bibliothèque de cours", "Le plan de travail en 6 étapes, les cours de certification et les labs.", "cours.html", "Voir les cours"],
+  ["Fiches d'étude", `${N.fiches || 0} fiches denses : ce qu'il faut savoir dire, et les pièges classiques.`, "etude.html", "Lire les fiches"],
+  ["Plan de révision 15 jours", "Le rythme jour par jour avant une échéance, et les sujets qui tombent presque sûrement.", "etude.html#plan", "Voir le plan"]
+].map(([t, d, href, go]) => `
+  <a class="card" href="${href}"><b>${t}</b><p>${d}</p><span class="go">${go} →</span></a>`).join("");
+</script>
+
+<!--CSL:FOOT-->
+<script src="assets/shell.js" data-csl-root="./"></script>
+<script>
+if("serviceWorker" in navigator && (location.protocol==="https:"||location.hostname==="localhost")){
+  addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
+<!--/CSL:FOOT-->
 </body>
 </html>
