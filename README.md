@@ -28,15 +28,16 @@ Un entraînement par certification, regroupé par éditeur dans la barre latéra
 | Microsoft Azure | AZ-900, AZ-104, AZ-204, AZ-305, AZ-400 |
 | Amazon Web Services | CLF-C02, DOP-C02 |
 | Google Cloud | PCDE (Professional Cloud DevOps Engineer) |
+| Microsoft Fabric | DP-600 (Fabric Analytics Engineer Associate) |
 | HashiCorp | Terraform Associate, Terraform avancé |
 | Kubernetes / CNCF | CKA |
 
-Les dix certifications partagent le même simulateur : `certifs/<id>/index.html`
+Les onze certifications partagent le même simulateur : `certifs/<id>/index.html`
 — 3 niveaux, code à compléter, études de cas, labs, examen blanc pondéré sur les
 pourcentages officiels, répétition espacée.
 
-Le moteur de référence est `certifs/az104/index.html`. Les simulateurs AZ-305 et PCDE
-en sont dérivés par `node tools/make-certif.js`, qui n'y remplace que ce qui est propre
+Le moteur de référence est `certifs/az104/index.html`. Les simulateurs AZ-305, PCDE et
+DP-600 en sont dérivés par `node tools/make-certif.js`, qui n'y remplace que ce qui est propre
 à une certification : banque de questions, études de cas, labs, domaines officiels,
 pondérations, couleur d'accentuation et textes d'en-tête. Le contenu de chacune vit dans
 `tools/banque-<id>.js`. Une amélioration de l'interface se fait donc dans le moteur,
@@ -91,19 +92,20 @@ node audit.js              # trous de couverture et biais de longueur des QCM
 | Questions (choix multiples) | `qcm/*.js` |
 | Fiches d'étude | `fiches/*.js` |
 | Cours de certification (AZ-305, PCDE, Terraform) | `contenus/<parcours>/*.md` |
-| Banques des simulateurs dérivés (AZ-305, PCDE) | `tools/banque-<id>.js` + `node tools/make-certif.js` |
+| Banques des simulateurs dérivés (AZ-305, PCDE, DP-600) | `tools/banque-<id>.js` + `node tools/make-certif.js` |
 | Liens de documentation | `tools/documentation.js` |
 | Plan de travail, labs, ressources externes | `tools/cours.js` |
 | Entrées de la barre latérale | `assets/shell.js` (constante `NAV`) |
 | Catalogue des certifications | `build.js` (constante `CERTIFS`) |
+| Familles d'éditeurs et leurs couleurs | `assets/page.css`, `assets/shell.js`, `src/index.html`, `src/certifications.html` |
 | Gabarits de pages | `src/*.html` |
 
 **Généré, à ne pas éditer à la main** : les `.html` de la racine, `assets/data.js`,
 `assets/trainer-counts.json` et la section `FICHIERS` de `sw.js`.
 Les simulateurs `certifs/*/index.html` sont éditables, mais `build.js` y réinjecte
 la barre latérale entre les marqueurs `<!--CSL:HEAD-->` et `<!--CSL:FOOT-->`.
-Exceptions : `certifs/az305/` et `certifs/gcp-devops/` sont régénérés par
-`tools/make-certif.js` — toute correction s'y fait dans `tools/banque-<id>.js`.
+Exceptions : `certifs/az305/`, `certifs/gcp-devops/` et `certifs/dp600/` sont régénérés
+par `tools/make-certif.js` — toute correction s'y fait dans `tools/banque-<id>.js`.
 
 ### Progression
 

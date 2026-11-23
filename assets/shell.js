@@ -67,6 +67,9 @@
         { label: "Terraform Associate", href: "certifs/terraform/index.html", count: "terraform" },
         { label: "Terraform avancé",    href: "trainer.html#/quiz/tf",        count: "tf" }
       ]},
+      { label: "Microsoft Fabric", color: "fabric", items: [
+        { label: "DP-600 · Fabric Analytics Engineer", href: "certifs/dp600/index.html", count: "dp600" }
+      ]},
       { label: "Kubernetes / CNCF", color: "k8s", items: [
         { label: "CKA · Administrator", href: "certifs/cka/index.html", count: "cka" }
       ]},

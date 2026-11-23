@@ -173,7 +173,7 @@ function construire(c) {
 
 if (require.main === module) {
   console.log("Génération des simulateurs dérivés du moteur AZ-104 :");
-  ["./banque-az305.js", "./banque-gcp-devops.js"].forEach(f => construire(require(f)));
+  ["./banque-az305.js", "./banque-gcp-devops.js", "./banque-dp600.js"].forEach(f => construire(require(f)));
   console.log("\nRelance ensuite `node build.js` pour injecter la barre latérale et mettre à jour les compteurs.");
 }
 

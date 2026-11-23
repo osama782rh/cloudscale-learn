@@ -1,0 +1,2263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DP-600 Quiz — Implementing Analytics Solutions Using Microsoft Fabric</title>
+<style>
+  :root {
+    --ground: #F6F8FB;
+    --surface: #FFFFFF;
+    --ink: #16222E;
+    --muted: #5A6B7C;
+    --accent: #0B7A52;
+    --accent-deep: #07583B;
+    --accent-soft: #E6F4EE;
+    --good: #1E7A46;
+    --good-soft: #E7F5EC;
+    --bad: #B3352B;
+    --bad-soft: #FBEAE8;
+    --warn: #9A4E00;
+    --border: #D9E2EC;
+    --shadow: 0 2px 8px rgba(22,34,46,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0D141C; --surface: #151F2A; --ink: #DBE6F0; --muted: #8FA3B5;
+      --accent: #4AD991; --accent-deep: #7FE3B5; --accent-soft: #0F2E21;
+      --good: #5BC98A; --good-soft: #12291B; --bad: #F08578; --bad-soft: #2E1512;
+      --warn: #EDAA5F; --border: #243445; --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px; line-height: 1.5; min-height: 100vh;
+  }
+  code { font-family: "Cascadia Code", Consolas, monospace; background: var(--accent-soft); color: var(--accent-deep); padding: 1px 5px; border-radius: 5px; font-size: .9em; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  header.top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
+  header.top h1 { font-size: 20px; margin: 0; font-weight: 700; }
+  header.top h1 .az { color: var(--accent); }
+  .stats { display: flex; gap: 14px; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .stats b { color: var(--ink); }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 22px; box-shadow: var(--shadow);
+  }
+
+  /* --- Accueil --- */
+  .home h2 { margin: 0 0 4px; font-size: 24px; }
+  .home p.sub { color: var(--muted); margin: 0 0 18px; }
+  .modes { display: grid; gap: 10px; }
+  .mode-btn {
+    display: flex; align-items: center; gap: 14px; width: 100%;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; cursor: pointer; text-align: left; color: var(--ink);
+    font-family: inherit; font-size: 15px; transition: border-color .15s, transform .1s;
+  }
+  .mode-btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .mode-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .mode-btn .ico { font-size: 24px; width: 34px; text-align: center; }
+  .mode-btn .t { font-weight: 650; }
+  .mode-btn .d { font-size: 13px; color: var(--muted); }
+  .mode-btn .n { margin-left: auto; font-size: 12.5px; color: var(--accent); background: var(--accent-soft); border-radius: 20px; padding: 2px 10px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .count-row { display: flex; gap: 8px; align-items: center; margin: 18px 0 8px; font-size: 14px; color: var(--muted); flex-wrap: wrap; }
+  .count-row .seg { display: flex; gap: 4px; }
+  .seg button {
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink);
+    border-radius: 8px; padding: 5px 14px; cursor: pointer; font-family: inherit; font-size: 14px;
+  }
+  .seg button.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+  /* --- Quiz --- */
+  .qmeta { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .pill { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; border-radius: 20px; padding: 3px 11px; }
+  .pill.lv1 { background: var(--good-soft); color: var(--good); }
+  .pill.lv2 { background: var(--accent-soft); color: var(--accent); }
+  .pill.lv3 { background: var(--bad-soft); color: var(--bad); }
+  .pill.dom { background: transparent; border: 1px solid var(--border); color: var(--muted); font-weight: 600; }
+  .progressbar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 18px; }
+  .progressbar div { height: 100%; background: var(--accent); border-radius: 3px; transition: width .25s; }
+  .question { font-size: 19px; font-weight: 650; margin: 0 0 18px; line-height: 1.4; text-wrap: balance; }
+
+  input[type=text] {
+    width: 100%; padding: 12px 14px; font-size: 16px; font-family: inherit;
+    border: 2px solid var(--border); border-radius: 10px; background: var(--ground); color: var(--ink);
+  }
+  input[type=text]:focus { outline: none; border-color: var(--accent); }
+  .choices { display: grid; gap: 8px; }
+  .choice {
+    text-align: left; padding: 11px 14px; border: 2px solid var(--border); border-radius: 10px;
+    background: var(--ground); color: var(--ink); cursor: pointer; font-family: inherit; font-size: 15px;
+    transition: border-color .12s;
+  }
+  .choice:hover { border-color: var(--accent); }
+  .choice.sel { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+  .choice.good { border-color: var(--good); background: var(--good-soft); font-weight: 600; }
+  .choice.bad { border-color: var(--bad); background: var(--bad-soft); }
+  .choice:disabled { cursor: default; opacity: .85; }
+
+  .actions { display: flex; gap: 10px; margin-top: 18px; }
+  .btn {
+    padding: 11px 22px; border-radius: 10px; border: none; cursor: pointer;
+    font-family: inherit; font-size: 15px; font-weight: 650;
+  }
+  .btn.primary { background: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent-deep); }
+  .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+  .btn:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
+
+  .feedback { margin-top: 18px; border-radius: 12px; padding: 14px 16px; font-size: 15px; }
+  .feedback.ok { background: var(--good-soft); border: 1px solid var(--good); }
+  .feedback.ko { background: var(--bad-soft); border: 1px solid var(--bad); }
+  .feedback.info { background: var(--accent-soft); border: 1px solid var(--accent); }
+  .feedback .verdict { font-weight: 750; font-size: 16px; }
+  .feedback.ok .verdict { color: var(--good); }
+  .feedback.ko .verdict { color: var(--bad); }
+  .feedback.info .verdict { color: var(--accent-deep); }
+
+  pre.qcode {
+    background: #0F1B26; color: #D7E4F0; border-radius: 10px;
+    padding: 12px 14px; overflow-x: auto; font-size: 13px; line-height: 1.5;
+    font-family: "Cascadia Code", Consolas, monospace; margin: 0 0 14px; text-align: left;
+  }
+  .scenario {
+    background: var(--accent-soft); border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0; padding: 10px 14px; margin: 0 0 14px; font-size: 14px;
+  }
+  .scenario .sc-title { font-weight: 700; color: var(--accent-deep); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+  .scenario p { margin: 0; }
+  .order-hint { font-size: 13.5px; color: var(--muted); margin: 0 0 8px; }
+  .order-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+  .order-list:empty { display: none; }
+  .order-item {
+    text-align: left; padding: 10px 13px; border: 2px solid var(--border); border-radius: 10px;
+    background: var(--ground); color: var(--ink); cursor: pointer; font-family: inherit; font-size: 14.5px;
+  }
+  .order-item:hover { border-color: var(--accent); }
+  .order-item.picked { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+  .order-item:disabled { cursor: default; opacity: .85; }
+
+  .lab { background: var(--ground); border: 1px solid var(--border); border-radius: 12px; padding: 4px 16px 12px; margin-bottom: 10px; }
+  .lab summary { cursor: pointer; font-weight: 650; padding: 10px 0; font-size: 15.5px; }
+  .lab.done summary { color: var(--good); }
+  .lab .lab-time { color: var(--muted); font-weight: 400; font-size: 13px; }
+  .lab ol { padding-left: 20px; font-size: 14.5px; }
+  .lab li { margin: 4px 0; }
+  .lab .lab-obj, .lab .lab-verif { font-size: 14px; }
+  .lab .lab-verif { background: var(--good-soft); border-radius: 8px; padding: 8px 12px; }
+  .labs-note {
+    background: color-mix(in srgb, var(--warn) 12%, transparent);
+    border-radius: 10px; padding: 10px 14px; font-size: 13.5px; color: var(--warn); margin-bottom: 14px;
+  }
+  .feedback .rep { margin: 6px 0 0; }
+  .feedback .exp { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+
+  /* --- Fin --- */
+  .end { text-align: center; }
+  .end .big { font-size: 52px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; margin: 10px 0 0; }
+  .end .verdict { font-size: 18px; font-weight: 650; margin: 6px 0 18px; }
+  .end .detail { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+  .streak { color: var(--warn); font-weight: 700; }
+  .kbd-hint { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: 14px; }
+  .hidden { display: none; }
+
+  /* ---- Mode Maîtrise : tableau de bord ---- */
+  .dash {
+    background: var(--accent-soft); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px;
+  }
+  .dash h3 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .07em; color: var(--accent-deep); }
+  .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+  .dash-cell { background: var(--surface); border-radius: 9px; padding: 8px 10px; text-align: center; }
+  .dash-cell .v { font-size: 21px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .dash-cell .k { font-size: 11px; color: var(--muted); line-height: 1.25; }
+  .dash-cell.danger .v { color: var(--bad); }
+  .dash-cell.due .v { color: var(--accent); }
+  .dash-cell.mastered .v { color: var(--good); }
+  .dash-cell.reco .v { color: var(--warn); }
+  .dash-note { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
+
+  .srs-flag { font-size: 12.5px; border-radius: 8px; padding: 7px 11px; margin-top: 10px; }
+  .srs-flag.danger { background: var(--bad-soft); color: var(--bad); border: 1px solid var(--bad); font-weight: 600; }
+  .srs-flag.reco { background: var(--warn-soft); color: var(--warn); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); }
+  .srs-next { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+
+  .bydom { text-align: left; font-size: 13.5px; margin: 0 auto 18px; max-width: 440px; display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; }
+  .bydom .dl { color: var(--muted); }
+  .bydom .dv { font-variant-numeric: tabular-nums; font-weight: 650; }
+</style>
+
+
+<!--CSL:HEAD-->
+<link rel="stylesheet" href="../../assets/shell.css">
+<link rel="manifest" href="../../manifest.webmanifest">
+<link rel="icon" href="../../icone.svg">
+<script src="../../assets/data.js"></script>
+<!--/CSL:HEAD-->
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1><span class="az">DP-600</span> · Quiz d'entraînement</h1>
+    <div class="stats">
+      <span>Série : <b id="streak">0</b> 🔥</span>
+      <span>Score : <b id="score">0</b></span>
+    </div>
+  </header>
+
+<!-- Accueil -->
+  <div id="screen-home" class="card home">
+    <h2>Choisis ton mode</h2>
+    <p class="sub">Tape ta réponse pour la plupart des questions — comme si c'était le jour J, sans filet. 3 domaines officiels, 3 niveaux, examen blanc pondéré.</p>
+    <div class="dash">
+      <h3>🧠 Mode Maîtrise — ancrage durable</h3>
+      <div class="dash-grid">
+        <div class="dash-cell danger"><div class="v" id="dCroyances">0</div><div class="k">croyances fausses</div></div>
+        <div class="dash-cell due"><div class="v" id="dDue">0</div><div class="k">à réviser</div></div>
+        <div class="dash-cell mastered"><div class="v" id="dMastered">0</div><div class="k">ancrés</div></div>
+        <div class="dash-cell reco"><div class="v" id="dReco">0</div><div class="k">reconnaissance ?</div></div>
+        <div class="dash-cell"><div class="v" id="dNew">0</div><div class="k">jamais vus</div></div>
+      </div>
+      <p class="dash-note" id="dNote"></p>
+    </div>
+    <div class="count-row">
+      Nombre de questions :
+      <div class="seg" id="countSeg">
+        <button data-n="10">10</button>
+        <button data-n="20" class="on">20</button>
+        <button data-n="0">Toutes</button>
+      </div>
+    </div>
+    <div class="count-row">
+      Domaine officiel :
+      <div class="seg" id="domSeg">
+        <button data-d="all" class="on">Tous</button>
+        <button data-d="maint">Maintenir la solution</button>
+        <button data-d="prep">Préparer les données</button>
+        <button data-d="model">Modèles sémantiques</button>
+      </div>
+    </div>
+    <div class="modes">
+      <button class="mode-btn" data-mode="maitrise" style="border-color:var(--accent);background:var(--accent-soft)">
+        <span class="ico">🧠</span>
+        <span><span class="t">Session Maîtrise (recommandé au quotidien)</span><br><span class="d">Répétition espacée — corrige d'abord ce que tu crois savoir à tort</span></span>
+        <span class="n" id="nmaitrise"></span>
+      </button>
+      <button class="mode-btn" data-mode="1">
+        <span class="ico">🌱</span>
+        <span><span class="t">Niveau 1 — Vocabulaire &amp; bases</span><br><span class="d">OneLake, lakehouse, warehouse, Direct Lake, sigles — le socle de vocabulaire Fabric</span></span>
+        <span class="n" id="n1"></span>
+      </button>
+      <button class="mode-btn" data-mode="2">
+        <span class="ico">⚙️</span>
+        <span><span class="t">Niveau 2 — Les faits d'examen</span><br><span class="d">Limites, quotas, valeurs par défaut, noms exacts — ce qui tombe littéralement</span></span>
+        <span class="n" id="n2"></span>
+      </button>
+      <button class="mode-btn" data-mode="3">
+        <span class="ico">🎯</span>
+        <span><span class="t">Niveau 3 — Scénarios &amp; pièges</span><br><span class="d">« Pourquoi ça ne marche pas ? » — diagnostics, pièges et choix d'architecture</span></span>
+        <span class="n" id="n3"></span>
+      </button>
+      <button class="mode-btn" data-mode="code">
+        <span class="ico">💻</span>
+        <span><span class="t">Code à compléter</span><br><span class="d">T-SQL, KQL, DAX, PySpark, Power Query M, TMDL — le format exact de l'examen</span></span>
+        <span class="n" id="ncode"></span>
+      </button>
+      <button class="mode-btn" data-mode="cas">
+        <span class="ico">🧩</span>
+        <span><span class="t">Études de cas &amp; séquences</span><br><span class="d">Scénarios d'entreprise + étapes à remettre dans l'ordre</span></span>
+        <span class="n" id="ncas"></span>
+      </button>
+      <button class="mode-btn" data-mode="blanc">
+        <span class="ico">🎓</span>
+        <span><span class="t">Examen blanc</span><br><span class="d">≈ 50 questions pondérées sur les 3 domaines officiels, études de cas en fin — comme le jour J</span></span>
+        <span class="n" id="nblanc"></span>
+      </button>
+      <button class="mode-btn" data-mode="mix">
+        <span class="ico">🎲</span>
+        <span><span class="t">Tout mélanger</span><br><span class="d">Toute la banque mélangée aléatoirement</span></span>
+        <span class="n" id="nmix"></span>
+      </button>
+      <button class="mode-btn" data-mode="err">
+        <span class="ico">🩹</span>
+        <span><span class="t">Rejouer mes erreurs</span><br><span class="d">Uniquement les questions déjà ratées</span></span>
+        <span class="n" id="nerr"></span>
+      </button>
+      <button class="mode-btn" data-mode="labs">
+        <span class="ico">🧪</span>
+        <span><span class="t">Labs guidés</span><br><span class="d">8 labs sur ton tenant Fabric, requêtes et code fournis</span></span>
+        <span class="n" id="nlabs"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div id="screen-quiz" class="card hidden">
+    <div class="qmeta">
+      <span class="pill" id="qLevel"></span>
+      <span class="pill dom" id="qDom"></span>
+      <span style="margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums" id="qCount"></span>
+    </div>
+    <div class="progressbar"><div id="qBar" style="width:0%"></div></div>
+    <div id="qScenario"></div>
+    <p class="question" id="qText"></p>
+    <div id="qInputZone"></div>
+    <div class="actions">
+      <button class="btn primary" id="btnValidate">Valider</button>
+      <button class="btn primary hidden" id="btnNext">Question suivante →</button>
+      <button class="btn ghost" id="btnReveal">💡 Je ne sais pas</button>
+      <button class="btn ghost" id="btnQuit">Quitter</button>
+    </div>
+    <div id="qFeedback"></div>
+    <p class="kbd-hint">Entrée = valider / question suivante</p>
+  </div>
+
+  <!-- Fin -->
+  <div id="screen-end" class="card end hidden">
+    <h2>Session terminée !</h2>
+    <p class="big" id="endScore"></p>
+    <p class="verdict" id="endVerdict"></p>
+    <div class="bydom" id="endByDom"></div>
+    <p class="detail" id="endDetail"></p>
+    <div class="actions" style="justify-content:center">
+      <button class="btn primary" id="btnReplayErrors">🩹 Rejouer mes erreurs</button>
+      <button class="btn ghost" id="btnHome">← Menu</button>
+    </div>
+  </div>
+
+  <!-- Labs -->
+  <div id="screen-labs" class="card hidden">
+    <h2>🧪 Labs guidés — sur ton tenant Fabric</h2>
+    <p class="labs-note">⚠️ Ces labs tiennent dans l'essai Fabric de 60 jours, qui offre une capacité équivalente à un F64 : aucune dépense n'est nécessaire. Crée un espace de travail dédié aux labs et <strong>supprime-le à la fin du lab 8</strong> — c'est le seul vrai ménage à faire, puisque tout vit dedans. Si tu travailles sur une capacité payante, pense à la mettre en pause hors de tes sessions : le calcul cesse d'être facturé, le stockage OneLake non. Les labs 2, 4, 7 et 8 démarrent des sessions Spark ou des flux d'événements, à ne pas laisser tourner.</p>
+    <div id="labsList"></div>
+    <div class="actions">
+      <button class="btn ghost" id="btnLabsHome">← Menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   BANQUE DE QUESTIONS — DP-600 Implementing Analytics Solutions Using Microsoft Fabric
+   type "input" : réponse à taper — accept = variantes acceptées
+   type "qcm"   : choix multiple — answer = index de la bonne réponse
+   ===================================================================== */
+/* =====================================================================
+   BANQUE DE QUESTIONS AZ-104 — Azure Administrator Associate
+   Domaines officiels (d) :
+     iden = Identités & gouvernance (20-25 %)
+     stor = Stockage (15-20 %)
+     comp = Compute (20-25 %)
+     net  = Réseau (15-20 %)
+     mon  = Supervision & maintenance (10-15 %)
+   type "input" : réponse à taper — accept = variantes acceptées
+   type "qcm"   : choix multiple — answer = index de la bonne réponse
+   type "order" : étapes à remettre dans l'ordre — steps = ordre correct
+   ===================================================================== */
+const QUESTIONS = [
+/* ================= NIVEAU 1 — VOCABULAIRE & BASES ================= */
+
+{ id:"n1-onelake", level:1, d:"prep", dom:"OneLake", type:"qcm",
+  q:"Combien de OneLake une organisation possède-t-elle ?",
+  choices:["Un seul par tenant, créé automatiquement et impossible à supprimer","Un par espace de travail","Un par capacité achetée","Autant qu'on en provisionne"],
+  answer:0,
+  explain:"C'est le principe « one copy » : un unique lac logique par tenant, que tous les espaces de travail partagent. On le compare souvent à OneDrive, mais pour les données analytiques." },
+{ id:"n1-onelake-format", level:1, d:"prep", dom:"OneLake", type:"input",
+  q:"Quel format de table ouvert est le format natif de OneLake, celui que tous les moteurs Fabric lisent et écrivent ? Deux mots.",
+  accept:["delta parquet","delta lake","delta","parquet delta"],
+  explain:"Delta Lake au-dessus de fichiers Parquet. C'est ce dénominateur commun qui permet au Spark, au T-SQL et au moteur sémantique de travailler sur les mêmes fichiers sans copie." },
+{ id:"n1-onelake-adls", level:1, d:"prep", dom:"OneLake", type:"qcm",
+  q:"Sur quelle technologie OneLake est-il construit, ce qui explique qu'il expose une API compatible ?",
+  choices:["Azure Data Lake Storage Gen2","Azure Blob Storage en mode page blob","Azure Files","Azure NetApp Files"],
+  answer:0,
+  explain:"Conséquence pratique : tout outil qui sait parler ADLS Gen2 — l'explorateur de fichiers OneLake, azcopy, Databricks, Spark externe — atteint OneLake sans connecteur propriétaire." },
+{ id:"n1-lakehouse", level:1, d:"prep", dom:"Lakehouse", type:"qcm",
+  q:"Quelles sont les deux zones d'un lakehouse Fabric ?",
+  choices:["Tables, qui contient des tables Delta managées, et Files, qui accepte n'importe quel fichier non géré","Bronze et Silver","Staging et Production","Hot et Cold"],
+  answer:0,
+  explain:"Tout ce qui est déposé sous Tables doit être du Delta valide pour apparaître comme table. Files sert de zone d'atterrissage brute : CSV, JSON, Parquet nu, images." },
+{ id:"n1-sql-endpoint", level:1, d:"prep", dom:"SQL analytics endpoint", type:"qcm",
+  q:"Que peut-on faire via le SQL analytics endpoint d'un lakehouse ?",
+  choices:["Lire en T-SQL, et créer des vues, des fonctions et des procédures — mais aucun INSERT, UPDATE ou DELETE","Tout ce qu'un warehouse permet, y compris le DML","Uniquement des SELECT, sans objet persistant","Rien : il sert seulement à la connexion des rapports"],
+  answer:0,
+  explain:"C'est la différence structurante avec le warehouse : l'endpoint est en lecture seule sur les données. Pour écrire dans un lakehouse, on passe par Spark, un dataflow ou un pipeline." },
+{ id:"n1-warehouse", level:1, d:"prep", dom:"Warehouse", type:"qcm",
+  q:"Qu'apporte un warehouse Fabric que le SQL analytics endpoint d'un lakehouse n'offre pas ?",
+  choices:["L'écriture en T-SQL : CREATE TABLE, INSERT, UPDATE, DELETE, MERGE et des transactions multi-tables","Un stockage plus rapide","Le support de Spark","La connexion Direct Lake"],
+  answer:0,
+  explain:"Les deux stockent du Delta Parquet dans OneLake et se requêtent de la même façon. Le choix se joue sur l'écriture : équipe T-SQL qui veut écrire en SQL, ou équipe Spark." },
+{ id:"n1-eventhouse", level:1, d:"prep", dom:"Eventhouse", type:"qcm",
+  q:"À quoi sert un eventhouse dans Fabric ?",
+  choices:["Héberger des bases KQL optimisées pour les données d'événements et de séries temporelles, interrogeables en KQL comme en SQL","Orchestrer des pipelines événementiels","Stocker les journaux d'audit du tenant","Remplacer le warehouse pour les gros volumes"],
+  answer:0,
+  explain:"C'est le moteur de Real-Time Intelligence, hérité d'Azure Data Explorer. Un eventhouse regroupe plusieurs bases KQL qui partagent les ressources de calcul." },
+{ id:"n1-kql", level:1, d:"prep", dom:"KQL", type:"input",
+  q:"Quel langage de requête, dont le sigle fait trois lettres, interroge nativement une base d'eventhouse ?",
+  accept:["kql","kusto query language"],
+  explain:"Kusto Query Language. Le DP-600 attend que vous sachiez écrire du SQL, du KQL et du DAX : les trois figurent explicitement dans le profil du candidat." },
+{ id:"n1-eventstream", level:1, d:"prep", dom:"Real-Time", type:"qcm",
+  q:"Quel rôle joue un eventstream ?",
+  choices:["Capter des flux d'événements, les transformer au vol et les router vers une destination comme un eventhouse ou un lakehouse","Planifier l'exécution des dataflows","Diffuser des rapports Power BI par e-mail","Streamer les journaux Spark"],
+  answer:0,
+  explain:"L'eventstream est l'entrée, l'eventhouse le stockage interrogeable. Le Real-Time hub, lui, catalogue tous les flux disponibles dans le tenant." },
+{ id:"n1-shortcut", level:1, d:"prep", dom:"Raccourcis", type:"qcm",
+  q:"Que fait un raccourci OneLake, ou shortcut ?",
+  choices:["Il référence des données là où elles sont, sans les copier : la lecture passe par le raccourci jusqu'à la source","Il copie les données à la demande dans OneLake","Il synchronise les données toutes les heures","Il exporte les données vers un stockage externe"],
+  answer:0,
+  explain:"Zéro duplication et donc zéro décalage : c'est le premier réflexe du DP-600 dès qu'un énoncé dit « sans copier les données » ou « sans dupliquer »." },
+{ id:"n1-shortcut-cibles", level:1, d:"prep", dom:"Raccourcis", type:"qcm",
+  q:"Vers quoi un raccourci OneLake peut-il pointer ?",
+  choices:["Un autre emplacement OneLake, ADLS Gen2, Amazon S3, Google Cloud Storage, Dataverse ou un stockage compatible S3","Uniquement un autre lakehouse du même espace de travail","Uniquement des sources Azure","N'importe quelle base de données relationnelle"],
+  answer:0,
+  explain:"Pour une base relationnelle, ce n'est pas un raccourci qu'il faut mais le mirroring, ou une ingestion classique. Le raccourci vise le stockage de fichiers." },
+{ id:"n1-mirroring", level:1, d:"prep", dom:"Mirroring", type:"qcm",
+  q:"Que fait le mirroring d'une base de données dans Fabric ?",
+  choices:["Il réplique en continu, en quasi temps réel, une base opérationnelle vers OneLake au format Delta, sans pipeline à écrire","Il crée un raccourci vers la base","Il exporte un instantané quotidien","Il déplace la base dans Fabric et la supprime à la source"],
+  answer:0,
+  explain:"Le mirroring est le « sans ETL » du catalogue Fabric : Azure SQL Database, SQL Managed Instance, Cosmos DB, PostgreSQL, Snowflake. On interroge la copie sans charger la source." },
+{ id:"n1-dataflow", level:1, d:"prep", dom:"Dataflow Gen2", type:"qcm",
+  q:"Sur quel moteur repose un dataflow Gen2 ?",
+  choices:["Power Query, avec le langage M et une interface graphique de transformation","Spark SQL","T-SQL","KQL"],
+  answer:0,
+  explain:"C'est l'outil low-code de préparation. Son atout est le nombre de connecteurs ; sa limite, la performance sur de très gros volumes face à un notebook Spark." },
+{ id:"n1-pipeline", level:1, d:"prep", dom:"Pipelines de données", type:"qcm",
+  q:"Quelle est la vocation d'un data pipeline Fabric, par opposition à un dataflow ?",
+  choices:["Orchestrer : enchaîner copies, notebooks, dataflows et procédures stockées, avec conditions, boucles et dépendances","Transformer les données ligne à ligne","Stocker les données intermédiaires","Servir les rapports"],
+  answer:0,
+  explain:"La règle simple : le dataflow transforme, le pipeline orchestre. L'activité Copy du pipeline déplace de gros volumes bien plus vite qu'un dataflow." },
+{ id:"n1-notebook", level:1, d:"prep", dom:"Notebooks", type:"qcm",
+  q:"Quels langages un notebook Fabric accepte-t-il ?",
+  choices:["PySpark, Scala, Spark SQL et SparkR, avec des magics pour passer de l'un à l'autre dans une même cellule","Python uniquement","SQL uniquement","Python et DAX"],
+  answer:0,
+  explain:"Les magics %%sql, %%spark, %%pyspark et %%sparkr changent le langage d'une cellule. %%configure sert à ajuster la session avant son démarrage." },
+{ id:"n1-medaillon", level:1, d:"prep", dom:"Architecture", type:"order",
+  q:"Classe les couches d'une architecture en médaillon dans l'ordre du flux de données.",
+  steps:[
+    "Bronze : données brutes, telles qu'arrivées de la source, sans transformation",
+    "Silver : données nettoyées, dédupliquées, typées et conformées",
+    "Gold : données agrégées et modélisées en étoile, prêtes pour l'analyse"],
+  explain:"La valeur de ce découpage est la reprise : une erreur de nettoyage se corrige en rejouant Silver depuis Bronze, sans retourner voir la source." },
+{ id:"n1-vorder", level:1, d:"prep", dom:"V-Order", type:"qcm",
+  q:"Qu'est-ce que le V-Order appliqué aux fichiers Parquet de Fabric ?",
+  choices:["Une optimisation d'écriture — tri, encodage et compression — qui accélère la lecture par les moteurs Fabric, surtout en Direct Lake","Un ordre de tri imposé aux lignes de la table","Un index secondaire","Un cache en mémoire"],
+  answer:0,
+  explain:"Le fichier reste du Parquet standard, lisible par n'importe qui. Le V-Order coûte un peu de temps à l'écriture et en fait gagner beaucoup à la lecture." },
+{ id:"n1-etoile", level:1, d:"prep", dom:"Schéma en étoile", type:"qcm",
+  q:"Comment se structure un schéma en étoile ?",
+  choices:["Une table de faits centrale, contenant mesures et clés étrangères, entourée de tables de dimensions dénormalisées","Des tables normalisées jusqu'à la troisième forme normale","Une seule grande table plate","Des dimensions reliées entre elles en cascade"],
+  answer:0,
+  explain:"C'est la recommandation explicite de Microsoft pour un modèle sémantique. Les dimensions en cascade, c'est le flocon : plus normalisé, plus lent en DAX." },
+{ id:"n1-fait-dimension", level:1, d:"prep", dom:"Schéma en étoile", type:"qcm",
+  q:"Qu'attend-on dans une table de faits plutôt que dans une dimension ?",
+  choices:["Des valeurs numériques additives et des clés étrangères, avec beaucoup de lignes et peu de colonnes","Des libellés descriptifs servant à filtrer","Des hiérarchies de dates","Les attributs des clients"],
+  answer:0,
+  explain:"Les colonnes sur lesquelles on filtre et qu'on affiche vont en dimension ; ce qu'on agrège va en faits. Ce partage guide tout le reste du modèle." },
+{ id:"n1-roles-ws", level:1, d:"maint", dom:"Rôles d'espace de travail", type:"qcm",
+  q:"Quels sont les quatre rôles d'un espace de travail Fabric ?",
+  choices:["Admin, Member, Contributor, Viewer","Owner, Editor, Reader, Guest","Admin, Author, Analyst, Consumer","Admin, Creator, Builder, Viewer"],
+  answer:0,
+  explain:"À retenir dans l'ordre décroissant. Seuls Admin et Member peuvent repartager ; le Contributor crée et modifie du contenu mais ne gère pas les accès." },
+{ id:"n1-viewer", level:1, d:"maint", dom:"Rôles d'espace de travail", type:"qcm",
+  q:"Que peut faire le rôle Viewer d'un espace de travail ?",
+  choices:["Consulter le contenu et interroger les données via le SQL analytics endpoint, sans rien modifier","Rien d'autre que voir la liste des éléments","Modifier les rapports mais pas les modèles","Créer de nouveaux éléments"],
+  answer:0,
+  explain:"Viewer est le rôle de consommation. La nuance d'examen : il lit via l'endpoint SQL, mais n'a pas accès aux fichiers OneLake, ce qui exige ReadAll." },
+{ id:"n1-rls", level:1, d:"maint", dom:"RLS", type:"input",
+  q:"Sigle de trois lettres du mécanisme qui restreint les LIGNES visibles selon l'utilisateur.",
+  accept:["rls","row-level security","row level security","securite au niveau des lignes"],
+  explain:"Attention au lieu où on la définit : en DAX dans le modèle sémantique, ou en T-SQL avec une security policy sur le warehouse ou l'endpoint. Les deux existent au DP-600." },
+{ id:"n1-ols", level:1, d:"maint", dom:"OLS", type:"qcm",
+  q:"Que masque l'object-level security, ou OLS, dans un modèle sémantique ?",
+  choices:["Des tables ou des colonnes entières, qui deviennent invisibles — jusqu'à faire échouer les visuels qui en dépendent","Des lignes selon un filtre","Des valeurs de cellules, remplacées par des étoiles","Des mesures seulement"],
+  answer:0,
+  explain:"L'OLS cache l'existence même de l'objet, contrairement à la CLS en SQL qui refuse l'accès. Elle ne se configure pas dans l'interface : il faut TMSL, TMDL ou Tabular Editor." },
+{ id:"n1-label", level:1, d:"maint", dom:"Étiquettes de confidentialité", type:"qcm",
+  q:"D'où viennent les étiquettes de confidentialité appliquées aux éléments Fabric ?",
+  choices:["De Microsoft Purview Information Protection, définies pour tout le tenant Microsoft 365","De l'espace de travail, créées par son administrateur","Du portail d'administration Fabric, propres à Fabric","Des rôles du modèle sémantique"],
+  answer:0,
+  explain:"Elles suivent la donnée hors de Fabric : un export Excel d'un rapport étiqueté Confidentiel conserve l'étiquette et son chiffrement." },
+{ id:"n1-label-heritage", level:1, d:"maint", dom:"Étiquettes de confidentialité", type:"qcm",
+  q:"Comment une étiquette de confidentialité se propage-t-elle dans Fabric ?",
+  choices:["En aval, de l'élément source vers les éléments qui en dépendent","En amont, du rapport vers le lakehouse","Dans les deux sens","Elle ne se propage pas"],
+  answer:0,
+  explain:"L'héritage descendant évite la fuite par recopie : un modèle construit sur un lakehouse étiqueté hérite de l'étiquette, et le rapport qui le consomme aussi." },
+{ id:"n1-endorsement", level:1, d:"maint", dom:"Endorsement", type:"qcm",
+  q:"Quels sont les niveaux d'endorsement d'un élément Fabric ?",
+  choices:["Promoted, Certified et Master data","Validated et Published","Gold, Silver et Bronze","Draft, Review et Approved"],
+  answer:0,
+  explain:"Promoted s'accorde soi-même avec un droit d'écriture ; Certified est réservé à une liste d'approbateurs fixée par l'administrateur du tenant. D'où la différence de confiance." },
+{ id:"n1-git", level:1, d:"maint", dom:"Git", type:"qcm",
+  q:"À quels fournisseurs Git un espace de travail Fabric peut-il se connecter ?",
+  choices:["Azure DevOps Repos et GitHub","Azure DevOps uniquement","GitHub et GitLab","N'importe quel dépôt Git accessible en HTTPS"],
+  answer:0,
+  explain:"La connexion se fait au niveau de l'espace de travail, sur une branche et un dossier. Chaque développeur travaille sur son propre espace branché sur sa branche." },
+{ id:"n1-pbip", level:1, d:"maint", dom:"Projets Power BI", type:"qcm",
+  q:"Qu'apporte le format de projet Power BI, l'extension .pbip, face au .pbix ?",
+  choices:["Il éclate le contenu en fichiers texte lisibles et diffables, donc versionnables dans Git","Il compresse mieux le fichier","Il embarque les données","Il permet d'ouvrir le fichier dans le service"],
+  answer:0,
+  explain:"Le .pbix est un binaire : Git n'en voit qu'un blob opaque. Le .pbip expose le modèle en TMDL et le rapport en PBIR, donc des revues de code lisibles." },
+{ id:"n1-deploy-pipeline", level:1, d:"maint", dom:"Pipelines de déploiement", type:"qcm",
+  q:"À quoi sert un pipeline de déploiement Fabric ?",
+  choices:["Faire progresser le contenu d'un espace de travail à l'autre, par exemple de développement à test puis production","Planifier l'actualisation des modèles","Déployer du code Spark","Orchestrer des copies de données"],
+  answer:0,
+  explain:"Chaque étape est adossée à un espace de travail. À ne pas confondre avec un data pipeline, qui déplace de la donnée et non du contenu." },
+{ id:"n1-deploy-rules", level:1, d:"maint", dom:"Pipelines de déploiement", type:"qcm",
+  q:"À quoi servent les règles de déploiement d'un pipeline de déploiement ?",
+  choices:["Repointer les sources de données et les paramètres pour que chaque étape vise son propre environnement","Filtrer les éléments déployés","Autoriser certains utilisateurs à déployer","Planifier le déploiement"],
+  answer:0,
+  explain:"Sans elles, le modèle promu en production continue d'interroger la base de développement. C'est la question piège classique sur les pipelines de déploiement." },
+{ id:"n1-xmla", level:1, d:"maint", dom:"Endpoint XMLA", type:"qcm",
+  q:"Que permet l'endpoint XMLA en lecture-écriture d'un espace de travail ?",
+  choices:["Piloter les modèles sémantiques avec des outils externes — Tabular Editor, SSMS, ALM Toolkit — pour déployer, scripter et actualiser par partition","Interroger les modèles en SQL","Exporter les rapports","Monter OneLake comme un lecteur réseau"],
+  answer:0,
+  explain:"Il faut une capacité Fabric ou Premium et le réglage XMLA positionné sur Read Write, qui n'est pas la valeur par défaut dans tous les tenants." },
+{ id:"n1-lineage", level:1, d:"maint", dom:"Analyse d'impact", type:"qcm",
+  q:"Que montre la vue de lignage d'un espace de travail ?",
+  choices:["Les dépendances entre éléments, de la source au rapport, pour mesurer l'impact d'un changement en aval","L'historique des modifications","Les performances d'actualisation","Les permissions accordées"],
+  answer:0,
+  explain:"L'analyse d'impact chiffre ce que casserait une modification : combien de rapports, de modèles et de tableaux de bord dépendent de l'élément visé." },
+{ id:"n1-capacite", level:1, d:"maint", dom:"Capacité", type:"qcm",
+  q:"Que désigne une capacité Fabric de référence F64 ?",
+  choices:["Un niveau de ressources de calcul mesuré en unités de capacité, partagé par tous les espaces de travail qui lui sont rattachés","64 utilisateurs autorisés","64 Go de stockage","64 espaces de travail"],
+  answer:0,
+  explain:"Le F indique les SKU Fabric, de F2 à F2048. Le palier F64 est le seuil historique à partir duquel les consommateurs de rapports n'ont plus besoin de licence Pro individuelle." },
+{ id:"n1-cu", level:1, d:"maint", dom:"Capacité", type:"input",
+  q:"Quelle est l'unité de mesure de la consommation d'une capacité Fabric ? Deux mots.",
+  accept:["capacity unit","capacity units","unite de capacite","cu"],
+  explain:"Les CU sont lissées dans le temps, ce qui absorbe les pointes. Au-delà, la capacité bride les opérations : c'est le throttling." },
+{ id:"n1-storage-mode", level:1, d:"model", dom:"Mode de stockage", type:"qcm",
+  q:"Quels modes de stockage une table d'un modèle sémantique peut-elle prendre ?",
+  choices:["Import, DirectQuery, Direct Lake et Dual","Import et DirectQuery seulement","Import, Live et Direct Lake","Cached et Uncached"],
+  answer:0,
+  explain:"Dual n'existe que pour les modèles composites : la table se comporte en import ou en DirectQuery selon la requête, ce qui évite les jointures entre moteurs." },
+{ id:"n1-direct-lake", level:1, d:"model", dom:"Direct Lake", type:"qcm",
+  q:"Comment Direct Lake lit-il les données ?",
+  choices:["En chargeant à la demande les colonnes des fichiers Delta Parquet de OneLake en mémoire, sans import planifié ni traduction en SQL","En traduisant chaque requête DAX en T-SQL, comme DirectQuery","En important les données à heure fixe","En interrogeant un cache Spark"],
+  answer:0,
+  explain:"C'est l'intérêt du mode : la fraîcheur de DirectQuery avec la vitesse de l'import. Il n'y a ni actualisation à planifier, ni requête traduite vers un autre moteur." },
+{ id:"n1-framing", level:1, d:"model", dom:"Direct Lake", type:"input",
+  q:"Comment appelle-t-on l'opération par laquelle un modèle Direct Lake prend en compte la nouvelle version des fichiers Delta ? Un mot anglais.",
+  accept:["framing","reframing","recadrage"],
+  explain:"Le framing met à jour les métadonnées pointant vers les fichiers Parquet courants. Il est très rapide, mais vide le cache des colonnes concernées." },
+{ id:"n1-fallback", level:1, d:"model", dom:"Direct Lake", type:"qcm",
+  q:"Que signifie le fallback d'un modèle Direct Lake ?",
+  choices:["Le basculement automatique d'une requête vers DirectQuery sur l'endpoint SQL quand Direct Lake ne peut pas la servir","Le retour à la version précédente du modèle","Le passage en mode import","La mise en cache des résultats"],
+  answer:0,
+  explain:"Le dépassement d'un garde-fou de SKU en est la cause typique. On le force ou on l'interdit avec la propriété DirectLakeBehavior." },
+{ id:"n1-mesure-colonne", level:1, d:"model", dom:"DAX", type:"qcm",
+  q:"Quelle différence fondamentale sépare une colonne calculée d'une mesure ?",
+  choices:["La colonne calculée est évaluée à l'actualisation et stockée ligne par ligne ; la mesure est calculée à la requête, selon le contexte de filtre","La mesure est plus précise","La colonne calculée accepte plus de fonctions","Elles sont interchangeables"],
+  answer:0,
+  explain:"Conséquence sur la mémoire : une colonne calculée pèse autant qu'une colonne importée, surtout si sa cardinalité est forte. La mesure ne coûte rien en stockage." },
+{ id:"n1-contexte", level:1, d:"model", dom:"DAX", type:"qcm",
+  q:"Quels sont les deux contextes d'évaluation en DAX ?",
+  choices:["Le contexte de filtre et le contexte de ligne","Le contexte de table et le contexte de colonne","Le contexte de requête et le contexte de modèle","Le contexte local et le contexte global"],
+  answer:0,
+  explain:"Toute la difficulté du DAX tient là. CALCULATE modifie le contexte de filtre ; les itérateurs comme SUMX créent un contexte de ligne." },
+{ id:"n1-calculate", level:1, d:"model", dom:"DAX", type:"qcm",
+  q:"Quelle est la fonction DAX qui modifie le contexte de filtre d'une expression ?",
+  choices:["CALCULATE","FILTER","SUMX","VALUES"],
+  answer:0,
+  explain:"CALCULATE est la seule à le faire, et elle réalise aussi la transition de contexte : un contexte de ligne devient un contexte de filtre équivalent." },
+{ id:"n1-groupe-calcul", level:1, d:"model", dom:"Groupes de calcul", type:"qcm",
+  q:"Que résout un groupe de calcul ?",
+  choices:["L'explosion combinatoire des mesures : une variation temporelle écrite une fois s'applique à toutes les mesures, au lieu d'être dupliquée pour chacune","Le regroupement visuel des mesures dans un dossier","Le calcul en parallèle de plusieurs mesures","La mise en cache des mesures"],
+  answer:0,
+  explain:"Dix mesures et six variations temporelles donneraient soixante mesures à maintenir. Avec un groupe de calcul : dix mesures et six éléments de calcul." },
+{ id:"n1-field-param", level:1, d:"model", dom:"Paramètres de champs", type:"qcm",
+  q:"À quoi sert un paramètre de champs, ou field parameter ?",
+  choices:["Laisser l'utilisateur choisir dynamiquement la mesure ou la dimension affichée dans un visuel","Paramétrer une source de données","Passer un paramètre à une procédure stockée","Filtrer un rapport à l'ouverture"],
+  answer:0,
+  explain:"Techniquement, c'est une table calculée construite avec NAMEOF, dont les lignes sont des références à des champs du modèle." },
+{ id:"n1-composite", level:1, d:"model", dom:"Modèles composites", type:"qcm",
+  q:"Qu'est-ce qu'un modèle composite ?",
+  choices:["Un modèle qui combine plusieurs modes de stockage ou plusieurs sources, par exemple une connexion DirectQuery vers un autre modèle sémantique et des tables importées","Un modèle partagé entre plusieurs espaces de travail","Un modèle découpé en plusieurs fichiers","Un modèle avec plusieurs tables de faits"],
+  answer:0,
+  explain:"Il permet d'étendre un modèle d'entreprise certifié avec ses propres données locales, sans le dupliquer ni demander une modification au propriétaire." },
+{ id:"n1-large-model", level:1, d:"model", dom:"Large semantic model", type:"qcm",
+  q:"Qu'active le format de stockage large semantic model ?",
+  choices:["Le dépassement de la limite de taille par défaut, et la gestion des partitions par l'endpoint XMLA","La compression des données","Le mode Direct Lake","Le partage du modèle entre tenants"],
+  answer:0,
+  explain:"C'est un prérequis pratique de l'actualisation incrémentielle à grande échelle, parce que celle-ci crée et manipule des partitions." },
+{ id:"n1-incremental", level:1, d:"model", dom:"Actualisation incrémentielle", type:"qcm",
+  q:"Quels sont les deux paramètres obligatoires pour configurer une actualisation incrémentielle ?",
+  choices:["RangeStart et RangeEnd, de type date-heure","DateDebut et DateFin","MinDate et MaxDate","Start et End, de type entier"],
+  answer:0,
+  explain:"Les noms sont imposés, la casse comprise, et le type doit être date-heure. Le service s'en sert pour découper la table en partitions." },
+{ id:"n1-build", level:1, d:"maint", dom:"Permissions d'élément", type:"qcm",
+  q:"Que permet la permission Build sur un modèle sémantique ?",
+  choices:["Construire du contenu dessus : nouveaux rapports, connexion Excel, requêtes XMLA","Modifier le modèle","Actualiser le modèle","Le republier"],
+  answer:0,
+  explain:"Lire un rapport existant n'exige que Read. Dès qu'un utilisateur veut créer son propre visuel sur le modèle, il lui faut Build." },
+{ id:"n1-readall", level:1, d:"maint", dom:"Permissions d'élément", type:"qcm",
+  q:"Que couvre la permission ReadAll sur un lakehouse, par opposition à ReadData ?",
+  choices:["L'accès aux fichiers OneLake, donc la lecture par Spark ; ReadData se limite au SQL analytics endpoint","L'accès en écriture","L'accès aux permissions","La lecture de tous les espaces de travail"],
+  answer:0,
+  explain:"La distinction compte pour les analystes : donner ReadAll ouvre les fichiers bruts et contourne la sécurité définie côté SQL." },
+{ id:"n1-catalog", level:1, d:"prep", dom:"OneLake catalog", type:"qcm",
+  q:"À quoi sert le OneLake catalog ?",
+  choices:["Découvrir, explorer et gouverner les éléments de données du tenant auxquels on a accès, avec leur endorsement et leur étiquette","Stocker les métadonnées techniques des tables Delta","Cataloguer les connexions de passerelle","Lister les capacités"],
+  answer:0,
+  explain:"C'est le point d'entrée du réflexe « cherche avant de recréer ». Le study guide le cite explicitement, aux côtés du Real-Time hub." },
+
+
+/* ========== NIVEAU 2 — CHIFFRES, DÉFAUTS, COMPORTEMENTS ========== */
+
+{ id:"n2-rls-bypass", level:2, d:"maint", dom:"RLS", type:"qcm",
+  q:"Un utilisateur est Member de l'espace de travail et figure dans un rôle RLS du modèle sémantique. Que voit-il ?",
+  choices:["Tout : les rôles d'espace de travail à partir de Contributor contournent la RLS du modèle","Seulement ses lignes autorisées","Rien, les deux règles s'annulent","Une erreur de permission"],
+  answer:0,
+  explain:"C'est l'erreur de test la plus fréquente : on valide la RLS avec son propre compte, qui est administrateur de l'espace. Il faut la tester avec « Voir en tant que rôle », ou un compte Viewer." },
+{ id:"n2-rls-ou", level:2, d:"maint", dom:"RLS", type:"qcm",
+  q:"Un rapport se connecte en Direct Lake sur l'endpoint SQL d'un lakehouse où une security policy T-SQL filtre les lignes. L'utilisateur voit-il le filtre s'appliquer ?",
+  choices:["Oui si la requête retombe en DirectQuery sur l'endpoint, mais pas si elle est servie directement depuis les fichiers Delta","Oui dans tous les cas","Non, jamais","Oui, mais seulement en mode import"],
+  answer:0,
+  explain:"D'où la règle de conception : une sécurité qui doit tenir en toutes circonstances se place dans le modèle sémantique, ou côté OneLake, pas uniquement en T-SQL." },
+{ id:"n2-deploy-stages", level:2, d:"maint", dom:"Pipelines de déploiement", type:"qcm",
+  q:"Combien d'étapes un pipeline de déploiement Fabric peut-il compter au maximum ?",
+  choices:["Dix","Trois, imposées : développement, test et production","Cinq","Autant que voulu"],
+  answer:0,
+  explain:"Trois étapes sont proposées par défaut, mais la limite est à dix, ce qui permet d'insérer une recette métier ou un environnement de démonstration." },
+{ id:"n2-git-granularite", level:2, d:"maint", dom:"Git", type:"qcm",
+  q:"À quel niveau la connexion Git d'un espace de travail s'établit-elle ?",
+  choices:["Un espace de travail est lié à une branche et à un répertoire d'un dépôt","Un espace de travail par dépôt, sans notion de branche","Un élément par dépôt","Une capacité par dépôt"],
+  answer:0,
+  explain:"Le motif de travail qui en découle : chaque développeur « branche » son propre espace de travail, et la fusion se fait par pull request dans le dépôt." },
+{ id:"n2-git-conflit", level:2, d:"maint", dom:"Git", type:"qcm",
+  q:"Un élément a été modifié à la fois dans l'espace de travail et dans la branche Git. Que montre le panneau de contrôle de source ?",
+  choices:["Un conflit, qu'il faut résoudre en choisissant de valider ou de mettre à jour, Fabric ne fusionnant pas lui-même le contenu de l'élément","Une fusion automatique à trois voies","La version Git, qui écrase toujours","La version de l'espace de travail, qui gagne toujours"],
+  answer:0,
+  explain:"Fabric détecte l'écart mais ne fusionne pas l'intérieur des éléments. La fusion fine se fait avec un outil Git classique sur les fichiers .pbip ou TMDL." },
+{ id:"n2-vacuum", level:2, d:"prep", dom:"Maintenance Delta", type:"qcm",
+  q:"Quelle est la rétention par défaut d'un VACUUM sur une table Delta dans un lakehouse Fabric ?",
+  choices:["Sept jours","Un jour","Trente jours","Aucune, les fichiers sont supprimés immédiatement"],
+  answer:0,
+  explain:"Les fichiers plus anciens que cette fenêtre sont supprimés. Elle borne donc le voyage dans le temps : vacuumer agressivement casse la lecture des versions antérieures." },
+{ id:"n2-optimize", level:2, d:"prep", dom:"Maintenance Delta", type:"qcm",
+  q:"Que fait OPTIMIZE sur une table Delta, et pourquoi en a-t-on besoin ?",
+  choices:["Il fusionne les nombreux petits fichiers en fichiers plus gros, ce qui supprime le coût de lecture des écritures fréquentes","Il reconstruit les index","Il recalcule les statistiques","Il supprime les anciennes versions"],
+  answer:0,
+  explain:"Le fameux « small file problem » : des micro-lots toutes les minutes produisent des milliers de fichiers minuscules. La suppression des anciennes versions, c'est VACUUM, pas OPTIMIZE." },
+{ id:"n2-zorder", level:2, d:"prep", dom:"Maintenance Delta", type:"qcm",
+  q:"Sur quelles colonnes applique-t-on utilement un Z-Order ?",
+  choices:["Celles qui servent souvent de filtre et dont la cardinalité est élevée","Celles de la clé primaire uniquement","Toutes les colonnes de la table","Les colonnes numériques agrégées"],
+  answer:0,
+  explain:"Le Z-Order colocalise les valeurs proches dans les mêmes fichiers, ce qui rend le saut de fichiers efficace. Au-delà de trois ou quatre colonnes, le bénéfice se dilue." },
+{ id:"n2-checkpoint", level:2, d:"prep", dom:"Delta Lake", type:"qcm",
+  q:"Tous les combien de commits le journal Delta écrit-il un checkpoint Parquet par défaut ?",
+  choices:["Tous les dix commits","Tous les commits","Tous les cent commits","Jamais, sauf demande explicite"],
+  answer:0,
+  explain:"Le checkpoint condense l'état du journal pour éviter de relire tous les fichiers JSON. C'est pourquoi un dossier _delta_log contient à la fois des .json et des .checkpoint.parquet." },
+{ id:"n2-wh-pk", level:2, d:"prep", dom:"Warehouse", type:"qcm",
+  q:"Comment une clé primaire se comporte-t-elle dans un warehouse Fabric ?",
+  choices:["Elle se déclare uniquement en NOT ENFORCED : c'est une métadonnée pour l'optimiseur et les outils, pas une contrainte vérifiée","Elle est vérifiée à chaque insertion","Elle est interdite","Elle crée un index clustered"],
+  answer:0,
+  explain:"L'unicité est donc à garantir en amont. Déclarer la clé reste utile : le moteur et les outils de modélisation s'en servent pour inférer les relations." },
+{ id:"n2-wh-index", level:2, d:"prep", dom:"Warehouse", type:"qcm",
+  q:"Quels index peut-on créer dans un warehouse Fabric ?",
+  choices:["Aucun : il n'y a ni index clustered ni nonclustered, l'optimisation passe par le format des fichiers et les statistiques","Des index columnstore uniquement","Des index clustered uniquement","Tous ceux de SQL Server"],
+  answer:0,
+  explain:"Ce réflexe de DBA SQL Server n'a pas de place ici. Les leviers sont le V-Order, la taille des fichiers, les statistiques et l'écriture des requêtes." },
+{ id:"n2-wh-stats", level:2, d:"prep", dom:"Warehouse", type:"qcm",
+  q:"Comment les statistiques sont-elles gérées dans un warehouse Fabric ?",
+  choices:["Elles sont créées et mises à jour automatiquement, et peuvent aussi être créées manuellement pour un cas précis","Uniquement manuellement","Elles n'existent pas","Elles sont recalculées à chaque requête"],
+  answer:0,
+  explain:"L'automatisme couvre le cas courant. La création manuelle sert quand une distribution très biaisée mène l'optimiseur à un mauvais plan." },
+{ id:"n2-wh-timetravel", level:2, d:"prep", dom:"Warehouse", type:"qcm",
+  q:"Sur quelle profondeur le voyage dans le temps d'un warehouse Fabric permet-il d'interroger un état passé ?",
+  choices:["Jusqu'à trente jours en arrière","Vingt-quatre heures","Sept jours","Un an"],
+  answer:0,
+  explain:"La syntaxe passe par OPTION (FOR TIMESTAMP AS OF ...). C'est aussi la fenêtre dans laquelle un clone de table peut être pris à un instant donné." },
+{ id:"n2-wh-clone", level:2, d:"prep", dom:"Warehouse", type:"qcm",
+  q:"Que coûte en stockage un clone de table dans un warehouse Fabric ?",
+  choices:["Presque rien à la création : le clone partage les fichiers Parquet existants et ne stocke que les écarts ultérieurs","Le double de la table d'origine","Autant que la table, mais compressé","Rien, car ce n'est qu'une vue"],
+  answer:0,
+  explain:"C'est le zero-copy clone. Il sert à monter un environnement de test grandeur réelle, ou à figer un état avant une transformation risquée." },
+{ id:"n2-truncate", level:2, d:"prep", dom:"Warehouse", type:"qcm",
+  q:"Où TRUNCATE TABLE fonctionne-t-il dans Fabric ?",
+  choices:["Dans un warehouse, mais pas via le SQL analytics endpoint d'un lakehouse, qui est en lecture seule","Dans les deux","Nulle part","Uniquement dans un lakehouse"],
+  answer:0,
+  explain:"Toute la famille DML et DDL d'écriture suit la même règle. Pour vider une table de lakehouse, on passe par Spark avec un overwrite ou un DELETE Delta." },
+{ id:"n2-wh-collation", level:2, d:"prep", dom:"Warehouse", type:"qcm",
+  q:"Quelle particularité le collationnement par défaut d'un warehouse Fabric présente-t-il ?",
+  choices:["Il est binaire et sensible à la casse, ce qui fait que « Paris » et « paris » sont deux valeurs distinctes dans un GROUP BY ou une jointure","Il est insensible à la casse comme dans SQL Server","Il dépend de la région de la capacité","Il n'y a pas de collationnement"],
+  answer:0,
+  explain:"C'est une source de bugs silencieux pour qui vient de SQL Server. On normalise la casse à l'ingestion, ou on applique UPPER dans les jointures concernées." },
+{ id:"n2-dataflow-staging", level:2, d:"prep", dom:"Dataflow Gen2", type:"qcm",
+  q:"À quoi sert le staging d'un dataflow Gen2 ?",
+  choices:["Déposer le résultat intermédiaire dans un lakehouse interne, pour que les transformations suivantes et le chargement s'appuient sur un calcul déjà fait","Mettre les données en file d'attente","Chiffrer les données en transit","Réserver de la capacité"],
+  answer:0,
+  explain:"Utile sur des requêtes lourdes réutilisées plusieurs fois, inutile et coûteux sur une simple copie : on le désactive alors pour laisser le Fast Copy opérer." },
+{ id:"n2-fast-copy", level:2, d:"prep", dom:"Dataflow Gen2", type:"qcm",
+  q:"Qu'apporte le Fast Copy à un dataflow Gen2 ?",
+  choices:["Il remplace le moteur Power Query par le moteur de copie à haut débit des pipelines pour les gros volumes, à condition que les transformations restent compatibles","Il compresse les données","Il met le résultat en cache","Il parallélise les requêtes M"],
+  answer:0,
+  explain:"Une transformation non supportée fait retomber la requête sur le moteur classique. D'où l'intérêt de garder la préparation lourde en aval du chargement." },
+{ id:"n2-folding", level:2, d:"prep", dom:"Power Query", type:"qcm",
+  q:"Que signifie le query folding en Power Query, et pourquoi le surveiller ?",
+  choices:["La traduction des étapes en une requête native exécutée par la source : si le pliage casse, tout est rapatrié et transformé localement","La mise en cache des résultats intermédiaires","Le repliement de plusieurs colonnes en une","La compression du fichier de requête"],
+  answer:0,
+  explain:"L'indicateur à lire est « Afficher la requête native » sur la dernière étape. Une étape non pliable placée trop tôt sabote tout ce qui suit." },
+{ id:"n2-folding-incremental", level:2, d:"model", dom:"Actualisation incrémentielle", type:"qcm",
+  q:"Pourquoi l'actualisation incrémentielle exige-t-elle que le filtre sur RangeStart et RangeEnd soit plié vers la source ?",
+  choices:["Sans pliage, chaque partition lit la totalité de la table avant de filtrer en local, ce qui annule tout le bénéfice","Parce que le service refuse la configuration sinon","Pour permettre le chiffrement","Pour créer les partitions"],
+  answer:0,
+  explain:"Techniquement cela fonctionne quand même, et c'est le piège : l'actualisation reste lente sans erreur visible. Un fichier plat ne plie rien." },
+{ id:"n2-spark-pool", level:2, d:"prep", dom:"Spark", type:"qcm",
+  q:"Quel est l'intérêt du starter pool pour un notebook Fabric ?",
+  choices:["La session démarre en quelques secondes, parce que les nœuds sont déjà chauds et mutualisés","Il coûte moins cher","Il offre plus de mémoire","Il autorise plus de bibliothèques"],
+  answer:0,
+  explain:"Un pool personnalisé met plusieurs minutes à démarrer, mais permet de choisir la taille des nœuds et les bibliothèques. On développe sur le starter, on industrialise sur un pool dédié." },
+{ id:"n2-spark-timeout", level:2, d:"prep", dom:"Spark", type:"qcm",
+  q:"Que se passe-t-il quand une session de notebook Fabric reste inactive au-delà du délai d'expiration ?",
+  choices:["La session s'arrête et libère la capacité ; les variables en mémoire sont perdues et il faut réexécuter les cellules","Elle est mise en veille et reprend à l'identique","Elle continue de consommer indéfiniment","Le notebook est supprimé"],
+  answer:0,
+  explain:"D'où la discipline de faire des notebooks réexécutables du début à la fin, sans dépendre d'un état accumulé interactivement." },
+{ id:"n2-schema-evolution", level:2, d:"prep", dom:"Delta Lake", type:"qcm",
+  q:"Une écriture Delta apporte une colonne absente de la table cible. Que se passe-t-il par défaut ?",
+  choices:["L'écriture échoue sur une erreur de schéma, sauf si l'on autorise explicitement l'évolution avec mergeSchema","La colonne est ajoutée silencieusement","La colonne est ignorée","La table est recréée"],
+  answer:0,
+  explain:"Ce refus par défaut est une protection : il évite qu'un changement de source fasse dériver le schéma d'une table de production sans que personne ne le voie." },
+{ id:"n2-merge", level:2, d:"prep", dom:"Delta Lake", type:"qcm",
+  q:"Quelle opération Delta applique en une passe des insertions, des mises à jour et des suppressions selon une condition de correspondance ?",
+  choices:["MERGE","UPSERT","REPLACE","SYNC"],
+  answer:0,
+  explain:"C'est l'outil de la couche Silver : MERGE sur la clé métier, avec WHEN MATCHED THEN UPDATE et WHEN NOT MATCHED THEN INSERT. Un SCD de type 1 tient en une instruction." },
+{ id:"n2-partition", level:2, d:"prep", dom:"Delta Lake", type:"qcm",
+  q:"Sur quel critère choisit-on une colonne de partitionnement pour une table Delta ?",
+  choices:["Une cardinalité faible et un usage fréquent en filtre, afin que chaque partition reste assez grosse","La cardinalité la plus élevée possible","La clé primaire","La colonne la plus large"],
+  answer:0,
+  explain:"Partitionner sur une date à la journée pour une petite table crée des milliers de dossiers minuscules : le remède devient le mal. Souvent l'année ou le mois suffit." },
+{ id:"n2-shortcut-vs-copie", level:2, d:"prep", dom:"Raccourcis", type:"qcm",
+  q:"Un lakehouse doit exposer des données qui restent maîtrisées par une autre équipe dans son propre espace de travail, sans décalage de fraîcheur. Que choisir ?",
+  choices:["Un raccourci OneLake vers la table de l'autre lakehouse","Un pipeline de copie planifié toutes les heures","Un dataflow Gen2 avec actualisation incrémentielle","Un mirroring"],
+  answer:0,
+  explain:"Zéro copie, zéro latence, une seule source de vérité. Le raccourci respecte par ailleurs les permissions de l'emplacement cible." },
+{ id:"n2-mirroring-cout", level:2, d:"prep", dom:"Mirroring", type:"qcm",
+  q:"Quelle promesse de coût le mirroring Fabric porte-t-il ?",
+  choices:["Le calcul de réplication et une quantité de stockage proportionnelle à la capacité sont inclus, sans pipeline à payer séparément","Il est entièrement gratuit, sans limite","Il coûte le double d'un pipeline de copie","Il facture à la ligne répliquée"],
+  answer:0,
+  explain:"L'argument d'examen est surtout l'absence d'ETL à écrire et à maintenir, là où un pipeline de capture de changements demanderait du code et de la surveillance." },
+{ id:"n2-dl-guardrail", level:2, d:"model", dom:"Direct Lake", type:"qcm",
+  q:"De quoi dépendent les garde-fous d'un modèle Direct Lake, comme le nombre de lignes par table ?",
+  choices:["Du SKU de la capacité : plus il est grand, plus les limites sont hautes","De la taille du lakehouse","Du nombre d'utilisateurs","De la version de Power BI Desktop"],
+  answer:0,
+  explain:"Franchir la limite ne casse rien visuellement : la requête retombe en DirectQuery, et la latence augmente. C'est pourquoi on surveille le taux de fallback." },
+{ id:"n2-dl-behavior", level:2, d:"model", dom:"Direct Lake", type:"qcm",
+  q:"Que provoque le réglage de DirectLakeBehavior sur DirectLakeOnly ?",
+  choices:["Toute requête qui ne peut pas être servie en Direct Lake échoue au lieu de retomber en DirectQuery","Les requêtes sont toujours servies en DirectQuery","Le modèle passe en import","Le cache est désactivé"],
+  answer:0,
+  explain:"C'est un choix de diagnostic ou d'exigence de performance : on préfère une erreur franche à une lenteur silencieuse. Automatic est la valeur par défaut." },
+{ id:"n2-dl-onelake-vs-sql", level:2, d:"model", dom:"Direct Lake", type:"qcm",
+  q:"Quelle différence majeure sépare Direct Lake sur OneLake de Direct Lake sur l'endpoint SQL analytics ?",
+  choices:["Direct Lake sur OneLake lit les tables OneLake directement et n'a pas de repli DirectQuery, tandis que la variante sur endpoint SQL hérite de la sécurité définie en T-SQL et peut retomber en DirectQuery","Seule la première accepte les raccourcis","La seconde est plus rapide par construction","Elles ne diffèrent que par le nom"],
+  answer:0,
+  explain:"Le choix se joue donc sur la sécurité : si la RLS vit en T-SQL sur l'endpoint, c'est la variante endpoint qu'il faut. Le study guide demande explicitement de savoir arbitrer." },
+{ id:"n2-dl-refresh", level:2, d:"model", dom:"Direct Lake", type:"qcm",
+  q:"Que fait une actualisation planifiée sur un modèle Direct Lake ?",
+  choices:["Un framing : elle met à jour le pointage vers la dernière version des fichiers Delta, sans recharger les données","Elle importe les données en mémoire","Elle reconstruit les relations","Rien, l'actualisation est impossible"],
+  answer:0,
+  explain:"Quelques secondes au lieu de plusieurs minutes. Le revers est que le cache des colonnes concernées est invalidé : les premières requêtes après framing sont plus lentes." },
+{ id:"n2-ols-outil", level:2, d:"model", dom:"OLS", type:"qcm",
+  q:"Avec quoi configure-t-on l'object-level security d'un modèle sémantique ?",
+  choices:["Un outil externe comme Tabular Editor, ou un script TMSL ou TMDL via l'endpoint XMLA","La boîte de dialogue des rôles de Power BI Desktop","Le portail d'administration Fabric","Une security policy T-SQL"],
+  answer:0,
+  explain:"L'interface de Desktop ne couvre que la RLS. C'est une raison concrète d'activer l'endpoint XMLA en écriture sur la capacité." },
+{ id:"n2-cls", level:2, d:"maint", dom:"CLS", type:"qcm",
+  q:"Comment met-on en place une sécurité au niveau des colonnes sur un warehouse Fabric ?",
+  choices:["Avec GRANT ou DENY sur les colonnes concernées, par exemple DENY SELECT ON table(colonne) TO role","Avec une security policy et un prédicat de filtre","Avec les rôles du modèle sémantique","Avec les étiquettes de confidentialité"],
+  answer:0,
+  explain:"Le prédicat de filtre dans une security policy, c'est la RLS. La CLS se fait par permissions, et l'utilisateur obtient une erreur sur la colonne refusée." },
+{ id:"n2-certified", level:2, d:"maint", dom:"Endorsement", type:"qcm",
+  q:"Qui peut marquer un élément comme Certified ?",
+  choices:["Seuls les utilisateurs ou groupes autorisés par l'administrateur du tenant dans les paramètres de certification","N'importe quel Member de l'espace de travail","Tout utilisateur ayant un droit d'écriture","Le créateur de l'élément"],
+  answer:0,
+  explain:"C'est ce qui donne du poids à la certification. Promoted, lui, est à la portée de quiconque dispose d'un droit d'écriture — et ne vaut donc pas garantie." },
+{ id:"n2-smoothing", level:2, d:"maint", dom:"Capacité", type:"qcm",
+  q:"Comment Fabric lisse la consommation des opérations en arrière-plan, comme une actualisation de modèle ?",
+  choices:["Sur une fenêtre de vingt-quatre heures, alors que les opérations interactives sont lissées sur quelques minutes","Sur une heure pour tout","Il n'y a pas de lissage","Sur un mois glissant"],
+  answer:0,
+  explain:"Ce lissage permet à une petite capacité d'absorber un gros batch nocturne. En revanche, cumuler les batchs finit par faire porter la dette au lendemain, et déclenche le throttling." },
+{ id:"n2-throttling", level:2, d:"maint", dom:"Capacité", type:"qcm",
+  q:"Que subit une capacité Fabric en surconsommation durable ?",
+  choices:["Un throttling progressif : retard des requêtes interactives, puis rejet, puis gel des opérations en arrière-plan","Une facturation supplémentaire automatique","Un arrêt immédiat de tous les éléments","Une migration vers un SKU supérieur"],
+  answer:0,
+  explain:"L'application Capacity Metrics est l'outil d'enquête : elle montre quelles opérations ont creusé la dette et sur quelle fenêtre." },
+{ id:"n2-trial", level:2, d:"maint", dom:"Capacité", type:"qcm",
+  q:"Quelle est la durée d'un essai Fabric, et sa puissance ?",
+  choices:["Soixante jours, avec une capacité d'essai équivalente à un F64","Trente jours en F2","Quatre-vingt-dix jours en F8","Illimité en F2"],
+  answer:0,
+  explain:"C'est largement suffisant pour mener les labs du DP-600. L'essai expiré, les éléments restent mais deviennent inaccessibles jusqu'à rattachement à une capacité payante." },
+{ id:"n2-pause", level:2, d:"maint", dom:"Capacité", type:"qcm",
+  q:"Que devient le contenu d'un espace de travail dont la capacité F est mise en pause ?",
+  choices:["Il reste stocké mais devient inutilisable jusqu'à la reprise ; la facturation du calcul s'arrête","Il est supprimé au bout de sept jours","Il bascule sur une capacité partagée","Il reste accessible en lecture seule"],
+  answer:0,
+  explain:"Mettre en pause hors heures ouvrées est le principal levier d'économie sur une capacité de développement. Le stockage OneLake, lui, continue d'être facturé." },
+{ id:"n2-auto-date", level:2, d:"model", dom:"Performance", type:"qcm",
+  q:"Pourquoi désactiver la date/heure automatique sur un modèle d'entreprise ?",
+  choices:["Parce qu'elle crée une table de dates masquée par colonne de type date, ce qui gonfle le modèle et empêche une dimension de dates partagée","Parce qu'elle fausse les calculs","Parce qu'elle est dépréciée","Parce qu'elle empêche l'actualisation incrémentielle"],
+  answer:0,
+  explain:"La bonne pratique est une unique table de dates marquée comme table de dates, avec ses hiérarchies et ses colonnes métier comme l'exercice fiscal." },
+{ id:"n2-bidirectionnel", level:2, d:"model", dom:"Relations", type:"qcm",
+  q:"Pourquoi éviter les relations bidirectionnelles dans un modèle sémantique ?",
+  choices:["Elles coûtent cher à l'évaluation et peuvent créer des ambiguïtés de chemin de filtre, avec des résultats difficiles à expliquer","Elles sont interdites en Direct Lake","Elles doublent la taille du modèle","Elles empêchent la RLS"],
+  answer:0,
+  explain:"Le remplacement propre est une mesure utilisant CROSSFILTER ou TREATAS, qui active le double sens là où on en a besoin et nulle part ailleurs." },
+{ id:"n2-cardinalite", level:2, d:"model", dom:"Performance", type:"qcm",
+  q:"Quel attribut d'une colonne pèse le plus sur la mémoire d'un modèle VertiPaq ?",
+  choices:["Sa cardinalité, c'est-à-dire son nombre de valeurs distinctes","Son type de données","Son nom","Sa position dans la table"],
+  answer:0,
+  explain:"Le dictionnaire de valeurs distinctes est le gros poste. D'où les réflexes : supprimer les clés techniques inutiles, et séparer date et heure en deux colonnes." },
+{ id:"n2-dual", level:2, d:"model", dom:"Mode de stockage", type:"qcm",
+  q:"Dans un modèle composite, quel mode donne-t-on à une petite dimension partagée entre une table de faits importée et une table de faits en DirectQuery ?",
+  choices:["Dual, pour qu'elle soit servie en import avec l'une et en DirectQuery avec l'autre","Import","DirectQuery","Direct Lake"],
+  answer:0,
+  explain:"Sans Dual, la dimension importée forcerait une jointure entre moteurs à chaque requête sur la table DirectQuery, ce qui est ruineux." },
+{ id:"n2-iterateur", level:2, d:"model", dom:"DAX", type:"qcm",
+  q:"Quelle est la différence entre SUM et SUMX ?",
+  choices:["SUM additionne une colonne existante ; SUMX parcourt une table et additionne une expression évaluée ligne par ligne","SUMX est plus rapide","SUM ignore les valeurs vides, SUMX non","Ils sont équivalents"],
+  answer:0,
+  explain:"SUMX est indispensable quand le calcul doit se faire au grain de la ligne avant l'agrégation, par exemple une quantité multipliée par un prix unitaire." },
+{ id:"n2-all-allselected", level:2, d:"model", dom:"DAX", type:"qcm",
+  q:"Qu'est-ce qui distingue ALL de ALLSELECTED ?",
+  choices:["ALL retire tous les filtres ; ALLSELECTED conserve ceux que l'utilisateur a posés hors du visuel, comme les segments","ALLSELECTED retire aussi les filtres de page","ALL ne fonctionne que sur une colonne","Ils sont identiques"],
+  answer:0,
+  explain:"C'est le choix qui décide du dénominateur d'un pourcentage du total : total absolu avec ALL, total de la sélection courante avec ALLSELECTED." },
+{ id:"n2-userelationship", level:2, d:"model", dom:"DAX", type:"qcm",
+  q:"À quoi sert USERELATIONSHIP dans une mesure ?",
+  choices:["Activer une relation inactive pour la durée du calcul, typiquement pour analyser sur une seconde date comme la date d'expédition","Créer une relation à la volée","Supprimer une relation","Inverser le sens du filtre"],
+  answer:0,
+  explain:"Deux dates vers la même dimension imposent une relation active et une inactive. USERELATIONSHIP, dans CALCULATE, bascule de l'une à l'autre sans dupliquer la table de dates." },
+{ id:"n2-var", level:2, d:"model", dom:"DAX", type:"qcm",
+  q:"Quel est l'intérêt principal d'une variable DAX déclarée avec VAR ?",
+  choices:["Elle est évaluée une seule fois, dans le contexte où elle est déclarée, ce qui améliore les performances et clarifie la lecture","Elle permet de stocker une valeur entre deux requêtes","Elle contourne le contexte de filtre","Elle rend la mesure accessible aux autres modèles"],
+  answer:0,
+  explain:"Le point subtil est le moment de l'évaluation : une variable déclarée avant un CALCULATE garde le contexte d'avant, ce qui sert justement à comparer deux contextes." },
+{ id:"n2-dax-divide", level:2, d:"model", dom:"DAX", type:"qcm",
+  q:"Pourquoi préférer DIVIDE à l'opérateur barre oblique en DAX ?",
+  choices:["DIVIDE gère la division par zéro sans erreur et accepte un résultat de remplacement","DIVIDE est plus précis","L'opérateur est déprécié","DIVIDE accepte des tables"],
+  answer:0,
+  explain:"Sans cela, un visuel entier affiche une erreur à cause d'une seule ligne au dénominateur nul. DIVIDE renvoie un blanc par défaut." },
+{ id:"n2-kql-casse", level:2, d:"prep", dom:"KQL", type:"qcm",
+  q:"Quelle particularité le KQL présente-t-il sur la casse ?",
+  choices:["Il est sensible à la casse, y compris pour les noms de tables et de colonnes et pour les comparaisons de chaînes","Il est insensible à la casse","Il ne l'est que pour les noms d'objets","Cela dépend de la base"],
+  answer:0,
+  explain:"Les opérateurs insensibles à la casse existent et se repèrent au suffixe : contains contre contains_cs, et la variante =~ pour l'égalité." },
+{ id:"n2-kql-ordre", level:2, d:"prep", dom:"KQL", type:"qcm",
+  q:"Dans une requête KQL, où placer le filtre le plus sélectif ?",
+  choices:["Le plus tôt possible, juste après la table, car les opérateurs s'enchaînent dans l'ordre d'écriture","À la fin, l'optimiseur réordonne","Dans un summarize","Peu importe"],
+  answer:0,
+  explain:"Le KQL se lit comme un tube : chaque opérateur reçoit le résultat du précédent. Filtrer tard fait traverser inutilement des millions de lignes." },
+{ id:"n2-retention-kql", level:2, d:"prep", dom:"Eventhouse", type:"qcm",
+  q:"Que contrôle la politique de cache à chaud d'une base KQL, par opposition à la politique de rétention ?",
+  choices:["La fenêtre récente conservée sur du stockage rapide pour des requêtes très rapides ; la rétention décide, elle, de la durée totale de conservation","Le nombre de requêtes mises en cache","La taille maximale de la base","La durée de vie des résultats de requête"],
+  answer:0,
+  explain:"On les règle ensemble : par exemple trente jours de cache à chaud pour le tableau de bord temps réel, et un an de rétention pour l'historique." },
+{ id:"n2-onelake-kql", level:2, d:"prep", dom:"Eventhouse", type:"qcm",
+  q:"Qu'active l'option de disponibilité OneLake sur une base KQL ?",
+  choices:["L'exposition des données de la base en Delta dans OneLake, interrogeables par Spark, T-SQL ou Direct Lake sans copie supplémentaire","La sauvegarde de la base dans OneLake","La réplication vers un autre eventhouse","L'export planifié en CSV"],
+  answer:0,
+  explain:"C'est le « une seule copie » appliqué au temps réel : les mêmes événements servent le tableau de bord KQL et le modèle sémantique." },
+{ id:"n2-default-model", level:2, d:"model", dom:"Modèle sémantique", type:"qcm",
+  q:"Que vaut le modèle sémantique par défaut créé automatiquement avec un lakehouse ?",
+  choices:["C'est un point de départ pratique, mais un modèle d'entreprise se construit à part pour maîtriser relations, mesures et sécurité","C'est le modèle recommandé en production","Il est obligatoire pour Direct Lake","Il est identique à un modèle créé à la main"],
+  answer:0,
+  explain:"Il ajoute les tables automatiquement et n'offre aucun contrôle de version propre. Pour la production, on crée un modèle Direct Lake dédié, versionné en .pbip." },
+{ id:"n2-pbit", level:2, d:"maint", dom:"Actifs réutilisables", type:"qcm",
+  q:"Que contient un fichier template Power BI, d'extension .pbit ?",
+  choices:["La structure du rapport, le modèle et les requêtes, mais pas les données","Le rapport et un échantillon de données","Uniquement le thème visuel","Le modèle sémantique seul, sans rapport"],
+  answer:0,
+  explain:"Il sert de gabarit distribué à plusieurs équipes : chacune l'ouvre, renseigne les paramètres, et obtient le même rapport sur son périmètre." },
+{ id:"n2-pbids", level:2, d:"maint", dom:"Actifs réutilisables", type:"qcm",
+  q:"À quoi sert un fichier .pbids ?",
+  choices:["Transmettre une définition de source de données pour qu'un analyste se connecte au bon endroit sans la saisir","Stocker les identifiants de connexion","Exporter un jeu de données","Définir un pipeline d'ingestion"],
+  answer:0,
+  explain:"Il contient la connexion, jamais les identifiants, qui restent demandés à l'ouverture. C'est l'actif qui évite les connexions improvisées vers la mauvaise base." },
+
+
+/* ====== NIVEAU 3 — OBTENIR LES DONNÉES & CHOISIR LE MAGASIN ====== */
+
+{ id:"n3-choix-wh-lh", level:3, d:"prep", dom:"Choix du magasin", type:"qcm",
+  q:"Une équipe d'ingénieurs décisionnels maîtrise exclusivement le T-SQL et doit construire une couche Gold avec des procédures stockées, des transactions multi-tables et du MERGE. Quel magasin retenir ?",
+  choices:["Un warehouse Fabric","Un lakehouse, en passant par son SQL analytics endpoint","Une base KQL dans un eventhouse","Un modèle sémantique en import"],
+  explain:"L'endpoint du lakehouse ne sait pas écrire : ni procédure de chargement, ni MERGE, ni transaction. Dès que l'écriture doit se faire en T-SQL, c'est le warehouse.",
+  answer:0 },
+{ id:"n3-choix-lh", level:3, d:"prep", dom:"Choix du magasin", type:"qcm",
+  q:"Des données arrivent en JSON imbriqué et en Parquet, de schéma irrégulier, et seront traitées par des data engineers Python. Que choisir ?",
+  choices:["Un lakehouse, avec la zone Files pour le brut et des tables Delta pour le raffiné","Un warehouse","Une base KQL","Un dataflow Gen2 vers un modèle sémantique"],
+  answer:0,
+  explain:"Le warehouse attend des données tabulaires et propres. L'aplatissement de JSON imbriqué et la gestion de schémas mouvants sont le terrain de Spark." },
+{ id:"n3-choix-kql", level:3, d:"prep", dom:"Choix du magasin", type:"qcm",
+  q:"Des capteurs envoient cinquante mille événements par seconde, et les analystes veulent interroger les trente dernières minutes avec un délai inférieur à la seconde. Quel magasin ?",
+  choices:["Un eventhouse alimenté par un eventstream","Un warehouse alimenté toutes les cinq minutes par un pipeline","Un lakehouse en micro-lots Spark","Un modèle sémantique en import actualisé en continu"],
+  answer:0,
+  explain:"L'eventhouse est bâti pour l'ingestion en flux et l'interrogation immédiate des données chaudes. Un pipeline toutes les cinq minutes ne tiendra jamais la seconde." },
+{ id:"n3-choix-mirror", level:3, d:"prep", dom:"Choix du magasin", type:"qcm",
+  q:"Il faut analyser une base Azure SQL Database de production, en quasi temps réel, sans écrire d'ETL et sans ajouter de charge significative à la base. Que mettre en place ?",
+  choices:["Un mirroring de la base vers Fabric","Un pipeline de copie complet toutes les heures","Un raccourci OneLake vers la base","Un dataflow Gen2 avec actualisation incrémentielle"],
+  answer:0,
+  explain:"Le raccourci ne sait pas viser une base relationnelle. Le mirroring s'appuie sur la capture de changements de la source et se matérialise en Delta dans OneLake." },
+{ id:"n3-shortcut-s3", level:3, d:"prep", dom:"Raccourcis", type:"qcm",
+  q:"Des fichiers Parquet sont déjà dans Amazon S3 et doivent être joints à des tables Fabric, sans migration et sans duplication. Quelle approche ?",
+  choices:["Un raccourci OneLake vers le bucket S3, exposé comme table ou dossier dans le lakehouse","Un pipeline de copie nocturne de S3 vers OneLake","Un mirroring de S3","Un dataflow Gen2 lisant S3 à chaque requête"],
+  answer:0,
+  explain:"Les raccourcis externes couvrent S3, ADLS Gen2, GCS et les stockages compatibles S3. Penser au coût de sortie du fournisseur et à la latence réseau sur les requêtes lourdes." },
+{ id:"n3-shortcut-perf", level:3, d:"prep", dom:"Raccourcis", type:"qcm",
+  q:"Un raccourci vers S3 sert des rapports très sollicités, et la latence est jugée excessive. Quel levier Fabric actionner en premier ?",
+  choices:["Activer le cache du raccourci, pour que les fichiers lus soient conservés dans la région de la capacité","Augmenter le SKU de la capacité","Convertir le raccourci en table managée","Passer les rapports en import"],
+  answer:0,
+  explain:"Le cache supprime les allers-retours transrégionaux répétés sur les mêmes fichiers. Si le besoin de fraîcheur l'interdit, alors seulement on envisage la copie." },
+{ id:"n3-ingest-gros", level:3, d:"prep", dom:"Ingestion", type:"qcm",
+  q:"Il faut charger deux téraoctets de fichiers Parquet d'un ADLS Gen2 vers un lakehouse, le plus vite possible et sans transformation.",
+  choices:["L'activité Copy d'un data pipeline, ou un raccourci si la copie n'est pas nécessaire","Un dataflow Gen2","Un notebook lisant ligne à ligne en pandas","Un import dans un modèle sémantique"],
+  answer:0,
+  explain:"Le moteur de copie est conçu pour le débit. Un dataflow Gen2 sur ce volume serait lent et coûteux : Power Query n'est pas un outil de déplacement massif." },
+{ id:"n3-ingest-connecteurs", level:3, d:"prep", dom:"Ingestion", type:"qcm",
+  q:"Les données viennent d'une API SaaS exotique, avec un volume modeste et des transformations de mise en forme nombreuses. Quel outil ?",
+  choices:["Un dataflow Gen2, pour la richesse de ses connecteurs et de ses transformations graphiques","Un notebook Spark","L'activité Copy d'un pipeline","Un eventstream"],
+  answer:0,
+  explain:"C'est précisément le créneau du dataflow : beaucoup de connecteurs, peu de volume, beaucoup de mise en forme. L'inverse exact du cas précédent." },
+{ id:"n3-ingest-orchestration", level:3, d:"prep", dom:"Pipelines de données", type:"qcm",
+  q:"Un chargement doit copier des fichiers, puis lancer un notebook de transformation, puis actualiser un modèle sémantique — et ne rien faire si la copie échoue.",
+  choices:["Un data pipeline enchaînant Copy, Notebook et Semantic model refresh avec des dépendances conditionnées à la réussite","Trois planifications indépendantes aux bonnes heures","Un dataflow Gen2 unique","Un notebook qui appelle tout en Python"],
+  answer:0,
+  explain:"Les dépendances du pipeline — On success, On failure, On completion — sont ce qui évite d'actualiser un modèle sur des données à moitié chargées." },
+{ id:"n3-foreach", level:3, d:"prep", dom:"Pipelines de données", type:"qcm",
+  q:"Il faut charger cinquante tables d'une même source, avec la même logique. Comment éviter cinquante activités de copie ?",
+  choices:["Une activité Lookup qui lit la liste des tables, puis une boucle ForEach contenant une Copy paramétrée","Cinquante pipelines distincts","Un notebook avec une boucle Python","Un dataflow par table"],
+  answer:0,
+  explain:"Ce couple Lookup plus ForEach est le motif de pipeline piloté par métadonnées : ajouter une table devient une ligne dans une table de contrôle." },
+{ id:"n3-eventstream-dest", level:3, d:"prep", dom:"Real-Time", type:"qcm",
+  q:"Un flux d'événements doit à la fois alimenter un tableau de bord temps réel et être conservé des années pour l'analyse historique.",
+  choices:["Un eventstream avec deux destinations : un eventhouse pour le temps réel et un lakehouse pour l'historique","Un eventhouse seul, avec une longue rétention","Un lakehouse seul, interrogé en Direct Lake","Deux eventstreams indépendants sur la même source"],
+  answer:0,
+  explain:"Un eventstream accepte plusieurs destinations, ce qui évite de dupliquer la capture. Chaque magasin reçoit alors les données dans le format et le coût qui lui conviennent." },
+{ id:"n3-rt-hub", level:3, d:"prep", dom:"Real-Time", type:"qcm",
+  q:"Un analyste veut savoir quels flux d'événements existent déjà dans le tenant avant d'en créer un nouveau. Où regarder ?",
+  choices:["Le Real-Time hub, qui catalogue les flux et les événements disponibles","Le OneLake catalog","La vue de lignage de son espace de travail","Le portail d'administration"],
+  answer:0,
+  explain:"Le study guide associe explicitement le OneLake catalog pour les données au repos et le Real-Time hub pour les flux : deux points d'entrée de découverte." },
+{ id:"n3-passerelle", level:3, d:"prep", dom:"Connexions", type:"qcm",
+  q:"Une source se trouve dans un réseau d'entreprise sans exposition publique. Que faut-il pour que Fabric l'atteigne ?",
+  choices:["Une passerelle de données — on-premises data gateway ou VNet data gateway — portant la connexion","Une connexion cloud directe avec l'adresse privée","Un raccourci OneLake","Une capacité dans la même région"],
+  answer:0,
+  explain:"La passerelle sur site vaut pour un datacenter, la passerelle VNet pour une ressource dans un réseau virtuel Azure. Sans elle, aucune route vers la source." },
+{ id:"n3-onelake-explorer", level:3, d:"prep", dom:"OneLake", type:"qcm",
+  q:"Un ingénieur veut déposer quelques fichiers de référence dans la zone Files d'un lakehouse depuis son poste Windows, sans écrire de code.",
+  choices:["L'explorateur de fichiers OneLake, qui monte OneLake comme un dossier synchronisé dans l'Explorateur","Un notebook avec mssparkutils","Un dataflow Gen2","L'API REST Fabric"],
+  answer:0,
+  explain:"Même esprit qu'OneDrive : glisser-déposer. Pratique pour des fichiers de mapping, à éviter pour des volumes ou des chargements à automatiser." },
+{ id:"n3-doublons", level:3, d:"prep", dom:"Qualité des données", type:"qcm",
+  q:"Une source réémet parfois la même ligne avec un horodatage plus récent. Comment ne garder que la dernière version de chaque clé métier dans la couche Silver ?",
+  choices:["Classer les lignes par clé et horodatage décroissant avec une fonction de fenêtrage, garder le rang 1, puis MERGE sur la clé","Un DISTINCT sur toutes les colonnes","Un GROUP BY sur la clé avec MAX sur chaque colonne","Supprimer la table et la recharger entièrement"],
+  answer:0,
+  explain:"Le DISTINCT ne voit pas que deux lignes diffèrent par l'horodatage. Le MAX colonne par colonne fabrique des lignes qui n'ont jamais existé, ce qui est pire." },
+{ id:"n3-nulls", level:3, d:"prep", dom:"Qualité des données", type:"qcm",
+  q:"Une table de faits contient des clés étrangères nulles, parce que la dimension correspondante n'est pas encore connue. Quelle pratique de modélisation appliquer ?",
+  choices:["Remplacer la clé nulle par la clé d'un membre inconnu ajouté à la dimension","Laisser les nuls et compter sur la relation","Supprimer les lignes concernées","Créer une relation bidirectionnelle"],
+  answer:0,
+  explain:"Sans membre inconnu, les lignes orphelines disparaissent des totaux filtrés par la dimension, et l'écart n'est visible nulle part. Un membre explicite rend le trou visible." },
+{ id:"n3-types", level:3, d:"prep", dom:"Qualité des données", type:"qcm",
+  q:"Un montant arrive en texte avec une virgule décimale et un séparateur de milliers. Où le convertir, de préférence ?",
+  choices:["Le plus en amont possible, à l'écriture de la couche Silver, pour que tous les consommateurs reçoivent un type numérique","Dans chaque mesure DAX qui l'utilise","Dans une colonne calculée du modèle","Dans chaque rapport"],
+  answer:0,
+  explain:"Convertir une fois en amont plutôt que partout en aval : c'est la règle générale du DP-600, pour la performance comme pour la cohérence." },
+{ id:"n3-denormaliser", level:3, d:"prep", dom:"Schéma en étoile", type:"qcm",
+  q:"Une source normalise les produits en trois tables : produit, sous-catégorie, catégorie. Que faire pour la couche Gold ?",
+  choices:["Les dénormaliser en une seule dimension Produit portant les libellés de sous-catégorie et de catégorie","Garder les trois tables et les relier en flocon","Créer une relation bidirectionnelle entre produit et catégorie","Fusionner les trois dans la table de faits"],
+  answer:0,
+  explain:"Une dimension large et plate est ce que VertiPaq compresse et parcourt le mieux. Le flocon multiplie les sauts de relation sur chaque requête." },
+{ id:"n3-scd2", level:3, d:"prep", dom:"Schéma en étoile", type:"qcm",
+  q:"Une dimension Client doit conserver l'historique : une analyse sur une vente passée doit refléter la ville du client au moment de la vente. Quel type de dimension ?",
+  choices:["Une dimension à variation lente de type 2, avec clé de substitution, dates de validité et indicateur de version courante","Une dimension de type 1, écrasée à chaque changement","Une dimension de type 0, figée","Une table de faits supplémentaire"],
+  answer:0,
+  explain:"Le type 2 impose que la table de faits porte la clé de substitution, et non l'identifiant métier : c'est elle qui ancre la vente sur la bonne version du client." },
+{ id:"n3-grain", level:3, d:"prep", dom:"Schéma en étoile", type:"qcm",
+  q:"Que doit-on fixer en premier quand on conçoit une table de faits ?",
+  choices:["Son grain, c'est-à-dire ce que représente exactement une ligne","La liste des mesures","Les clés étrangères","La stratégie de partitionnement"],
+  answer:0,
+  explain:"Un grain flou — mêler ligne de commande et commande dans la même table — produit des doubles comptes impossibles à rattraper en DAX." },
+{ id:"n3-agregats", level:3, d:"prep", dom:"Agrégations", type:"qcm",
+  q:"Une table de faits de cinq milliards de lignes sert des rapports qui n'affichent presque jamais mieux que le mois et la région. Quelle optimisation en amont ?",
+  choices:["Matérialiser une table agrégée au grain mois et région, et y brancher les rapports concernés","Partitionner la table de faits par jour","Ajouter des colonnes calculées de mois et de région","Passer les rapports en DirectQuery"],
+  answer:0,
+  explain:"On fait le calcul une fois à l'écriture plutôt qu'à chaque requête. La table détaillée reste accessible pour les analyses fines." },
+{ id:"n3-vue-wh", level:3, d:"prep", dom:"Warehouse", type:"qcm",
+  q:"Les analystes doivent voir une version simplifiée et filtrée de plusieurs tables, sans dupliquer les données ni leur donner accès aux tables brutes.",
+  choices:["Des vues dans le warehouse, et des permissions accordées sur les vues et non sur les tables sous-jacentes","Des tables copiées par un pipeline","Un modèle sémantique par analyste","Des raccourcis vers les tables"],
+  answer:0,
+  explain:"Cela demande d'éviter le chaînage de propriété rompu : la vue et les tables doivent appartenir au même schéma propriétaire pour que l'accès à la vue suffise." },
+{ id:"n3-sp-wh", level:3, d:"prep", dom:"Warehouse", type:"qcm",
+  q:"Une transformation Gold en T-SQL doit être rejouable, paramétrable par période et appelable depuis un pipeline.",
+  choices:["Une procédure stockée dans le warehouse, invoquée par l'activité Stored procedure du pipeline","Un script SQL collé dans le pipeline","Une vue","Une fonction table"],
+  answer:0,
+  explain:"La procédure stockée garde la logique dans la base, versionnable avec le reste, et accepte des paramètres. Les scripts dans les pipelines deviennent vite impossibles à relire." },
+{ id:"n3-crossdb", level:3, d:"prep", dom:"Warehouse", type:"qcm",
+  q:"Une requête T-SQL doit joindre une table d'un warehouse et une table d'un lakehouse du même espace de travail. Est-ce possible ?",
+  choices:["Oui : les requêtes entre un warehouse et un SQL analytics endpoint se font en trois parties, sans copie","Non, il faut copier les données dans le même magasin","Oui, mais seulement via un raccourci","Oui, mais seulement en Spark"],
+  answer:0,
+  explain:"C'est un argument fort de l'architecture : la frontière entre lakehouse et warehouse est poreuse en lecture, parce que les deux stockent du Delta dans OneLake." },
+
+
+/* ====== NIVEAU 3 — TRANSFORMER & INTERROGER ====== */
+
+{ id:"n3-spark-vs-tsql", level:3, d:"prep", dom:"Transformations", type:"qcm",
+  q:"Une transformation doit aplatir un JSON à cinq niveaux d'imbrication avec des tableaux de longueur variable. Quel outil est le plus adapté ?",
+  choices:["Un notebook Spark, avec explode et les accesseurs de type structuré","Une vue T-SQL dans le warehouse","Un dataflow Gen2","Une requête KQL"],
+  answer:0,
+  explain:"OPENJSON existe en T-SQL mais devient illisible au-delà de deux niveaux. Spark traite les structures et les tableaux comme des types de première classe." },
+{ id:"n3-overwrite-append", level:3, d:"prep", dom:"Delta Lake", type:"qcm",
+  q:"Un chargement quotidien complet écrase la table Silver en mode overwrite. Un consommateur Direct Lake se plaint d'erreurs pendant le chargement. Pourquoi, et quel remède ?",
+  choices:["L'écrasement remplace tous les fichiers d'un coup ; un MERGE ou un overwrite de partition limite la perturbation et conserve l'historique Delta","Direct Lake ne supporte pas Delta, il faut passer en import","La table doit être partitionnée par consommateur","Il faut désactiver le V-Order"],
+  answer:0,
+  explain:"L'écrasement complet invalide le cache du modèle à chaque exécution et ruine le voyage dans le temps. Le chargement différentiel est plus sobre et plus sûr." },
+{ id:"n3-deletion-vectors", level:3, d:"prep", dom:"Delta Lake", type:"qcm",
+  q:"Une table Delta subit de nombreuses petites suppressions. Qu'apportent les deletion vectors ?",
+  choices:["Marquer les lignes supprimées à côté des fichiers, au lieu de réécrire chaque fichier concerné, ce qui accélère beaucoup les suppressions","La suppression définitive immédiate","La compression des lignes supprimées","La réplication des suppressions"],
+  answer:0,
+  explain:"Le revers est une dette à la lecture, que la maintenance régulière — OPTIMIZE puis VACUUM — vient apurer en matérialisant les suppressions." },
+{ id:"n3-table-maintenance", level:3, d:"prep", dom:"Maintenance Delta", type:"qcm",
+  q:"Une table Delta alimentée toutes les cinq minutes depuis six mois répond de plus en plus lentement, sans que son volume ait beaucoup changé.",
+  choices:["Elle est fragmentée en milliers de petits fichiers : lancer OPTIMIZE, éventuellement avec Z-Order, puis VACUUM","La table doit être repartitionnée par jour","Il faut augmenter le SKU","Il faut recréer le modèle sémantique"],
+  answer:0,
+  explain:"C'est le symptôme classique du micro-lot. L'interface du lakehouse propose cette maintenance en un clic, et on la planifie ensuite." },
+{ id:"n3-visual-query", level:3, d:"prep", dom:"Visual query", type:"qcm",
+  q:"Un analyste sans SQL doit joindre deux tables du lakehouse, filtrer et grouper, puis réutiliser le résultat. Que lui proposer dans Fabric ?",
+  choices:["L'éditeur de requête visuel du SQL analytics endpoint, dont le résultat peut être enregistré comme vue","Un notebook PySpark","Un dataflow Gen2 avec destination","Une requête KQL"],
+  answer:0,
+  explain:"Le study guide cite le Visual query editor au même rang que SQL, KQL et DAX. Il génère du T-SQL, que l'analyste peut lire pour progresser." },
+{ id:"n3-sql-window", level:3, d:"prep", dom:"T-SQL", type:"qcm",
+  q:"Il faut calculer, pour chaque vente, le cumul des ventes du client depuis le début de l'année. Quelle construction T-SQL ?",
+  choices:["SUM avec OVER, PARTITION BY client et ORDER BY date, et un cadre ROWS UNBOUNDED PRECEDING","Une sous-requête corrélée par ligne","Un GROUP BY client","Une jointure de la table sur elle-même"],
+  answer:0,
+  explain:"La fonction de fenêtrage fait une passe là où la sous-requête corrélée en fait une par ligne. L'écart se mesure en ordres de grandeur sur une grosse table." },
+{ id:"n3-sql-cte", level:3, d:"prep", dom:"T-SQL", type:"qcm",
+  q:"Une requête de préparation enchaîne cinq étapes logiques et devient illisible. Quelle construction privilégier dans un warehouse Fabric ?",
+  choices:["Des expressions de table communes nommées, enchaînées avec WITH","Des tables temporaires créées puis supprimées","Des curseurs","Des vues imbriquées une par étape"],
+  answer:0,
+  explain:"Les CTE nomment chaque étape sans matérialiser quoi que ce soit, et l'optimiseur voit la requête entière. Les vues imbriquées éparpillent la logique dans le catalogue." },
+{ id:"n3-kql-summarize", level:3, d:"prep", dom:"KQL", type:"qcm",
+  q:"En KQL, quel opérateur agrège par groupe, équivalent du GROUP BY de SQL ?",
+  choices:["summarize","project","extend","distinct"],
+  answer:0,
+  explain:"La forme type est summarize suivi de l'agrégat, puis by et les colonnes de regroupement. project sélectionne, extend ajoute une colonne calculée." },
+{ id:"n3-kql-bin", level:3, d:"prep", dom:"KQL", type:"qcm",
+  q:"Il faut compter les événements par tranche de cinq minutes sur les dernières vingt-quatre heures, en KQL.",
+  choices:["Filtrer sur l'horodatage, puis summarize count() by bin(Timestamp, 5m)","summarize count() by Timestamp","Utiliser une fonction de fenêtrage","Faire une jointure sur une table de temps"],
+  answer:0,
+  explain:"bin arrondit l'horodatage vers le bas au pas demandé : c'est la brique de toute série temporelle en KQL. Les littéraux de durée s'écrivent 5m, 1h, 7d." },
+{ id:"n3-kql-materialized", level:3, d:"prep", dom:"Eventhouse", type:"qcm",
+  q:"Un tableau de bord KQL recalcule sans cesse la même agrégation sur un milliard de lignes. Quel objet de base KQL utiliser ?",
+  choices:["Une vue matérialisée, qui maintient l'agrégation à mesure que les données arrivent","Une vue classique","Une fonction stockée","Une table externe"],
+  answer:0,
+  explain:"La vue matérialisée paie le coût à l'ingestion plutôt qu'à chaque requête. L'update policy, elle, transforme les lignes au moment de leur arrivée." },
+{ id:"n3-update-policy", level:3, d:"prep", dom:"Eventhouse", type:"qcm",
+  q:"Les événements bruts arrivent en JSON dans une table KQL de transit, et doivent être éclatés en colonnes typées dans une table cible, automatiquement.",
+  choices:["Une update policy sur la table cible, qui applique une fonction de transformation à chaque ingestion","Un pipeline de données planifié","Une vue matérialisée","Un eventstream supplémentaire"],
+  answer:0,
+  explain:"C'est le motif bronze vers silver en temps réel, à l'intérieur de l'eventhouse. La table de transit peut n'avoir qu'une rétention très courte." },
+{ id:"n3-dax-analyse", level:3, d:"prep", dom:"DAX", type:"qcm",
+  q:"Un analyste doit comparer le chiffre d'affaires du mois à celui du même mois de l'année précédente. Quelle approche DAX ?",
+  choices:["CALCULATE sur la mesure, avec SAMEPERIODLASTYEAR appliqué à la colonne de date de la table de dates","Un filtre manuel sur l'année précédente dans le visuel","Une colonne calculée contenant l'année moins un","Une seconde table de faits décalée d'un an"],
+  answer:0,
+  explain:"Les fonctions d'intelligence temporelle exigent une table de dates marquée comme telle, continue et sans trous. Sinon elles renvoient des résultats faux en silence." },
+{ id:"n3-dax-rang", level:3, d:"prep", dom:"DAX", type:"qcm",
+  q:"Il faut afficher le rang de chaque produit par chiffre d'affaires, à l'intérieur de sa catégorie.",
+  choices:["RANKX sur la table des produits de la catégorie courante, obtenue avec ALLEXCEPT sur la catégorie","RANKX sur toute la table des produits","Une colonne calculée de rang","TOPN limité à la catégorie"],
+  answer:0,
+  explain:"ALLEXCEPT retire les filtres sauf celui qu'on veut conserver, ici la catégorie. C'est ce qui rend le classement local au groupe au lieu d'être global." },
+{ id:"n3-dax-pourcentage", level:3, d:"prep", dom:"DAX", type:"qcm",
+  q:"Une matrice affiche les ventes par pays et par produit. On veut le pourcentage que représente chaque produit dans son pays.",
+  choices:["Diviser la mesure par la même mesure évaluée avec REMOVEFILTERS sur le produit, en gardant le filtre de pays","Diviser par la mesure avec ALL sur toutes les tables","Diviser par la somme figée du total général","Utiliser ALLSELECTED sur le pays"],
+  answer:0,
+  explain:"Le dénominateur doit retirer exactement le filtre de la dimension qu'on ventile, et rien de plus. ALL partout donnerait le pourcentage du total mondial." },
+
+
+/* ====== NIVEAU 3 — CONCEVOIR LE MODÈLE SÉMANTIQUE ====== */
+
+{ id:"n3-mode-choix-dl", level:3, d:"model", dom:"Mode de stockage", type:"qcm",
+  q:"Un modèle doit servir des rapports rapides sur une table de faits de deux milliards de lignes déjà présente en Delta dans un lakehouse, avec une fraîcheur de quelques minutes.",
+  choices:["Direct Lake","Import avec actualisation incrémentielle toutes les quinze minutes","DirectQuery sur le SQL analytics endpoint","Un modèle composite import et DirectQuery"],
+  answer:0,
+  explain:"Direct Lake est exactement ce cas : données déjà en Delta dans OneLake, besoin de vitesse et de fraîcheur. L'import imposerait une actualisation lourde, DirectQuery serait lent." },
+{ id:"n3-mode-choix-import", level:3, d:"model", dom:"Mode de stockage", type:"qcm",
+  q:"Un modèle doit s'appuyer sur un fichier Excel déposé chaque mois et sur une API, avec des colonnes calculées complexes et un volume de quelques millions de lignes.",
+  choices:["Import","Direct Lake","DirectQuery","Dual"],
+  answer:0,
+  explain:"Direct Lake exige des tables Delta dans OneLake : un Excel et une API n'en sont pas. L'import reste le mode le plus souple et le plus riche fonctionnellement." },
+{ id:"n3-mode-choix-dq", level:3, d:"model", dom:"Mode de stockage", type:"qcm",
+  q:"Une contrainte réglementaire interdit que les données quittent la base source, même en cache. Quel mode de stockage ?",
+  choices:["DirectQuery, qui n'en conserve aucune copie","Import, avec chiffrement","Direct Lake","Dual"],
+  answer:0,
+  explain:"Import et Direct Lake matérialisent tous deux les données côté Fabric. Seul DirectQuery laisse les données à la source, au prix de la performance." },
+{ id:"n3-dl-prerequis", level:3, d:"model", dom:"Direct Lake", type:"qcm",
+  q:"Que faut-il vérifier avant de promettre du Direct Lake sur une table existante ?",
+  choices:["Qu'elle est au format Delta dans OneLake et que son volume reste dans les garde-fous du SKU de la capacité","Qu'elle possède une clé primaire","Qu'elle est partitionnée","Qu'elle est dans un warehouse et non un lakehouse"],
+  answer:0,
+  explain:"Le format et les garde-fous sont les deux conditions. Lakehouse ou warehouse est indifférent : les deux stockent du Delta dans OneLake." },
+{ id:"n3-dl-colonne-calculee", level:3, d:"model", dom:"Direct Lake", type:"qcm",
+  q:"Un modèle Direct Lake a besoin d'une colonne de regroupement dérivée de plusieurs colonnes. Quelle est la bonne pratique ?",
+  choices:["Calculer la colonne en amont, dans la table Delta, plutôt que dans le modèle","La créer en colonne calculée DAX","La créer en mesure","Passer la table en import"],
+  answer:0,
+  explain:"Le principe de Direct Lake est de lire les colonnes telles qu'elles sont sur le disque. Tout ce qui doit exister en colonne se prépare dans la couche Gold." },
+{ id:"n3-dl-securite", level:3, d:"model", dom:"Direct Lake", type:"qcm",
+  q:"Une RLS existe déjà en T-SQL sur le SQL analytics endpoint et doit absolument s'appliquer aux rapports Direct Lake.",
+  choices:["Utiliser Direct Lake sur le SQL analytics endpoint, qui hérite de cette sécurité","Utiliser Direct Lake sur OneLake","Désactiver le fallback","Dupliquer la règle en DAX dans le modèle"],
+  answer:0,
+  explain:"C'est précisément l'arbitrage que le study guide demande de savoir faire. Direct Lake sur OneLake s'appuie sur la sécurité OneLake, pas sur les policies T-SQL." },
+{ id:"n3-relation-mm", level:3, d:"model", dom:"Relations", type:"qcm",
+  q:"Un client peut appartenir à plusieurs segments, et un segment contient plusieurs clients. Comment modéliser proprement ?",
+  choices:["Une table de pont entre Client et Segment, avec deux relations un-à-plusieurs partant du pont","Une relation plusieurs-à-plusieurs directe entre les deux tables","Une relation bidirectionnelle","Dupliquer les clients par segment dans la dimension"],
+  answer:0,
+  explain:"Le pont rend le chemin de filtre explicite et contrôlable. La relation plusieurs-à-plusieurs directe existe mais produit des totaux souvent mal comprises." },
+{ id:"n3-relation-inactive", level:3, d:"model", dom:"Relations", type:"qcm",
+  q:"Une table de faits porte une date de commande et une date de livraison, et les deux doivent pouvoir filtrer la table de dates.",
+  choices:["Deux relations vers la table de dates, une active et une inactive, cette dernière activée par USERELATIONSHIP dans des mesures dédiées","Deux tables de dates distinctes","Une relation bidirectionnelle","Une table de pont"],
+  answer:0,
+  explain:"Le modèle n'accepte qu'un seul chemin actif entre deux tables. Deux tables de dates sont l'autre option valable, dite role-playing, mais elles dupliquent la dimension." },
+{ id:"n3-relation-ambigu", level:3, d:"model", dom:"Relations", type:"qcm",
+  q:"Un modèle refuse une relation en invoquant une ambiguïté de chemin. Que signifie ce message ?",
+  choices:["Il existerait plusieurs chemins de filtre entre deux tables, et le moteur ne peut pas choisir lequel appliquer","La cardinalité est mal déclarée","Les types de données diffèrent","Une colonne contient des nuls"],
+  answer:0,
+  explain:"Les relations bidirectionnelles en sont la cause la plus fréquente : elles ouvrent des circuits. Le remède est de revenir au sens simple et d'agir en DAX." },
+{ id:"n3-groupe-calcul-cas", level:3, d:"model", dom:"Groupes de calcul", type:"qcm",
+  q:"Douze mesures doivent chacune être déclinées en valeur courante, cumul annuel, même période de l'année précédente et variation. Que mettre en place ?",
+  choices:["Un groupe de calcul portant les quatre éléments de calcul, appliqué à la mesure sélectionnée","Quarante-huit mesures explicites","Quatre paramètres de champs","Quatre colonnes calculées"],
+  answer:0,
+  explain:"L'élément de calcul s'écrit autour de SELECTEDMEASURE, qui représente la mesure en cours d'évaluation. Douze mesures et quatre éléments remplacent quarante-huit mesures." },
+{ id:"n3-format-dynamique", level:3, d:"model", dom:"Groupes de calcul", type:"qcm",
+  q:"Un même indicateur doit s'afficher en euros pour certains éléments de calcul et en pourcentage pour la variation. Quelle fonctionnalité ?",
+  choices:["Les chaînes de format dynamiques, définies par élément de calcul","Deux mesures distinctes","Un format conditionnel sur le visuel","Un paramètre de champs"],
+  answer:0,
+  explain:"La chaîne de format devient une expression DAX. C'est ce qui évite de dupliquer les mesures uniquement pour une question d'unité d'affichage." },
+{ id:"n3-field-param-cas", level:3, d:"model", dom:"Paramètres de champs", type:"qcm",
+  q:"Les utilisateurs veulent basculer l'axe d'un même graphique entre produit, région et canal, sans multiplier les pages.",
+  choices:["Un paramètre de champs listant les trois colonnes, posé sur l'axe du visuel","Trois visuels superposés avec des signets","Trois pages de rapport","Un groupe de calcul"],
+  answer:0,
+  explain:"Le paramètre de champs est une table calculée construite avec NAMEOF. Les signets superposés fonctionnent aussi, mais deviennent ingérables au-delà de deux ou trois choix." },
+{ id:"n3-composite-extension", level:3, d:"model", dom:"Modèles composites", type:"qcm",
+  q:"Une équipe veut enrichir un modèle d'entreprise certifié avec son propre budget, stocké dans un fichier Excel, sans demander de modification au propriétaire du modèle.",
+  choices:["Un modèle composite : connexion DirectQuery vers le modèle sémantique d'entreprise, plus la table de budget importée localement","Télécharger et dupliquer le modèle d'entreprise","Demander l'ajout de la table au modèle d'entreprise","Créer un rapport paginé"],
+  answer:0,
+  explain:"C'est l'usage phare du modèle composite sur modèle sémantique : étendre sans forker. Le modèle central garde sa gouvernance et son endorsement." },
+{ id:"n3-composite-risque", level:3, d:"model", dom:"Modèles composites", type:"qcm",
+  q:"Quel risque un modèle composite bâti sur un modèle d'entreprise introduit-il ?",
+  choices:["Une modification du modèle source peut casser le modèle dérivé, qui en dépend sans que son propriétaire en soit prévenu","Une duplication du stockage","La perte de la RLS du modèle source","L'impossibilité d'utiliser Direct Lake"],
+  answer:0,
+  explain:"La RLS du modèle source, elle, continue de s'appliquer. Le vrai sujet est la gestion des dépendances : c'est à cela que sert l'analyse d'impact." },
+{ id:"n3-large-model-cas", level:3, d:"model", dom:"Large semantic model", type:"qcm",
+  q:"Un modèle en import approche la limite de taille par défaut et doit accepter des actualisations par partition pilotées depuis l'extérieur.",
+  choices:["Activer le format de stockage large semantic model sur le modèle","Passer en Direct Lake","Passer en DirectQuery","Augmenter le SKU sans autre changement"],
+  answer:0,
+  explain:"Le format large lève la limite par défaut et ouvre la gestion des partitions par l'endpoint XMLA, prérequis des actualisations fines." },
+{ id:"n3-incremental-cas", level:3, d:"model", dom:"Actualisation incrémentielle", type:"qcm",
+  q:"Un modèle importe dix ans d'historique mais seules les six dernières semaines changent. L'actualisation quotidienne dure quatre heures.",
+  choices:["Une actualisation incrémentielle archivant dix ans et actualisant les six dernières semaines, avec RangeStart et RangeEnd pliés vers la source","Augmenter la capacité","Passer en DirectQuery","Supprimer l'historique au-delà de deux ans"],
+  answer:0,
+  explain:"Seules les partitions récentes sont rechargées, les anciennes restent figées. Le gain est proportionnel à la part stable de l'historique." },
+{ id:"n3-incremental-detect", level:3, d:"model", dom:"Actualisation incrémentielle", type:"qcm",
+  q:"Que permet l'option de détection des changements de données dans une actualisation incrémentielle ?",
+  choices:["Ne réactualiser une partition que si une colonne témoin indique qu'elle a changé depuis la dernière fois","Détecter les changements de schéma","Comparer ligne à ligne les données","Déclencher l'actualisation à chaque écriture de la source"],
+  answer:0,
+  explain:"Une colonne de dernière modification suffit. Sur une fenêtre de six semaines dont seuls trois jours bougent, on évite la quasi-totalité du travail." },
+
+
+/* ====== NIVEAU 3 — OPTIMISER À L'ÉCHELLE DE L'ENTREPRISE ====== */
+
+{ id:"n3-perf-analyzer", level:3, d:"model", dom:"Diagnostic", type:"qcm",
+  q:"Une page de rapport met quinze secondes à s'afficher. Par quoi commencer l'enquête ?",
+  choices:["L'analyseur de performances de Power BI Desktop, pour savoir quel visuel consomme le temps et si c'est la requête DAX ou le rendu","Augmenter le SKU de la capacité","Réécrire toutes les mesures","Passer le modèle en import"],
+  answer:0,
+  explain:"L'analyseur sépare durée de requête DAX, durée de rendu visuel et autre. Optimiser avant de savoir lequel des trois domine, c'est travailler à l'aveugle." },
+{ id:"n3-perf-visuels", level:3, d:"model", dom:"Performance des rapports", type:"qcm",
+  q:"L'analyseur montre des requêtes DAX rapides, mais un temps d'affichage total très long sur une page qui compte trente visuels.",
+  choices:["Réduire le nombre de visuels par page : chaque visuel génère au moins une requête et son propre rendu","Ajouter des agrégations au modèle","Passer en Direct Lake","Créer un groupe de calcul"],
+  answer:0,
+  explain:"Trente visuels, c'est trente requêtes au minimum. Découper en plusieurs pages, ou remplacer des cartes multiples par une matrice, produit un gain immédiat." },
+{ id:"n3-perf-filtre", level:3, d:"model", dom:"Performance des rapports", type:"qcm",
+  q:"Un segment sur une colonne à deux millions de valeurs distinctes rend la page très lente.",
+  choices:["Remplacer le segment par une hiérarchie ou une recherche, et réduire la cardinalité exposée à l'utilisateur","Mettre le segment sur une autre page","Passer le modèle en DirectQuery","Trier la colonne"],
+  answer:0,
+  explain:"Un segment doit charger la liste de ses valeurs. À ce niveau de cardinalité, aucun moteur ne sauve l'affaire : c'est le choix de conception qu'il faut revoir." },
+{ id:"n3-dax-filter-cout", level:3, d:"model", dom:"Performance DAX", type:"qcm",
+  q:"Une mesure écrite CALCULATE(SUM(Ventes[Montant]), FILTER(Ventes, Ventes[Montant] > 100)) est lente sur une grosse table. Quelle réécriture ?",
+  choices:["CALCULATE(SUM(Ventes[Montant]), Ventes[Montant] > 100), qui produit un filtre traité par le moteur de stockage","Remplacer SUM par SUMX","Ajouter une variable","Créer une colonne calculée indiquant le dépassement"],
+  answer:0,
+  explain:"FILTER sur une table entière matérialise un itérateur dans le moteur de formule. Le prédicat simple descend dans le moteur de stockage, bien plus rapide." },
+{ id:"n3-dax-iterateur-cout", level:3, d:"model", dom:"Performance DAX", type:"qcm",
+  q:"Pourquoi SUMX sur une table de faits de un milliard de lignes peut-il écrouler les performances, là où SUM sur une colonne reste instantané ?",
+  choices:["SUMX évalue une expression ligne par ligne dans le moteur de formule, alors que SUM d'une colonne est traité en bloc par le moteur de stockage","SUMX ne sait pas utiliser le cache","SUMX lit les données depuis le disque","SUMX ignore les relations"],
+  answer:0,
+  explain:"D'où le réflexe : si le produit quantité fois prix est systématiquement nécessaire, on matérialise la colonne en amont dans la couche Gold." },
+{ id:"n3-dax-variable-perf", level:3, d:"model", dom:"Performance DAX", type:"qcm",
+  q:"Une mesure appelle quatre fois la même sous-expression coûteuse. Quel est le remède le plus simple ?",
+  choices:["Extraire la sous-expression dans une variable, évaluée une seule fois","Créer une mesure intermédiaire appelée quatre fois","Créer une colonne calculée","Mettre le résultat en cache côté visuel"],
+  answer:0,
+  explain:"Une mesure intermédiaire ne garantit rien : elle peut être réévaluée. La variable, elle, est évaluée une fois dans son contexte de déclaration." },
+{ id:"n3-vertipaq", level:3, d:"model", dom:"Diagnostic", type:"qcm",
+  q:"Un modèle en import pèse bien plus que prévu. Quel outil permet de voir quelles colonnes consomment la mémoire ?",
+  choices:["VertiPaq Analyzer, par exemple via DAX Studio connecté à l'endpoint XMLA","L'analyseur de performances","La vue de lignage","L'application Capacity Metrics"],
+  answer:0,
+  explain:"Il ventile la taille par table, par colonne et par dictionnaire. On y repère les clés techniques et les horodatages à la seconde, coupables habituels." },
+{ id:"n3-colonnes-inutiles", level:3, d:"model", dom:"Performance", type:"qcm",
+  q:"Quelle action réduit le plus sûrement la mémoire d'un modèle en import, à périmètre fonctionnel constant ?",
+  choices:["Supprimer les colonnes jamais utilisées, en particulier les identifiants techniques de forte cardinalité","Réduire le nombre de mesures","Renommer les colonnes","Masquer les colonnes dans la vue de rapport"],
+  answer:0,
+  explain:"Masquer ne libère rien : la colonne reste chargée. Il faut la retirer de la requête, et donc en amont du modèle." },
+{ id:"n3-datetime-split", level:3, d:"model", dom:"Performance", type:"qcm",
+  q:"Une colonne date-heure à la seconde dans une table de faits de 500 millions de lignes pèse énormément. Que faire ?",
+  choices:["La scinder en une colonne de date et une colonne d'heure, ce qui effondre la cardinalité de chacune","La convertir en texte","La supprimer","La passer en colonne calculée"],
+  answer:0,
+  explain:"Mille jours fois quatre-vingt-six mille secondes font des dizaines de millions de valeurs distinctes. Séparées, on retombe sur mille et sur quatre-vingt-six mille." },
+{ id:"n3-dl-fallback-diag", level:3, d:"model", dom:"Direct Lake", type:"qcm",
+  q:"Un modèle Direct Lake est beaucoup plus lent que prévu sur certaines pages. Quelle piste explorer en premier ?",
+  choices:["Vérifier s'il y a du fallback vers DirectQuery, et pourquoi : garde-fou de SKU dépassé, ou construction non servie par Direct Lake","Reconstruire les relations","Désactiver le V-Order","Ajouter des colonnes calculées"],
+  answer:0,
+  explain:"Le fallback est silencieux par conception. Le forcer à DirectLakeOnly le temps d'un test transforme la lenteur en erreur explicite, donc en diagnostic." },
+{ id:"n3-dl-petits-fichiers", level:3, d:"model", dom:"Direct Lake", type:"qcm",
+  q:"Un modèle Direct Lake s'est dégradé après plusieurs semaines d'alimentation en micro-lots. Quelle est la cause la plus probable ?",
+  choices:["La fragmentation de la table Delta en très nombreux petits fichiers, qu'OPTIMIZE vient corriger","Un dépassement du nombre d'utilisateurs","La perte du V-Order sur les anciennes données","Un problème de relations"],
+  answer:0,
+  explain:"Le nombre de fichiers Parquet fait partie des garde-fous de Direct Lake. La maintenance Delta régulière n'est pas une option sur ce mode." },
+{ id:"n3-dl-framing-froid", level:3, d:"model", dom:"Direct Lake", type:"qcm",
+  q:"Juste après chaque framing, les premières requêtes d'un modèle Direct Lake sont nettement plus lentes. Pourquoi ?",
+  choices:["Le framing invalide le cache en mémoire des colonnes concernées, qui doivent être rechargées depuis OneLake à la première demande","Le framing recalcule les relations","Le framing recompresse les fichiers","Le modèle retombe toujours en DirectQuery après framing"],
+  answer:0,
+  explain:"On en tire une règle d'exploitation : espacer les framings autant que la fraîcheur le permet, plutôt que de recadrer toutes les minutes par principe." },
+{ id:"n3-agreg-modele", level:3, d:"model", dom:"Agrégations", type:"qcm",
+  q:"Un modèle composite expose une table de faits DirectQuery très volumineuse, et la plupart des requêtes restent au niveau du mois.",
+  choices:["Définir une table d'agrégation importée au grain mois, qui intercepte les requêtes compatibles sans que les utilisateurs changent leurs habitudes","Passer toute la table en import","Interdire le détail aux utilisateurs","Créer un second modèle agrégé"],
+  answer:0,
+  explain:"La table d'agrégation est transparente : le moteur l'utilise si elle suffit, et retombe sur le détail sinon. C'est le mécanisme d'agregation awareness." },
+{ id:"n3-query-folding-perf", level:3, d:"prep", dom:"Power Query", type:"qcm",
+  q:"Une requête Power Query sur une base SQL est devenue très lente après l'ajout d'une étape. Quelle vérification mène au diagnostic ?",
+  choices:["Regarder si « Afficher la requête native » est encore disponible sur la dernière étape, pour savoir où le pliage a cassé","Vérifier la taille du cache local","Regarder les journaux de la passerelle","Augmenter la taille de la capacité"],
+  answer:0,
+  explain:"Dès que l'option disparaît, tout ce qui suit s'exécute en local sur des données rapatriées. Il suffit souvent de déplacer l'étape fautive vers la fin." },
+{ id:"n3-capacity-metrics", level:3, d:"maint", dom:"Capacité", type:"qcm",
+  q:"Les utilisateurs signalent des lenteurs généralisées en fin de matinée, tous rapports confondus. Où chercher ?",
+  choices:["L'application Capacity Metrics, pour voir si la capacité est en surconsommation et quelles opérations ont creusé la dette","L'analyseur de performances sur un rapport","La vue de lignage","Les journaux d'actualisation d'un modèle"],
+  answer:0,
+  explain:"Une lenteur qui touche tout en même temps désigne la ressource partagée, pas un rapport. L'analyseur de performances ne verrait qu'un symptôme." },
+
+
+/* ====== NIVEAU 3 — SÉCURITÉ, GOUVERNANCE, CYCLE DE VIE ====== */
+
+{ id:"n3-sec-analystes", level:3, d:"maint", dom:"Rôles d'espace de travail", type:"qcm",
+  q:"Des analystes doivent créer leurs propres rapports sur un modèle sémantique certifié, sans pouvoir modifier le modèle ni voir les lakehouses de l'espace de travail.",
+  choices:["Leur accorder la permission Build sur le modèle seul, sans rôle sur l'espace de travail","Les ajouter comme Contributor de l'espace de travail","Les ajouter comme Viewer de l'espace de travail","Leur donner ReadAll sur le lakehouse"],
+  answer:0,
+  explain:"Les permissions d'élément permettent cette granularité, là où un rôle d'espace de travail donne accès à tout son contenu. Build est le droit de construire sur le modèle." },
+{ id:"n3-sec-ingest", level:3, d:"maint", dom:"Permissions d'élément", type:"qcm",
+  q:"Un data scientist doit lire les fichiers bruts d'un lakehouse depuis un notebook Spark, mais ne doit pas accéder aux autres éléments de l'espace de travail.",
+  choices:["La permission ReadAll sur le lakehouse, accordée directement sur l'élément","La permission ReadData sur le lakehouse","Le rôle Viewer sur l'espace de travail","Le rôle Contributor sur l'espace de travail"],
+  answer:0,
+  explain:"ReadData ne couvre que l'endpoint SQL et ne permettrait pas la lecture des fichiers par Spark. ReadAll est le droit sur les données OneLake." },
+{ id:"n3-sec-rls-dynamique", level:3, d:"maint", dom:"RLS", type:"qcm",
+  q:"Chaque commercial ne doit voir que ses propres clients, et il y en a trois cents. Comment éviter trois cents rôles ?",
+  choices:["Un seul rôle avec un filtre DAX dynamique comparant une colonne de courriel à USERPRINCIPALNAME()","Trois cents rôles, un par commercial","Un rôle par région","Une CLS sur la colonne commercial"],
+  answer:0,
+  explain:"C'est la RLS dynamique. Le modèle doit contenir une table de correspondance entre l'utilisateur et son périmètre, reliée aux faits." },
+{ id:"n3-sec-rls-hierarchie", level:3, d:"maint", dom:"RLS", type:"qcm",
+  q:"Un manager doit voir ses clients et ceux de toute son équipe, sur une hiérarchie à profondeur variable.",
+  choices:["Une table de correspondance aplatie entre chaque utilisateur et tous les clients de son périmètre, filtrée dynamiquement sur l'utilisateur courant","Une relation bidirectionnelle sur la hiérarchie","Un rôle par niveau hiérarchique","PATH et PATHCONTAINS dans la table de faits"],
+  answer:0,
+  explain:"Aplatir la hiérarchie en amont transforme un parcours récursif coûteux en simple jointure. PATHCONTAINS fonctionne mais devient lent à grande échelle." },
+{ id:"n3-sec-ols-cas", level:3, d:"maint", dom:"OLS", type:"qcm",
+  q:"La colonne des salaires d'une table RH ne doit exister que pour un petit groupe. Les autres utilisateurs ne doivent même pas savoir qu'elle existe.",
+  choices:["Une object-level security sur la colonne, définie via TMDL ou Tabular Editor","Une RLS sur la table RH","Masquer la colonne dans la vue de rapport","Une étiquette de confidentialité sur le modèle"],
+  answer:0,
+  explain:"Masquer n'est que cosmétique : la colonne reste interrogeable en DAX ou depuis Excel. Attention, un visuel qui la référence tombera en erreur pour les autres." },
+{ id:"n3-sec-onelake-roles", level:3, d:"maint", dom:"Sécurité OneLake", type:"qcm",
+  q:"Un lakehouse contient un dossier de données RH qui ne doit être lisible que par un groupe, alors que le reste du lakehouse est ouvert aux analystes.",
+  choices:["Des rôles d'accès aux données OneLake, qui restreignent l'accès au niveau du dossier ou de la table","La permission ReadAll pour tous, avec une RLS dans le modèle","Un lakehouse distinct obligatoire","Une étiquette de confidentialité sur le dossier"],
+  answer:0,
+  explain:"C'est l'intérêt de la sécurité OneLake : du grain fin sans découper le lakehouse. Elle vaut aussi pour les accès Spark, que le SQL ne contrôle pas." },
+{ id:"n3-sec-label-obligatoire", level:3, d:"maint", dom:"Étiquettes de confidentialité", type:"qcm",
+  q:"L'organisation veut qu'aucun élément Fabric ne soit créé sans étiquette de confidentialité. Comment l'imposer ?",
+  choices:["Une stratégie d'étiquetage obligatoire définie dans Microsoft Purview pour le tenant","Un paramètre d'espace de travail","Une règle de pipeline de déploiement","Une Azure Policy"],
+  answer:0,
+  explain:"Les étiquettes relèvent de Purview, pas du portail Fabric. Fabric les applique, les hérite et les propage, mais ne les définit pas." },
+{ id:"n3-sec-export", level:3, d:"maint", dom:"Étiquettes de confidentialité", type:"qcm",
+  q:"Quel est l'intérêt décisif d'une étiquette de confidentialité par rapport aux permissions Fabric ?",
+  choices:["Elle suit la donnée hors de Fabric : un export Excel ou PowerPoint reste chiffré et soumis à la stratégie","Elle est plus granulaire que les permissions","Elle remplace la RLS","Elle empêche l'export"],
+  answer:0,
+  explain:"Les permissions s'arrêtent à la frontière du service. L'étiquette, elle, voyage avec le fichier, et c'est ce qui en fait un contrôle de conformité." },
+{ id:"n3-gov-certifie", level:3, d:"maint", dom:"Endorsement", type:"qcm",
+  q:"Trois modèles sémantiques couvrent les ventes, et personne ne sait lequel utiliser. Quelle action de gouvernance mener ?",
+  choices:["Certifier celui qui fait référence, et retirer ou dé-promouvoir les autres, pour que le OneLake catalog guide les utilisateurs","Les renommer avec des préfixes clairs","Les déplacer dans un espace de travail unique","Les documenter dans un fichier partagé"],
+  answer:0,
+  explain:"L'endorsement est le signal que les surfaces de découverte remontent. Un renommage n'arbitre rien : il faut désigner la source de vérité." },
+{ id:"n3-gov-impact", level:3, d:"maint", dom:"Analyse d'impact", type:"qcm",
+  q:"Une colonne doit être renommée dans une table de lakehouse très utilisée. Quelle est l'étape préalable ?",
+  choices:["Une analyse d'impact sur l'élément, pour recenser les modèles et rapports en aval et prévenir leurs propriétaires","Un clone de la table","Une sauvegarde du lakehouse","Un déploiement en préproduction"],
+  answer:0,
+  explain:"Le study guide demande explicitement de savoir mener cette analyse depuis les lakehouses, warehouses, dataflows et modèles. Un renommage casse silencieusement l'aval." },
+{ id:"n3-lifecycle-git-branche", level:3, d:"maint", dom:"Git", type:"qcm",
+  q:"Trois développeurs doivent travailler en parallèle sur le même modèle sémantique sans se gêner. Quel schéma retenir ?",
+  choices:["Un espace de travail par développeur, chacun branché sur sa propre branche, puis fusion par pull request vers la branche principale","Un seul espace de travail partagé, avec coordination orale","Un espace de travail par étape de déploiement","Des copies locales en .pbix échangées par courriel"],
+  answer:0,
+  explain:"C'est le motif « branch out to new workspace ». La revue se fait sur les fichiers TMDL du .pbip, qui sont du texte lisible dans une pull request." },
+{ id:"n3-lifecycle-pbip-revue", level:3, d:"maint", dom:"Projets Power BI", type:"qcm",
+  q:"Pourquoi le format .pbip change-t-il la nature des revues de code sur un modèle sémantique ?",
+  choices:["Le modèle est écrit en TMDL, du texte : une pull request montre précisément quelles mesures et quelles relations ont changé","Il permet de commenter le rapport","Il embarque les tests unitaires","Il compresse l'historique"],
+  answer:0,
+  explain:"Avec un .pbix, la revue se résume à « un binaire a changé ». Avec le .pbip, on discute d'une modification de mesure ligne par ligne." },
+{ id:"n3-lifecycle-regles", level:3, d:"maint", dom:"Pipelines de déploiement", type:"qcm",
+  q:"Après promotion en production, un modèle continue d'interroger le lakehouse de développement. Qu'a-t-on oublié ?",
+  choices:["Les règles de déploiement de l'étape de production, qui doivent repointer la source de données ou le paramètre concerné","D'actualiser le modèle","De republier le rapport","De certifier le modèle"],
+  answer:0,
+  explain:"C'est le piège le plus classique des pipelines de déploiement. L'auto-binding gère les dépendances entre éléments déployés ensemble, mais pas les sources externes." },
+{ id:"n3-lifecycle-xmla-deploy", level:3, d:"maint", dom:"Endpoint XMLA", type:"qcm",
+  q:"Une chaîne CI doit déployer uniquement les métadonnées modifiées d'un modèle sémantique, sans écraser ses partitions de données.",
+  choices:["Un déploiement de métadonnées via l'endpoint XMLA, avec ALM Toolkit ou un script TMSL","Une republication du fichier .pbix","Un pipeline de déploiement Fabric","Une actualisation complète du modèle"],
+  answer:0,
+  explain:"Republier le fichier remplacerait le modèle et obligerait à tout réactualiser. Le déploiement de métadonnées préserve les données déjà chargées." },
+{ id:"n3-lifecycle-partition-xmla", level:3, d:"maint", dom:"Endpoint XMLA", type:"qcm",
+  q:"Il faut réactualiser uniquement la partition du mois de mars d'un modèle volumineux, après une correction à la source.",
+  choices:["Une commande d'actualisation ciblée sur cette partition via l'endpoint XMLA","Une actualisation complète du modèle","Une actualisation incrémentielle standard","Une republication du modèle"],
+  answer:0,
+  explain:"C'est le gain concret du format large semantic model combiné à XMLA : on ne paie que ce qu'on corrige, au lieu de rejouer dix ans d'historique." },
+{ id:"n3-lifecycle-shared", level:3, d:"maint", dom:"Actifs réutilisables", type:"qcm",
+  q:"Cinq équipes construisent des rapports sur les mêmes définitions de ventes, chacune avec ses propres mesures, et les chiffres divergent en comité.",
+  choices:["Un modèle sémantique partagé et certifié, auquel les rapports se connectent en direct au lieu de redéfinir les mesures","Un fichier .pbit distribué aux cinq équipes","Un document de spécification des mesures","Un espace de travail par équipe"],
+  answer:0,
+  explain:"Le template fige un point de départ mais laisse chacun dériver. Seul le modèle partagé garantit qu'une correction de mesure profite à tout le monde." },
+{ id:"n3-lifecycle-pbit-cas", level:3, d:"maint", dom:"Actifs réutilisables", type:"qcm",
+  q:"Vingt filiales doivent disposer du même rapport, chacune sur sa propre base régionale, et le maintenir elles-mêmes ensuite.",
+  choices:["Un fichier .pbit paramétré, que chaque filiale ouvre en renseignant son paramètre de connexion","Vingt copies du .pbix modifiées à la main","Un modèle composite par filiale","Un pipeline de déploiement à vingt étapes"],
+  answer:0,
+  explain:"Le template est fait pour cela : même structure, paramètres différents. Un pipeline de déploiement sert à promouvoir des environnements, pas à dupliquer par client." },
+{ id:"n3-gov-domaines", level:3, d:"maint", dom:"Gouvernance", type:"qcm",
+  q:"Une grande organisation veut regrouper les espaces de travail par ligne métier, avec des responsables et des règles propres à chacune.",
+  choices:["Les domaines Fabric, qui rassemblent des espaces de travail sous une gouvernance déléguée","Un espace de travail unique par ligne métier","Des étiquettes de confidentialité par ligne métier","Une capacité par ligne métier"],
+  answer:0,
+  explain:"Les domaines portent le maillage de données : la plateforme reste centrale, la responsabilité du contenu revient aux métiers. Une capacité est une question de coût, pas de gouvernance." },
+{ id:"n3-gov-audit", level:3, d:"maint", dom:"Gouvernance", type:"qcm",
+  q:"La conformité demande qui a consulté un rapport contenant des données sensibles, et quand.",
+  choices:["Le journal d'audit Microsoft Purview, qui enregistre les activités Fabric et Power BI","La vue de lignage","L'application Capacity Metrics","L'historique d'actualisation du modèle"],
+  answer:0,
+  explain:"L'audit est centralisé dans Purview pour tout Microsoft 365. Les outils Fabric montrent les performances et les dépendances, pas les accès nominatifs." },
+{ id:"n3-gov-capacite-isolation", level:3, d:"maint", dom:"Capacité", type:"qcm",
+  q:"Les expérimentations d'une équipe de science des données dégradent régulièrement les rapports de direction.",
+  choices:["Rattacher les deux usages à des capacités distinctes, pour que la consommation de l'une n'affecte pas l'autre","Augmenter le SKU de la capacité commune","Limiter les droits de l'équipe de science des données","Planifier les travaux la nuit"],
+  answer:0,
+  explain:"La capacité est l'unité d'isolation des ressources dans Fabric. Agrandir la capacité commune repousse le problème sans supprimer la contention." },
+
+
+/* ====== CODE À COMPLÉTER — T-SQL, KQL, DAX, PYSPARK, M, TMDL ====== */
+
+{ id:"c-dax-calculate", level:2, d:"model", dom:"DAX", type:"input",
+  q:"Cette mesure doit ignorer tout filtre sur la table Produit. Quelle fonction manque à la place de ??? ?",
+  code:"CA tous produits =\nCALCULATE(\n    SUM(Ventes[Montant]),\n    ???(Produit)\n)",
+  accept:["removefilters","all"],
+  explain:"REMOVEFILTERS est le nom moderne, plus explicite sur l'intention. ALL reste accepté et fait la même chose comme argument de filtre de CALCULATE." },
+{ id:"c-dax-divide", level:2, d:"model", dom:"DAX", type:"input",
+  q:"Cette mesure doit renvoyer un blanc, et non une erreur, quand le dénominateur vaut zéro. Quelle fonction manque ?",
+  code:"Marge % =\n???(\n    [Marge],\n    [CA]\n)",
+  accept:["divide"],
+  explain:"DIVIDE accepte un troisième argument pour la valeur de remplacement. Sans lui, le résultat est BLANK, ce qui est presque toujours le bon comportement visuel." },
+{ id:"c-dax-sameperiod", level:3, d:"model", dom:"DAX", type:"input",
+  q:"Cette mesure compare au même mois de l'année précédente. Quelle fonction d'intelligence temporelle manque ?",
+  code:"CA N-1 =\nCALCULATE(\n    [CA],\n    ???(Dates[Date])\n)",
+  accept:["sameperiodlastyear","dateadd","parallelperiod"],
+  explain:"SAMEPERIODLASTYEAR est l'écriture la plus directe. DATEADD avec -1 et YEAR fait la même chose et se généralise à d'autres décalages." },
+{ id:"c-dax-userelationship", level:3, d:"model", dom:"DAX", type:"input",
+  q:"Cette mesure doit s'appuyer sur la relation inactive entre la date de livraison et la table de dates. Quelle fonction manque ?",
+  code:"CA à la livraison =\nCALCULATE(\n    [CA],\n    ???(Ventes[DateLivraison], Dates[Date])\n)",
+  accept:["userelationship"],
+  explain:"USERELATIONSHIP ne s'emploie que comme modificateur dans CALCULATE, et la relation visée doit exister dans le modèle, déclarée inactive." },
+{ id:"c-dax-rankx", level:3, d:"model", dom:"DAX", type:"qcm",
+  q:"Que classe exactement cette mesure ?",
+  code:"Rang produit dans catégorie =\nRANKX(\n    ALLEXCEPT(Produit, Produit[Categorie]),\n    [CA],\n    ,\n    DESC\n)",
+  choices:["Le produit courant parmi les produits de sa seule catégorie, du chiffre d'affaires le plus élevé au plus faible","Le produit courant parmi tous les produits du modèle","La catégorie courante parmi toutes les catégories","Les produits par ordre alphabétique"],
+  answer:0,
+  explain:"ALLEXCEPT retire tous les filtres de la table Produit sauf celui sur la catégorie : le classement reste donc interne au groupe." },
+{ id:"c-dax-var", level:3, d:"model", dom:"DAX", type:"qcm",
+  q:"Pourquoi cette mesure renvoie-t-elle la part du total de l'année et non celle du total général ?",
+  code:"Part de l'année =\nVAR Total =\n    CALCULATE([CA], ALLEXCEPT(Dates, Dates[Annee]))\nRETURN\n    DIVIDE([CA], Total)",
+  choices:["Parce qu'ALLEXCEPT retire les filtres de la table Dates à l'exception de l'année, qui reste donc appliquée au dénominateur","Parce que VAR fige le contexte de ligne","Parce que DIVIDE normalise le résultat","Parce que CALCULATE ignore toujours les dates"],
+  answer:0,
+  explain:"Le dénominateur conserve l'année courante mais oublie le mois et le jour. Changer la liste d'exceptions change le niveau de comparaison." },
+{ id:"c-dax-calcitem", level:3, d:"model", dom:"Groupes de calcul", type:"input",
+  q:"Cet élément de calcul doit s'appliquer à la mesure en cours d'évaluation. Quelle fonction DAX manque à la place de ??? ?",
+  code:"-- Élément de calcul « Cumul annuel »\nCALCULATE(\n    ???,\n    DATESYTD(Dates[Date])\n)",
+  accept:["selectedmeasure","selectedmeasure()"],
+  explain:"SELECTEDMEASURE est le cœur des groupes de calcul : l'élément est écrit une fois et s'applique à n'importe quelle mesure du modèle." },
+{ id:"c-dax-rls", level:3, d:"maint", dom:"RLS", type:"input",
+  q:"Ce filtre de rôle met en place une RLS dynamique sur la table Commercial. Quelle fonction DAX manque ?",
+  code:"-- Filtre du rôle « Commercial »\n[Email] = ???()",
+  accept:["userprincipalname","username"],
+  explain:"USERPRINCIPALNAME renvoie l'UPN dans le service comme dans Desktop, ce qui le rend plus fiable que USERNAME, dont le format diffère selon le contexte." },
+{ id:"c-dax-isinscope", level:3, d:"model", dom:"DAX", type:"qcm",
+  q:"À quoi sert cette construction dans une mesure affichée dans une matrice hiérarchique ?",
+  code:"Libellé =\nIF(\n    ISINSCOPE(Produit[Produit]),\n    SELECTEDVALUE(Produit[Produit]),\n    \"Total catégorie\"\n)",
+  choices:["Détecter le niveau de la hiérarchie où la mesure est évaluée, pour afficher un libellé différent sur la ligne de total","Vérifier que le produit existe","Compter les produits visibles","Filtrer les produits hors périmètre"],
+  answer:0,
+  explain:"ISINSCOPE répond à « suis-je au niveau de ce champ ? ». C'est l'outil propre pour gérer les lignes de sous-total sans bidouille visuelle." },
+{ id:"c-tsql-rls", level:3, d:"maint", dom:"RLS", type:"input",
+  q:"Cette sécurité au niveau des lignes est posée dans un warehouse Fabric. Quel type de prédicat manque à la place de ??? ?",
+  code:"CREATE SECURITY POLICY SalesFilter\nADD ??? PREDICATE dbo.fn_filtre_commercial(Commercial)\n    ON dbo.Ventes\nWITH (STATE = ON);",
+  accept:["filter"],
+  explain:"FILTER PREDICATE masque les lignes en lecture. BLOCK PREDICATE, lui, interdit les écritures qui violeraient la règle, ce qui n'a pas de sens sur un endpoint en lecture seule." },
+{ id:"c-tsql-cls", level:2, d:"maint", dom:"CLS", type:"qcm",
+  q:"Quel effet cette instruction produit-elle dans un warehouse Fabric ?",
+  code:"DENY SELECT ON dbo.Employe(Salaire) TO [Analystes];",
+  choices:["Toute requête du groupe Analystes qui référence la colonne Salaire échoue, y compris un SELECT étoile sur la table","La colonne Salaire renvoie NULL pour ce groupe","La colonne est masquée et la requête réussit","Toute la table devient inaccessible"],
+  answer:0,
+  explain:"La CLS en T-SQL refuse, elle ne masque pas. C'est pourquoi on expose plutôt une vue sans la colonne, pour que le SELECT étoile des analystes continue de fonctionner." },
+{ id:"c-tsql-ctas", level:2, d:"prep", dom:"T-SQL", type:"input",
+  q:"Cette instruction crée une table Gold à partir d'une requête, en une seule opération. Quel mot-clé manque à la place de ??? ?",
+  code:"CREATE TABLE dbo.ventes_mensuelles\n??? \nSELECT\n    DATEFROMPARTS(YEAR(DateVente), MONTH(DateVente), 1) AS Mois,\n    ProduitID,\n    SUM(Montant) AS Montant\nFROM dbo.ventes\nGROUP BY DATEFROMPARTS(YEAR(DateVente), MONTH(DateVente), 1), ProduitID;",
+  accept:["as","as select"],
+  explain:"CREATE TABLE AS SELECT, ou CTAS, est le motif de chargement privilégié dans un warehouse Fabric : une seule passe, pas de DDL puis DML séparés." },
+{ id:"c-tsql-merge", level:3, d:"prep", dom:"T-SQL", type:"qcm",
+  q:"Que réalise cette instruction dans un warehouse Fabric ?",
+  code:"MERGE dbo.dim_client AS cible\nUSING stg.client AS source\n    ON cible.ClientID = source.ClientID\nWHEN MATCHED AND cible.Ville <> source.Ville THEN\n    UPDATE SET cible.Ville = source.Ville\nWHEN NOT MATCHED BY TARGET THEN\n    INSERT (ClientID, Ville) VALUES (source.ClientID, source.Ville);",
+  choices:["Une dimension à variation lente de type 1 : la ville est écrasée, sans conservation de l'historique","Une dimension de type 2, avec historisation","Une simple insertion des nouveaux clients","Une suppression des clients absents de la source"],
+  answer:0,
+  explain:"Le type 2 exigerait de clôturer la ligne courante par une date de fin et d'en insérer une nouvelle, au lieu de la mettre à jour en place." },
+{ id:"c-tsql-window", level:3, d:"prep", dom:"T-SQL", type:"input",
+  q:"Cette requête ne doit garder que la dernière version de chaque client. Quelle fonction de fenêtrage manque ?",
+  code:"WITH classe AS (\n    SELECT *,\n        ???() OVER (PARTITION BY ClientID ORDER BY DateMaj DESC) AS rang\n    FROM stg.client\n)\nSELECT * FROM classe WHERE rang = 1;",
+  accept:["row_number","rownumber"],
+  explain:"ROW_NUMBER donne un rang strictement unique. RANK laisserait passer plusieurs lignes en cas d'égalité sur DateMaj, ce qui réintroduirait des doublons." },
+{ id:"c-tsql-timetravel", level:3, d:"prep", dom:"Warehouse", type:"input",
+  q:"Cette requête lit l'état de la table tel qu'il était hier. Quel mot-clé manque à la place de ??? ?",
+  code:"SELECT COUNT(*)\nFROM dbo.ventes\nOPTION (FOR ??? AS OF '2026-11-22T08:00:00');",
+  accept:["timestamp"],
+  explain:"Le voyage dans le temps du warehouse remonte jusqu'à trente jours. Il sert à expliquer un écart de chiffre sans avoir à restaurer quoi que ce soit." },
+{ id:"c-tsql-clone", level:3, d:"prep", dom:"Warehouse", type:"qcm",
+  q:"Que crée cette instruction, et à quel coût de stockage ?",
+  code:"CREATE TABLE dbo.ventes_test\nAS CLONE OF dbo.ventes;",
+  choices:["Un clone sans copie, qui partage les fichiers Parquet de la table d'origine et ne coûte que les écarts ultérieurs","Une copie complète de la table","Une vue sur la table","Un synonyme"],
+  answer:0,
+  explain:"Idéal pour tester une transformation destructrice sur des données réelles. On peut aussi cloner un état passé, dans la fenêtre de voyage dans le temps." },
+{ id:"c-kql-serie", level:3, d:"prep", dom:"KQL", type:"input",
+  q:"Cette requête compte les erreurs par tranche de dix minutes. Quelle fonction manque à la place de ??? ?",
+  code:"Evenements\n| where Timestamp > ago(24h)\n| where Niveau == \"Error\"\n| summarize Nb = count() by ???(Timestamp, 10m)\n| order by Timestamp asc",
+  accept:["bin","bin_at","floor"],
+  explain:"bin arrondit vers le bas au pas demandé. bin_at permet en plus de fixer l'origine des tranches, utile pour aligner sur une heure pleine." },
+{ id:"c-kql-join", level:3, d:"prep", dom:"KQL", type:"qcm",
+  q:"Que fait cette requête KQL ?",
+  code:"Commandes\n| where Date > ago(7d)\n| summarize Total = sum(Montant) by ClientID\n| join kind=inner (Clients | project ClientID, Nom) on ClientID\n| top 10 by Total desc",
+  choices:["Elle agrège les montants par client sur sept jours, y rattache le nom du client, et renvoie les dix premiers","Elle joint d'abord puis agrège, ce qui donne le même résultat plus vite","Elle renvoie les dix premières commandes","Elle compte les clients par montant"],
+  answer:0,
+  explain:"L'ordre est le bon : agréger avant de joindre réduit le volume avant l'opération coûteuse. L'inverse joindrait des millions de lignes pour rien." },
+{ id:"c-kql-extend", level:2, d:"prep", dom:"KQL", type:"input",
+  q:"Cette requête ajoute une colonne calculée au résultat. Quel opérateur KQL manque à la place de ??? ?",
+  code:"Ventes\n| ??? MargePct = round(100.0 * Marge / Montant, 2)\n| where MargePct < 5",
+  accept:["extend"],
+  explain:"extend ajoute une colonne, project remplace la liste des colonnes retournées. Confondre les deux fait perdre toutes les colonnes non listées." },
+{ id:"c-pyspark-write", level:2, d:"prep", dom:"PySpark", type:"input",
+  q:"Cette écriture doit autoriser l'ajout d'une nouvelle colonne au schéma de la table cible. Quelle option manque à la place de ??? ?",
+  code:"(df.write\n   .format(\"delta\")\n   .mode(\"append\")\n   .option(\"???\", \"true\")\n   .saveAsTable(\"silver.ventes\"))",
+  accept:["mergeschema","mergeSchema"],
+  explain:"Sans mergeSchema, une colonne nouvelle fait échouer l'écriture. C'est un garde-fou : on l'active sciemment, pas par défaut sur une table de production." },
+{ id:"c-pyspark-merge", level:3, d:"prep", dom:"PySpark", type:"qcm",
+  q:"Que réalise ce code sur une table Delta ?",
+  code:"from delta.tables import DeltaTable\ncible = DeltaTable.forName(spark, \"silver.client\")\n(cible.alias(\"c\")\n .merge(source.alias(\"s\"), \"c.ClientID = s.ClientID\")\n .whenMatchedUpdateAll()\n .whenNotMatchedInsertAll()\n .execute())",
+  choices:["Un upsert : les clients existants sont mis à jour, les nouveaux insérés, en une seule transaction Delta","Une insertion de toutes les lignes de la source","Un remplacement complet de la table cible","Une suppression des clients absents de la source"],
+  answer:0,
+  explain:"Les clients disparus de la source ne sont pas touchés. Pour les traiter, il faudrait ajouter une clause whenNotMatchedBySourceDelete." },
+{ id:"c-pyspark-optimize", level:2, d:"prep", dom:"Maintenance Delta", type:"input",
+  q:"Cette commande Spark SQL regroupe les petits fichiers d'une table Delta. Quel mot-clé manque à la place de ??? ?",
+  code:"%%sql\n??? silver.ventes\nZORDER BY (ClientID, DateVente)",
+  accept:["optimize"],
+  explain:"OPTIMIZE compacte, ZORDER colocalise les valeurs proches. L'un répond au problème des petits fichiers, l'autre à l'efficacité du saut de fichiers au filtrage." },
+{ id:"c-pyspark-explode", level:3, d:"prep", dom:"PySpark", type:"input",
+  q:"Ce code aplatit un tableau JSON en une ligne par élément. Quelle fonction manque à la place de ??? ?",
+  code:"from pyspark.sql.functions import col, ???\n\nlignes = (commandes\n          .select(col(\"CommandeID\"), ???(col(\"Lignes\")).alias(\"ligne\"))\n          .select(\"CommandeID\", \"ligne.ProduitID\", \"ligne.Quantite\"))",
+  accept:["explode","explode_outer"],
+  explain:"explode ignore les tableaux vides ou nuls ; explode_outer conserve la ligne avec un nul. Le choix décide si une commande sans ligne disparaît du résultat." },
+{ id:"c-m-rangestart", level:3, d:"model", dom:"Actualisation incrémentielle", type:"qcm",
+  q:"Pourquoi ce filtre Power Query est-il la condition même de l'actualisation incrémentielle ?",
+  code:"= Table.SelectRows(\n    Source,\n    each [DateVente] >= RangeStart and [DateVente] < RangeEnd\n)",
+  choices:["Parce que le service remplace RangeStart et RangeEnd par les bornes de chaque partition, et que le filtre doit se plier vers la source","Parce qu'il trie les données par date","Parce qu'il crée les partitions","Parce qu'il met les données en cache"],
+  answer:0,
+  explain:"Les deux noms sont imposés, et l'inégalité stricte sur la borne haute évite de compter deux fois les lignes à la frontière entre partitions." },
+{ id:"c-m-folding", level:2, d:"prep", dom:"Power Query", type:"qcm",
+  q:"Laquelle de ces étapes risque le plus de casser le pliage de requête vers une base SQL ?",
+  code:"// Étape A\n= Table.SelectRows(Source, each [Pays] = \"France\")\n\n// Étape B\n= Table.AddColumn(Source, \"Hash\", each Binary.ToText(\n      Crypto.CreateHash(CryptoAlgorithm.SHA256, Text.ToBinary([Email]))))",
+  choices:["L'étape B, parce qu'aucune fonction SQL n'est équivalente et que le calcul doit se faire localement","L'étape A, parce que le filtre est trop sélectif","Les deux au même titre","Aucune des deux"],
+  answer:0,
+  explain:"Un filtre simple se traduit en WHERE. Une fonction de hachage propre à M n'a pas d'équivalent traduisible : tout ce qui suit l'étape B s'exécute en local." },
+{ id:"c-tmdl-mesure", level:3, d:"maint", dom:"Projets Power BI", type:"qcm",
+  q:"Que représente ce fragment de fichier issu d'un projet .pbip ?",
+  code:"table Ventes\n\n    measure 'CA' = SUM(Ventes[Montant])\n        formatString: #,0 \\€\n        displayFolder: Indicateurs\n\n    column Montant\n        dataType: decimal\n        summarizeBy: none",
+  choices:["La définition en TMDL d'une table du modèle sémantique, versionnable et lisible dans une pull request","Un script de création de table T-SQL","Un fichier de configuration de rapport","Un manifeste de déploiement"],
+  answer:0,
+  explain:"TMDL est le format texte du modèle tabulaire. C'est lui qui rend les revues de code possibles, là où un .pbix n'est qu'un binaire opaque pour Git." },
+{ id:"c-tmdl-ols", level:3, d:"maint", dom:"OLS", type:"input",
+  q:"Ce fragment TMDL retire la colonne Salaire au rôle Analystes. Quel niveau de permission manque à la place de ??? ?",
+  code:"role Analystes\n    modelPermission: read\n\n    tablePermission Employe\n        columnPermission Salaire = ???",
+  accept:["none"],
+  explain:"La valeur none rend la colonne inexistante pour ce rôle. Les visuels qui la référencent tomberont en erreur, ce qu'il faut anticiper côté rapport." },
+{ id:"c-tsql-vue-secu", level:3, d:"maint", dom:"Permissions d'élément", type:"qcm",
+  q:"Quel est l'intérêt de cette vue par rapport à un accès direct à la table ?",
+  code:"CREATE VIEW ventes.v_ventes_anonymes AS\nSELECT\n    DateVente,\n    ProduitID,\n    RegionID,\n    Montant\nFROM dbo.ventes;\nGO\nGRANT SELECT ON ventes.v_ventes_anonymes TO [Analystes];",
+  choices:["Les analystes obtiennent les colonnes utiles sans voir la table complète, et un SELECT étoile sur la vue fonctionne normalement","Elle accélère les requêtes","Elle duplique les données dans un schéma séparé","Elle applique une RLS"],
+  answer:0,
+  explain:"C'est l'alternative propre au DENY sur colonne, qui casse les SELECT étoile. Attention toutefois au chaînage de propriété entre schémas." },
+
+
+/* ================= ÉTUDES DE CAS ================= */
+
+/* --- Cas A : Lumiflore Distribution --- */
+{ id:"casA-1", level:3, d:"prep", dom:"Ingestion", type:"qcm", scen:"A",
+  q:"Comment rendre la base de commandes analysable en quasi temps réel, sans ETL et sans charger la production ?",
+  choices:["Activer le mirroring de l'Azure SQL Database vers Fabric","Un data pipeline de copie complète toutes les quinze minutes","Un raccourci OneLake vers la base de commandes","Un dataflow Gen2 avec actualisation incrémentielle au quart d'heure"],
+  answer:0,
+  explain:"L'énoncé cumule les trois critères du mirroring : quasi temps réel, aucun ETL à écrire, pas de charge notable sur la source. Un raccourci ne sait pas viser une base relationnelle." },
+{ id:"casA-2", level:3, d:"prep", dom:"Choix du magasin", type:"qcm", scen:"A",
+  q:"Quel magasin retenir pour la couche Gold, sachant que l'équipe ne connaît que le T-SQL ?",
+  choices:["Un warehouse Fabric, avec procédures stockées et MERGE","Un lakehouse alimenté par des notebooks Spark","Un lakehouse, en écrivant par son SQL analytics endpoint","Une base KQL dans un eventhouse"],
+  answer:0,
+  explain:"La troisième proposition est le piège : l'endpoint d'un lakehouse est en lecture seule. Imposer Spark à une équipe qui le refuse est l'autre erreur de l'énoncé." },
+{ id:"casA-3", level:3, d:"prep", dom:"Schéma en étoile", type:"qcm", scen:"A",
+  q:"Les clients changent de ville au fil du temps, et une analyse sur une vente passée doit refléter la ville de l'époque. Quelle modélisation ?",
+  choices:["Une dimension Client de type 2, avec clé de substitution portée par la table de faits","Une dimension de type 1, écrasée à chaque changement","Une colonne de ville directement dans la table de faits","Une relation bidirectionnelle entre ventes et clients"],
+  answer:0,
+  explain:"Le type 2 n'a d'effet que si la table de faits porte la clé de substitution et non l'identifiant métier : c'est elle qui ancre la vente sur la bonne version." },
+{ id:"casA-4", level:3, d:"model", dom:"Mode de stockage", type:"qcm", scen:"A",
+  q:"Quel mode de stockage pour le modèle sémantique servant les rapports de ventes ?",
+  choices:["Direct Lake, les données étant déjà en Delta dans OneLake","Import, avec actualisation nocturne","DirectQuery sur le warehouse","Un modèle composite import et DirectQuery"],
+  answer:0,
+  explain:"Direct Lake supprime d'un coup les trois heures d'actualisation : il n'y a plus d'import, seulement un framing de quelques secondes sur la dernière version des fichiers." },
+{ id:"casA-5", level:3, d:"maint", dom:"RLS", type:"qcm", scen:"A",
+  q:"Comment traiter les trois cents commerciaux sans créer trois cents rôles ?",
+  choices:["Un rôle unique avec un filtre dynamique comparant une table de correspondance à USERPRINCIPALNAME()","Trois cents rôles, un par commercial","Une CLS sur la colonne du commercial","Une étiquette de confidentialité par commercial"],
+  answer:0,
+  explain:"Il faut ajouter au modèle la table de correspondance entre l'utilisateur et son périmètre, reliée aux clients. Penser aussi à tester avec un compte non administrateur de l'espace." },
+{ id:"casA-6", level:3, d:"maint", dom:"OLS", type:"qcm", scen:"A",
+  q:"La marge ne doit pas même être soupçonnée par les utilisateurs non autorisés. Quel mécanisme ?",
+  choices:["Une object-level security sur la colonne, définie en TMDL ou avec Tabular Editor","Une RLS sur la table des ventes","Masquer la colonne dans la vue de rapport","Un DENY SELECT sur la colonne dans le warehouse"],
+  answer:0,
+  explain:"« Ne pas soupçonner l'existence » désigne l'OLS, qui fait disparaître l'objet du modèle. Le DENY en T-SQL ne protégerait pas le modèle sémantique en Direct Lake." },
+{ id:"casA-7", level:3, d:"model", dom:"Actualisation incrémentielle", type:"qcm", scen:"A",
+  q:"Un second modèle, en import pour des besoins de calculs complexes, doit couvrir dix ans dont six semaines mobiles. Comment le configurer ?",
+  choices:["Une actualisation incrémentielle archivant dix ans et actualisant six semaines, avec RangeStart et RangeEnd pliés vers la source","Une actualisation complète nocturne","Deux modèles, un historique et un récent","Une actualisation toutes les heures sur la table complète"],
+  answer:0,
+  explain:"Le format large semantic model est le complément naturel, puisque l'incrémentiel crée et manipule des partitions. Vérifier le pliage, sans quoi le gain est nul." },
+{ id:"casA-8", level:3, d:"maint", dom:"Cycle de vie", type:"qcm", scen:"A",
+  q:"Comment permettre à trois développeurs de travailler en parallèle sur le modèle, avec revues de code, et mettre fin aux trois modèles « ventes » concurrents ?",
+  choices:["Un espace de travail par développeur branché sur sa propre branche Git, un modèle en format .pbip, et la certification du modèle de référence","Un espace de travail partagé et une coordination orale","Trois fichiers .pbix échangés et fusionnés à la main","Un pipeline de déploiement à trois étapes, une par développeur"],
+  answer:0,
+  explain:"Deux problèmes, deux réponses : Git plus .pbip pour le travail parallèle et les revues sur du TMDL lisible, l'endorsement pour désigner la source de vérité." },
+
+/* --- Cas B : Valmeca Industrie --- */
+{ id:"casB-1", level:3, d:"prep", dom:"Choix du magasin", type:"qcm", scen:"B",
+  q:"Quel magasin pour que les techniciens interrogent les trente dernières minutes sous la seconde ?",
+  choices:["Un eventhouse alimenté par un eventstream","Un warehouse chargé toutes les minutes","Un lakehouse en micro-lots Spark","Un modèle sémantique en import actualisé en continu"],
+  answer:0,
+  explain:"Quatre-vingt mille événements par seconde et une réponse sous la seconde sur les données chaudes : c'est la définition du moteur d'eventhouse." },
+{ id:"casB-2", level:3, d:"prep", dom:"Eventhouse", type:"qcm", scen:"B",
+  q:"Comment conserver cinq ans d'historique interrogeable sans stocker deux fois les mêmes événements ?",
+  choices:["Activer la disponibilité OneLake sur la base KQL, et régler cache à chaud et rétention séparément","Copier chaque nuit l'eventhouse vers un lakehouse","Allonger la rétention et désactiver le cache","Créer un second eventstream vers un lakehouse"],
+  answer:0,
+  explain:"La disponibilité OneLake expose les données de la base en Delta, lisibles par Spark, T-SQL et Direct Lake : une seule copie, plusieurs moteurs." },
+{ id:"casB-3", level:3, d:"prep", dom:"Raccourcis", type:"qcm", scen:"B",
+  q:"Comment joindre les données du S3 du partenaire sans les recopier ?",
+  choices:["Un raccourci OneLake vers le bucket S3","Un pipeline de copie quotidien depuis S3","Un mirroring du bucket S3","Un dataflow Gen2 lisant S3 à chaque actualisation"],
+  answer:0,
+  explain:"Le raccourci externe couvre S3. Si les rapports qui s'appuient dessus deviennent lents, le levier suivant est l'activation du cache du raccourci." },
+{ id:"casB-4", level:3, d:"prep", dom:"Transformations", type:"qcm", scen:"B",
+  q:"Quel outil pour aplatir les charges utiles JSON profondément imbriquées et de schéma mouvant ?",
+  choices:["Des notebooks Spark, avec explode et les accesseurs de types structurés","Des vues T-SQL avec OPENJSON dans un warehouse","Un dataflow Gen2","Des update policies KQL"],
+  answer:0,
+  explain:"L'énoncé précise que les ingénieurs travaillent en Python : Spark est à la fois le bon outil et la compétence disponible. OPENJSON devient illisible en profondeur." },
+{ id:"casB-5", level:3, d:"prep", dom:"Delta Lake", type:"qcm", scen:"B",
+  q:"Après six mois d'alimentation en micro-lots, les tables Silver répondent de plus en plus lentement à volume quasi constant. Que faire ?",
+  choices:["Planifier une maintenance régulière : OPTIMIZE, éventuellement avec Z-Order, puis VACUUM","Repartitionner les tables par minute","Augmenter le SKU de la capacité","Désactiver le V-Order à l'écriture"],
+  answer:0,
+  explain:"C'est le problème des petits fichiers. Il pèse aussi sur Direct Lake, dont le nombre de fichiers Parquet est un garde-fou." },
+{ id:"casB-6", level:3, d:"model", dom:"Direct Lake", type:"qcm", scen:"B",
+  q:"Le modèle sémantique doit servir des rapports à quelques minutes de fraîcheur sur ces mêmes données. Quel mode, et quelle précaution ?",
+  choices:["Direct Lake, en surveillant le fallback vers DirectQuery et en espaçant les framings autant que la fraîcheur le permet","Import, actualisé toutes les cinq minutes","DirectQuery sur l'endpoint SQL","Un modèle composite import et DirectQuery"],
+  answer:0,
+  explain:"Chaque framing invalide le cache des colonnes concernées : recadrer toutes les minutes par principe dégraderait les performances au lieu de les améliorer." },
+{ id:"casB-7", level:3, d:"maint", dom:"Capacité", type:"qcm", scen:"B",
+  q:"Comment empêcher les expérimentations de science des données de dégrader les rapports de direction ?",
+  choices:["Rattacher les deux usages à des capacités Fabric distinctes","Augmenter le SKU de la capacité commune","Restreindre les permissions de l'équipe de science des données","Planifier les travaux exploratoires la nuit"],
+  answer:0,
+  explain:"La capacité est l'unité d'isolation des ressources. Agrandir la capacité commune repousse la contention de quelques semaines sans la supprimer." },
+{ id:"casB-8", level:3, d:"maint", dom:"Gouvernance", type:"qcm", scen:"B",
+  q:"Comment donner à chaque ligne métier ses propres responsables de données et ses propres règles de publication ?",
+  choices:["Des domaines Fabric regroupant les espaces de travail par ligne métier, avec gouvernance déléguée","Un espace de travail unique par ligne métier","Une capacité par ligne métier","Des étiquettes de confidentialité par ligne métier"],
+  answer:0,
+  explain:"Les domaines portent le maillage de données. La capacité répond à l'isolation des ressources, les étiquettes à la confidentialité : ni l'une ni l'autre ne délègue la gouvernance." },
+];
+
+/* ---------- Scénarios des études de cas ---------- */
+const SCENARIOS = {
+A: { title: "Lumiflore Distribution",
+      text: "Lumiflore exploite un entrepôt de données SQL Server sur site, alimenté chaque nuit par des packages SSIS, et des rapports Power BI en import qui mettent trois heures à s'actualiser. L'entreprise veut passer sur Fabric. Contraintes et objectifs : la base de commandes, une Azure SQL Database de production, doit être analysable en quasi temps réel sans que l'équipe écrive le moindre ETL et sans charge notable sur la production ; l'équipe décisionnelle ne connaît que le T-SQL et refuse d'apprendre Spark ; la table de faits des ventes atteint 1,8 milliard de lignes et dix ans d'historique, dont seules les six dernières semaines sont corrigées ; les trois cents commerciaux ne doivent voir que leurs propres clients ; la colonne de marge ne doit être visible que du contrôle de gestion, et les autres utilisateurs ne doivent pas même soupçonner son existence ; trois développeurs doivent travailler en parallèle sur le modèle sémantique avec des revues de code ; enfin la direction se plaint que trois modèles « ventes » coexistent et donnent des chiffres différents." },
+  B: { title: "Valmeca Industrie",
+      text: "Valmeca équipe ses lignes de production de capteurs qui émettent quatre-vingt mille événements par seconde. Les besoins : les techniciens doivent interroger les trente dernières minutes avec une réponse sous la seconde pour diagnostiquer un arrêt ; les mêmes événements doivent rester consultables sur cinq ans pour l'analyse de fiabilité, sans être stockés deux fois ; une partie des données vit déjà dans un Amazon S3 alimenté par un partenaire et ne doit pas être recopiée ; les ingénieurs qualité travaillent en Python sur des charges utiles JSON profondément imbriquées et de schéma mouvant ; un modèle sémantique doit servir des rapports sur les mêmes données avec une fraîcheur de quelques minutes ; les expérimentations de l'équipe de science des données dégradent régulièrement les rapports de direction ; chaque ligne métier réclame enfin ses propres responsables de données et ses propres règles de publication." }
+};
+
+/* ---------- Labs guidés ---------- */
+const LABS = [
+{ id:"lab1", title:"Lab 1 · Lakehouse, raccourci et première exploration", time:"≈ 40 min",
+  obj:"Monter un lakehouse, y faire entrer des données par deux chemins opposés — copie et raccourci — et mesurer la différence.",
+  steps:[
+    "Crée un espace de travail rattaché à ta capacité d'essai Fabric, puis un lakehouse nommé lh_atelier.",
+    "Dépose deux ou trois fichiers CSV dans la zone Files avec l'explorateur de fichiers OneLake ou le glisser-déposer du portail.",
+    "Charge l'un des CSV en table Delta par le menu « Charger vers les tables », et observe le type déduit pour chaque colonne.",
+    "Crée un second lakehouse lh_source, charges-y une table, puis depuis lh_atelier crée un raccourci vers cette table.",
+    "Compare dans les deux cas : modifie la table de lh_source et regarde lequel des deux chemins reflète le changement immédiatement.",
+    "Ouvre le SQL analytics endpoint de lh_atelier et tente un INSERT sur une table : lis le message d'erreur et retiens-le.",
+    "Dans l'éditeur de requête visuel, joins deux tables, filtre, groupe, puis enregistre le résultat comme vue.",
+    "Repère ta table dans le OneLake catalog, et note ce que le catalogue affiche d'elle." ],
+  cli:"-- SQL analytics endpoint du lakehouse : lecture seule sur les données\nSELECT TOP 10 * FROM lh_atelier.dbo.ventes;\n\n-- Ceci doit échouer : retiens le message\nINSERT INTO lh_atelier.dbo.ventes (ProduitID) VALUES (1);\n\n-- Mais une vue est permise\nCREATE VIEW dbo.v_ventes_france AS\nSELECT * FROM lh_atelier.dbo.ventes WHERE Pays = 'France';",
+  verif:"tu sais dire, sans hésiter, ce que le raccourci reflète que la copie ne reflète pas, et pourquoi l'INSERT a échoué." },
+
+{ id:"lab2", title:"Lab 2 · Médaillon Bronze, Silver, Gold avec des notebooks", time:"≈ 60 min",
+  obj:"Construire les trois couches, et surtout le chargement différentiel par MERGE qui fait la valeur de la couche Silver.",
+  steps:[
+    "Crée un notebook attaché à lh_atelier et lis un CSV de la zone Files en DataFrame, sans inférence de schéma puis avec : compare les types obtenus.",
+    "Écris la table bronze telle quelle, horodatée, en mode append.",
+    "Construis la table silver : typage explicite, suppression des doublons par clé métier en gardant la ligne la plus récente avec une fonction de fenêtrage.",
+    "Rejoue le même chargement avec une ligne modifiée et une ligne nouvelle, cette fois par MERGE : vérifie qu'aucun doublon n'apparaît.",
+    "Ajoute une colonne à la source et relance : constate l'échec de schéma, puis autorise mergeSchema et relance.",
+    "Construis une table gold agrégée au grain mois et produit, en étoile avec une dimension de dates.",
+    "Interroge l'historique Delta de la table silver et lis une version antérieure.",
+    "Lance OPTIMIZE puis VACUUM sur silver, et observe l'évolution du nombre de fichiers." ],
+  cli:"# Déduplication par clé métier, la plus récente gagne\nfrom pyspark.sql.window import Window\nfrom pyspark.sql.functions import row_number, col\n\nw = Window.partitionBy(\"ClientID\").orderBy(col(\"DateMaj\").desc())\nderniers = (brut.withColumn(\"rang\", row_number().over(w))\n                 .filter(\"rang = 1\").drop(\"rang\"))\n\n# Chargement différentiel\nfrom delta.tables import DeltaTable\ncible = DeltaTable.forName(spark, \"silver_client\")\n(cible.alias(\"c\")\n .merge(derniers.alias(\"s\"), \"c.ClientID = s.ClientID\")\n .whenMatchedUpdateAll()\n .whenNotMatchedInsertAll()\n .execute())\n\n# Historique et maintenance\nspark.sql(\"DESCRIBE HISTORY silver_client\").show()\nspark.sql(\"OPTIMIZE silver_client ZORDER BY (ClientID)\")\nspark.sql(\"VACUUM silver_client RETAIN 168 HOURS\")",
+  verif:"tu peux expliquer ce que le MERGE a fait ligne par ligne, et pourquoi l'écriture a d'abord échoué sur la colonne ajoutée." },
+
+{ id:"lab3", title:"Lab 3 · Warehouse : étoile en T-SQL, clone et voyage dans le temps", time:"≈ 55 min",
+  obj:"Faire en T-SQL ce que le lab 2 a fait en Spark, et éprouver deux fonctions propres au warehouse.",
+  steps:[
+    "Crée un warehouse wh_atelier dans le même espace de travail.",
+    "Écris une requête en trois parties qui joint une table du warehouse et une table de lh_atelier : vérifie que la jointure entre magasins fonctionne.",
+    "Construis la dimension de dates par CTAS, sur dix ans, avec année, trimestre, mois et exercice fiscal.",
+    "Construis la table de faits par CTAS depuis le lakehouse, en remplaçant les clés métier par les clés de substitution des dimensions.",
+    "Déclare les clés primaires et étrangères en NOT ENFORCED, puis tente d'insérer un doublon de clé primaire : constate qu'il passe.",
+    "Clone la table de faits, modifie le clone massivement, et compare la taille facturée annoncée pour les deux.",
+    "Supprime par erreur un millier de lignes, puis retrouve le compte d'avant avec le voyage dans le temps.",
+    "Écris une procédure stockée de rechargement paramétrée par mois, et appelle-la deux fois pour vérifier son idempotence." ],
+  cli:"-- Requête entre magasins, sans copie\nSELECT f.Mois, SUM(f.Montant)\nFROM wh_atelier.dbo.faits_ventes AS f\nJOIN lh_atelier.dbo.produit AS p ON p.ProduitID = f.ProduitID\nGROUP BY f.Mois;\n\n-- Contrainte déclarative, non vérifiée\nALTER TABLE dbo.dim_client\n  ADD CONSTRAINT pk_client PRIMARY KEY NONCLUSTERED (ClientSK) NOT ENFORCED;\n\n-- Clone sans copie, puis état passé\nCREATE TABLE dbo.faits_ventes_test AS CLONE OF dbo.faits_ventes;\n\nSELECT COUNT(*) FROM dbo.faits_ventes\nOPTION (FOR TIMESTAMP AS OF '2026-11-23T09:00:00');",
+  verif:"tu as inséré un doublon malgré la clé primaire, et tu sais dire à quoi sert alors de la déclarer." },
+
+{ id:"lab4", title:"Lab 4 · Modèle sémantique Direct Lake et framing", time:"≈ 55 min",
+  obj:"Construire un modèle Direct Lake, le voir se rafraîchir sans import, et provoquer un fallback pour le comprendre.",
+  steps:[
+    "Crée un modèle sémantique Direct Lake sur les tables gold de lh_atelier, en sélectionnant les tables à la main plutôt qu'en prenant le modèle par défaut.",
+    "Pose les relations de l'étoile, masque les clés techniques, marque la table de dates comme table de dates.",
+    "Écris quatre mesures : chiffre d'affaires, cumul annuel, même période l'an dernier, et variation en pourcentage.",
+    "Désactive la date/heure automatique et vérifie qu'aucune table de dates masquée ne subsiste.",
+    "Construis un rapport, note le temps de réponse, puis ajoute des lignes aux tables gold par notebook.",
+    "Rafraîchis le modèle et chronomètre : tu mesures un framing, pas un import. Relance le rapport et note le premier appel plus lent.",
+    "Crée un groupe de calcul portant les quatre variations temporelles, et vérifie qu'il s'applique à n'importe quelle mesure.",
+    "Ajoute un paramètre de champs pour basculer l'axe entre produit, région et canal." ],
+  cli:"# Alimenter la couche gold pendant que le rapport est ouvert\nspark.sql(\"\"\"\n  INSERT INTO gold_ventes\n  SELECT * FROM silver_ventes WHERE DateVente = current_date()\n\"\"\")\n\n-- Mesures à écrire dans le modèle\nCA = SUM(gold_ventes[Montant])\nCA YTD = CALCULATE([CA], DATESYTD(dim_date[Date]))\nCA N-1 = CALCULATE([CA], SAMEPERIODLASTYEAR(dim_date[Date]))\nVariation % = DIVIDE([CA] - [CA N-1], [CA N-1])",
+  verif:"tu peux chiffrer l'écart entre un framing et un import, et expliquer la lenteur de la première requête qui suit." },
+
+{ id:"lab5", title:"Lab 5 · Les trois sécurités : lignes, colonnes, objets", time:"≈ 55 min",
+  obj:"Mettre en place RLS, CLS et OLS aux trois endroits où elles vivent, et vérifier laquelle protège vraiment quoi.",
+  steps:[
+    "Dans le modèle sémantique, crée un rôle avec un filtre dynamique sur USERPRINCIPALNAME() et une table de correspondance utilisateur-périmètre.",
+    "Teste avec « Voir en tant que rôle », puis avec un second compte réellement Viewer de l'espace de travail.",
+    "Ajoute-toi comme Member de l'espace et retente : constate que la RLS ne s'applique plus à toi, et retiens pourquoi.",
+    "Dans le warehouse, pose une security policy avec un prédicat de filtre sur la même logique, et compare le résultat.",
+    "Toujours dans le warehouse, fais un DENY SELECT sur une colonne sensible, puis lance un SELECT étoile : lis l'erreur.",
+    "Crée une vue sans la colonne sensible, accorde le droit sur la vue seule, et vérifie que le SELECT étoile fonctionne de nouveau.",
+    "Avec Tabular Editor ou un script TMDL via l'endpoint XMLA, pose une OLS sur la même colonne dans le modèle, et observe un visuel qui la référence.",
+    "Applique une étiquette de confidentialité au modèle, exporte un visuel vers Excel, et vérifie que l'étiquette a suivi le fichier." ],
+  cli:"-- RLS côté warehouse\nCREATE FUNCTION dbo.fn_perimetre(@commercial sysname)\nRETURNS TABLE WITH SCHEMABINDING AS\nRETURN SELECT 1 AS ok\n  WHERE @commercial = USER_NAME() OR IS_ROLEMEMBER('ControleGestion') = 1;\nGO\nCREATE SECURITY POLICY dbo.VentesFilter\n  ADD FILTER PREDICATE dbo.fn_perimetre(Commercial) ON dbo.faits_ventes\n  WITH (STATE = ON);\n\n-- CLS : refus, et non masquage\nDENY SELECT ON dbo.faits_ventes(Marge) TO [Analystes];\n\n-- RLS côté modèle, filtre du rôle\n[Email] = USERPRINCIPALNAME()",
+  verif:"tu sais dire, pour chacun des trois mécanismes, qui le contourne et dans quel cas il ne s'applique pas." },
+
+{ id:"lab6", title:"Lab 6 · Git, projet .pbip et pipeline de déploiement", time:"≈ 50 min",
+  obj:"Faire du modèle sémantique un objet de code revu en pull request, puis le promouvoir proprement.",
+  steps:[
+    "Connecte ton espace de travail à un dépôt Azure DevOps ou GitHub, sur une branche dédiée.",
+    "Enregistre ton rapport et son modèle au format projet .pbip depuis Power BI Desktop, et valide dans la branche.",
+    "Ouvre les fichiers TMDL dans un éditeur de texte : repère la définition d'une mesure, et modifie son format.",
+    "Modifie la même mesure depuis le portail Fabric, puis provoque volontairement un conflit et observe ce que Fabric propose — et ce qu'il ne propose pas.",
+    "Crée deux autres espaces de travail, test et production, puis un pipeline de déploiement à trois étapes.",
+    "Déploie du développement vers test, et constate que le modèle promu interroge toujours le lakehouse de développement.",
+    "Pose une règle de déploiement qui repointe la source, redéploie, et vérifie la correction.",
+    "Lance une analyse d'impact sur une table du lakehouse de développement, et lis la liste des éléments en aval." ],
+  cli:"# Un .pbip éclate le modèle en texte, donc en revue de code possible\nmon-rapport.Report/\n  definition/\nmon-rapport.SemanticModel/\n  definition/\n    tables/Ventes.tmdl\n    relationships.tmdl\n    model.tmdl\n\n# Extrait de Ventes.tmdl\ntable Ventes\n    measure 'CA' = SUM(Ventes[Montant])\n        formatString: #,0 \\u20ac\n        displayFolder: Indicateurs",
+  verif:"tu as vu de tes yeux un déploiement qui pointait la mauvaise source, et tu sais quelle règle le corrige." },
+
+{ id:"lab7", title:"Lab 7 · Temps réel : eventstream, KQL et disponibilité OneLake", time:"≈ 60 min",
+  obj:"Ingérer un flux, le transformer à l'arrivée, l'interroger en KQL, puis l'exposer à Direct Lake sans le copier.",
+  steps:[
+    "Crée un eventhouse et sa base KQL, puis un eventstream alimenté par la source d'exemple du portail.",
+    "Route l'eventstream vers une table de transit de la base KQL, et vérifie l'arrivée des événements.",
+    "Écris des requêtes KQL : filtre sur une fenêtre récente, comptage par tranche de cinq minutes avec bin, agrégation par dimension.",
+    "Crée une fonction de transformation qui éclate la charge utile JSON en colonnes typées, puis une update policy qui l'applique à chaque ingestion vers une table cible.",
+    "Donne à la table de transit une rétention très courte et à la table cible une rétention longue, puis explique ton choix de cache à chaud.",
+    "Crée une vue matérialisée sur l'agrégation la plus sollicitée, et compare le temps de réponse avec la requête d'origine.",
+    "Active la disponibilité OneLake sur la base, et vérifie depuis un notebook que les données sont lisibles en Delta.",
+    "Construis un modèle sémantique Direct Lake sur ces données et un rapport qui se rafraîchit en quelques minutes." ],
+  cli:"// Comptage par tranche de cinq minutes\nEvenements\n| where Timestamp > ago(4h)\n| summarize Nb = count() by bin(Timestamp, 5m), Machine\n| order by Timestamp asc\n\n// Fonction de transformation, puis update policy\n.create-or-alter function AplatirEvenements() {\n    Transit\n    | extend d = parse_json(Charge)\n    | project Timestamp, Machine = tostring(d.machine),\n              Temperature = toreal(d.temp), Code = toint(d.code)\n}\n\n.alter table Evenements policy update\n  \"[{'Source':'Transit','Query':'AplatirEvenements()','IsEnabled':true}]\"",
+  verif:"tu peux expliquer la différence entre la politique de rétention et la politique de cache à chaud, chiffres en main." },
+
+{ id:"lab8", title:"Lab 8 · Performance : diagnostiquer avant d'optimiser", time:"≈ 60 min",
+  obj:"Mesurer d'abord, agir ensuite — sur le rapport, sur le DAX, sur les fichiers et sur la capacité.",
+  steps:[
+    "Fabrique volontairement une page lente : une trentaine de visuels, un segment sur une colonne de très forte cardinalité.",
+    "Lance l'analyseur de performances et classe les visuels par durée : sépare temps de requête DAX et temps de rendu.",
+    "Corrige d'abord le rapport — moins de visuels, segment remplacé — et remesure sans toucher au modèle.",
+    "Écris une mesure avec CALCULATE et FILTER sur la table entière, mesure-la, réécris-la avec un prédicat simple, et compare.",
+    "Connecte DAX Studio à l'endpoint XMLA et lis VertiPaq Analyzer : identifie les trois colonnes les plus coûteuses.",
+    "Scinde une colonne date-heure à la seconde en date et heure, puis compare la taille du modèle avant et après.",
+    "Sur un modèle Direct Lake, force DirectLakeBehavior à DirectLakeOnly et retrouve la construction qui provoquait un fallback silencieux.",
+    "Ouvre l'application Capacity Metrics, repère l'opération la plus coûteuse de la journée, puis supprime l'espace de travail des labs." ],
+  cli:"-- Avant : FILTER sur la table entière, dans le moteur de formule\nCA élevé =\nCALCULATE(SUM(Ventes[Montant]), FILTER(Ventes, Ventes[Montant] > 100))\n\n-- Après : prédicat poussé dans le moteur de stockage\nCA élevé =\nCALCULATE(SUM(Ventes[Montant]), Ventes[Montant] > 100)\n\n-- Rendre les fallbacks visibles le temps d'un diagnostic\n-- Propriété du modèle, via Tabular Editor ou TMDL :\n--   directLakeBehavior: directLakeOnly",
+  verif:"pour chaque correction, tu as un chiffre avant et un chiffre après — et tu sais laquelle a le plus rapporté." },
+];
+
+/* =====================================================================
+   MOTEUR DU QUIZ
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const LS_ERRORS = "dp600-errors";
+
+const getErrors = () => { try { return JSON.parse(localStorage.getItem(LS_ERRORS)) || []; } catch { return []; } };
+const setErrors = a => localStorage.setItem(LS_ERRORS, JSON.stringify([...new Set(a)]));
+
+/* =====================================================================
+   MOTEUR DE MAÎTRISE — répétition espacée (Leitner)
+   État par question : { box, due, seen, lapses, danger, reco, lastMs }
+   ===================================================================== */
+const LS_SRS = "dp600-srs";
+const BOX_DAYS = [0, 1, 2, 4, 8, 16, 30];   // intervalle en jours par palier
+const NEW_CAP = 8;                           // nouvelles questions max par session
+const DAY = 86400000;
+
+const getSrs = () => { try { return JSON.parse(localStorage.getItem(LS_SRS)) || {}; } catch { return {}; } };
+const setSrs = o => localStorage.setItem(LS_SRS, JSON.stringify(o));
+const srsOf = (srs, id) => srs[id] || { box: 0, due: 0, seen: 0, lapses: 0, danger: false, reco: false, lastMs: 0 };
+
+/* Temps de lecture plancher : en dessous, c'est de la reconnaissance, pas du raisonnement */
+function minReasonMs(q) {
+  const len = (q.q || "").length + (q.code || "").length;
+  return Math.max(2000, Math.min(6000, 1200 + 20 * len));
+}
+
+/* Applique le résultat d'une réponse et renvoie l'état mis à jour */
+function srsApply(q, ok, conf, ms, isReveal) {
+  const srs = getSrs();
+  const s = { ...srsOf(srs, q.id) };
+  const before = s.box;
+  s.seen++;
+  s.lastMs = ms;
+
+  // Détection de reconnaissance : correct, déjà vu, et trop rapide pour avoir raisonné
+  s.reco = !!(ok && !isReveal && s.seen >= 2 && ms < minReasonMs(q));
+
+  if (isReveal || !ok) {
+    if (before >= 3) s.lapses++;           // on oublie quelque chose qu'on maîtrisait
+    s.box = 0;
+    s.danger = !isReveal && before >= 3;   // se tromper sur une question déjà ancrée = croyance fausse
+  } else {
+    s.box = Math.min(6, s.box + 1);
+    s.danger = false;                      // réussite → on lève le drapeau
+  }
+  s.due = Date.now() + BOX_DAYS[s.box] * DAY;
+  srs[q.id] = s;
+  setSrs(srs);
+  return s;
+}
+
+/* Construit la session du jour : croyances fausses d'abord, puis les dues, puis du neuf */
+function buildMaitrise(n) {
+  const srs = getSrs(), now = Date.now();
+  const danger = [], due = [], fresh = [], future = [];
+  byDom(QUESTIONS).forEach(q => {
+    const s = srs[q.id];
+    if (!s) { fresh.push(q); return; }
+    if (s.danger) danger.push(q);
+    else if (s.due <= now) due.push(q);
+    else future.push({ q, due: s.due });
+  });
+  const out = [...shuffle(danger), ...shuffle(due)];
+  if (out.length < n) out.push(...shuffle(fresh).slice(0, Math.min(NEW_CAP, n - out.length)));
+  if (out.length < n) {
+    future.sort((a, b) => a.due - b.due);
+    out.push(...future.slice(0, n - out.length).map(x => x.q));
+  }
+  return out.slice(0, n);
+}
+
+function srsStats() {
+  const srs = getSrs(), now = Date.now();
+  let croyances = 0, due = 0, mastered = 0, reco = 0, vus = 0;
+  const parDomaine = {};
+  Object.entries(srs).forEach(([id, s]) => {
+    vus++;
+    if (s.danger) {
+      croyances++;
+      const q = QUESTIONS.find(x => x.id === id);
+      if (q && q.d) parDomaine[q.d] = (parDomaine[q.d] || 0) + 1;
+    }
+    else if (s.due <= now) due++;
+    if (s.box >= 5) mastered++;
+    if (s.reco) reco++;
+  });
+  return { croyances, due, mastered, reco, nouveaux: QUESTIONS.length - vus, parDomaine };
+}
+
+function refreshDash() {
+  const s = srsStats();
+  $("dCroyances").textContent = s.croyances;
+  $("dDue").textContent = s.due;
+  $("dMastered").textContent = s.mastered;
+  $("dReco").textContent = s.reco;
+  $("dNew").textContent = s.nouveaux;
+  $("nmaitrise").textContent = (s.croyances + s.due) > 0
+    ? (s.croyances + s.due) + " en attente"
+    : (s.nouveaux > 0 ? "nouveau" : "à jour");
+  let note;
+  if (s.croyances > 0) {
+    const pires = Object.entries(s.parDomaine).sort((a, b) => b[1] - a[1])
+      .map(([k, v]) => DOM_LABEL[k] + " (" + v + ")").join(", ");
+    note = "🚨 " + s.croyances + " question(s) déjà ancrée(s) où tu t'es retrompé — le plus urgent à corriger." +
+           (pires ? " Domaines concernés : " + pires + "." : "");
+  }
+  else if (s.due > 0)
+    note = "🔁 " + s.due + " question(s) arrivent à échéance. Le bon moment pour les revoir est maintenant, pas avant.";
+  else if (s.nouveaux > 0)
+    note = "✅ Rien à réviser : la prochaine session introduira jusqu'à " + Math.min(NEW_CAP, s.nouveaux) + " nouvelles questions.";
+  else
+    note = "🏆 Toute la banque est planifiée. Reviens quand des questions arriveront à échéance.";
+  $("dNote").textContent = note;
+}
+
+/* Enregistre la réponse dans le planificateur et renvoie les bandeaux à afficher */
+function recordAndFlag(q, ok, conf, isReveal) {
+  const ms = Date.now() - (session.startedAt || Date.now());
+  if (q.d) {
+    const pd = session.perDom || (session.perDom = {});
+    const pe = pd[q.d] || (pd[q.d] = { ok: 0, total: 0 });
+    pe.total++; if (ok && !isReveal) pe.ok++;
+  }
+  const s = srsApply(q, ok, conf, ms, isReveal);
+
+  let html = "";
+  if (s.danger) {
+    html += '<div class="srs-flag danger">🚨 Tu t\'es trompé sur une question que tu avais déjà ancrée — ' +
+            'c\'est le type d\'erreur qui coûte des points sans prévenir. Elle repassera en priorité jusqu\'à ce que tu la réussisses.</div>';
+  }
+  if (s.reco) {
+    html += '<div class="srs-flag reco">⏱️ Répondu en ' + (ms / 1000).toFixed(1) + ' s : trop vite pour avoir raisonné. ' +
+            'Tu as probablement reconnu la question plutôt que raisonné — la progression est volontairement freinée.</div>';
+  }
+  const j = BOX_DAYS[s.box];
+  html += '<p class="srs-next">📅 Prochaine révision : ' +
+          (j === 0 ? "dès la prochaine session" : j === 1 ? "demain" : "dans " + j + " jours") +
+          " · palier " + s.box + "/6</p>";
+  return html;
+}
+
+const escapeReg = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const norm = s => (s || "").toLowerCase()
+  .normalize("NFD").replace(/[̀-ͯ]/g, "")
+  .replace(/[^a-z0-9]+/g, " ").trim();
+
+function isCorrect(user, accepts) {
+  const u = norm(user);
+  if (!u) return false;
+  return accepts.some(a => {
+    const v = norm(a);
+    if (!v) return false;
+    if (u === v) return true;
+    return new RegExp("(^| )" + escapeReg(v) + "( |$)").test(u); // réponse contenue mot-à-mot
+  });
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let session = null; // { list, idx, score, streak, wrongIds, selectedChoice, answered }
+
+/* ---------- Accueil ---------- */
+let pickCount = 20;
+let domFilter = "all";
+const DOM_LABEL = { maint:"Maintenir la solution", prep:"Préparer les données", model:"Modèles sémantiques" };
+$("countSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  pickCount = parseInt(b.dataset.n, 10);
+  [...$("countSeg").children].forEach(x => x.classList.toggle("on", x === b));
+});
+$("domSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  domFilter = b.dataset.d;
+  [...$("domSeg").children].forEach(x => x.classList.toggle("on", x === b));
+  refreshCounts();
+});
+const byDom = qs => domFilter === "all" ? qs : qs.filter(q => q.d === domFilter);
+
+function poolFor(mode) {
+  if (mode === "mix") return byDom(QUESTIONS);
+  if (mode === "err") { const errs = getErrors(); return byDom(QUESTIONS.filter(q => errs.includes(q.id))); }
+  if (mode === "code") return byDom(QUESTIONS.filter(q => q.code));
+  if (mode === "cas") return byDom(QUESTIONS.filter(q => q.scen || q.type === "order"));
+  return byDom(QUESTIONS.filter(q => q.level === Number(mode)));
+}
+
+/* Examen blanc : mélange pondéré tous formats, études de cas groupées en fin (comme le vrai examen) */
+/* Pourcentages officiels DP-600 (study guide du 19 octobre 2026) :
+     maintenir une solution d'analyse de données 25 à 30 %
+     préparer les données 45 à 50 %
+     implémenter et gérer les modèles sémantiques 25 à 30 %
+   Trois domaines seulement, mais très larges : le champ dom de chaque
+   question porte le sous-sujet pour que la révision reste lisible. */
+/* 42 questions pondérées + UNE étude de cas tirée au sort (8 questions) = 50.
+   L'examen réel dure 100 minutes et demande 700/1000. */
+const BLANC_WEIGHTS = { maint: 11, prep: 20, model: 11 };
+function buildExamBlanc() {
+  const list = [];
+  Object.entries(BLANC_WEIGHTS).forEach(([dk, n]) => {
+    const pool = QUESTIONS.filter(q => q.d === dk && !q.scen && (q.level >= 2 || q.code || q.type === "order"));
+    list.push(...shuffle(pool).slice(0, n));
+  });
+  const out = shuffle(list);
+  const groups = {};
+  QUESTIONS.filter(q => q.scen).forEach(q => (groups[q.scen] = groups[q.scen] || []).push(q));
+  const tire = shuffle(Object.values(groups))[0];   // une seule étude de cas, groupée en fin
+  if (tire) out.push(...tire);
+  return out;
+}
+
+const getLabsDone = () => { try { return JSON.parse(localStorage.getItem("dp600-labs")) || []; } catch { return []; } };
+const setLabsDone = a => localStorage.setItem("dp600-labs", JSON.stringify([...new Set(a)]));
+
+function refreshCounts() {
+  $("n1").textContent = QUESTIONS.filter(q => q.level === 1).length + " q";
+  $("n2").textContent = QUESTIONS.filter(q => q.level === 2).length + " q";
+  $("n3").textContent = QUESTIONS.filter(q => q.level === 3).length + " q";
+  $("ncode").textContent = poolFor("code").length + " q";
+  $("ncas").textContent = poolFor("cas").length + " q";
+  $("nblanc").textContent = "≈ 50 q";
+  $("nmix").textContent = poolFor("mix").length + " q";
+  $("nerr").textContent = poolFor("err").length + " q";
+  $("nlabs").textContent = getLabsDone().length + " / " + LABS.length;
+  refreshDash();
+}
+
+document.querySelectorAll(".mode-btn").forEach(b => b.addEventListener("click", () => {
+  const mode = b.dataset.mode;
+  if (mode === "labs") { renderLabs(); show("labs"); return; }
+  let list;
+  if (mode === "maitrise") {
+    list = buildMaitrise(pickCount === 0 ? QUESTIONS.length : pickCount);
+    if (!list.length) { alert("Rien à réviser pour le moment — reviens plus tard !"); return; }
+  } else if (mode === "blanc") {
+    list = buildExamBlanc();
+  } else {
+    const pool = poolFor(mode);
+    if (!pool.length) { alert("Aucune erreur enregistrée pour l'instant — joue d'abord un quiz !"); return; }
+    list = shuffle(pool).slice(0, pickCount === 0 ? pool.length : pickCount);
+  }
+  session = { mode, list, idx: 0, score: 0, streak: 0, wrongIds: [], selectedChoice: null, answered: false, perDom: {} };
+  show("quiz"); renderQuestion();
+}));
+
+/* ---------- Écrans ---------- */
+function show(name) {
+  ["home", "quiz", "end", "labs"].forEach(n =>
+    $("screen-" + n).classList.toggle("hidden", n !== name));
+  if (name === "home") refreshCounts();
+}
+
+/* ---------- Labs ---------- */
+function renderLabs() {
+  const done = getLabsDone();
+  const list = $("labsList");
+  list.innerHTML = "";
+  LABS.forEach(l => {
+    const d = document.createElement("details");
+    d.className = "lab" + (done.includes(l.id) ? " done" : "");
+    const cliSafe = l.cli.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    d.innerHTML =
+      "<summary>" + (done.includes(l.id) ? "✅ " : "⬜ ") + l.title +
+      ' <span class="lab-time">' + l.time + "</span></summary>" +
+      '<p class="lab-obj"><b>Objectif :</b> ' + l.obj + "</p>" +
+      "<ol>" + l.steps.map(s => "<li>" + s + "</li>").join("") + "</ol>" +
+      '<pre class="qcode">' + cliSafe + "</pre>" +
+      '<p class="lab-verif"><b>Lab réussi si :</b> ' + l.verif + "</p>" +
+      '<button class="btn ghost lab-toggle">' + (done.includes(l.id) ? "Marquer non terminé" : "✅ Marquer terminé") + "</button>";
+    d.querySelector(".lab-toggle").addEventListener("click", () => {
+      const cur = getLabsDone();
+      setLabsDone(cur.includes(l.id) ? cur.filter(x => x !== l.id) : [...cur, l.id]);
+      renderLabs();
+    });
+    list.appendChild(d);
+  });
+}
+
+/* ---------- Question ---------- */
+function renderQuestion() {
+  const q = session.list[session.idx];
+  session.answered = false; session.selectedChoice = null;
+  $("qLevel").textContent = "Niveau " + q.level;
+  $("qLevel").className = "pill lv" + q.level;
+  $("qDom").textContent = (DOM_LABEL[q.d] ? DOM_LABEL[q.d] + " · " : "") + q.dom;
+  $("qCount").textContent = (session.idx + 1) + " / " + session.list.length;
+  $("qBar").style.width = (session.idx / session.list.length * 100) + "%";
+  $("qText").textContent = q.q;
+  $("qFeedback").innerHTML = "";
+  $("btnReveal").classList.remove("hidden");
+  $("btnNext").classList.add("hidden");
+
+  $("btnValidate").classList.remove("hidden");
+  session.startedAt = Date.now();
+
+  const scen = q.scen && SCENARIOS[q.scen];
+  $("qScenario").innerHTML = scen
+    ? '<div class="scenario"><div class="sc-title">📋 Étude de cas — ' + scen.title + "</div><p>" + scen.text + "</p></div>"
+    : "";
+
+  const zone = $("qInputZone");
+  zone.innerHTML = "";
+  if (q.code) {
+    const pre = document.createElement("pre");
+    pre.className = "qcode";
+    pre.textContent = q.code;
+    zone.appendChild(pre);
+  }
+  if (q.type === "input") {
+    const inp = document.createElement("input");
+    inp.type = "text"; inp.id = "answerInput";
+    inp.placeholder = "Écris ta réponse…";
+    inp.autocomplete = "off"; inp.spellcheck = false;
+    zone.appendChild(inp);
+    inp.focus();
+  } else if (q.type === "order") {
+    session.orderPick = [];
+    session.orderShuffled = shuffle(q.steps);
+    const wrap = document.createElement("div");
+    wrap.innerHTML = '<p class="order-hint">Clique les étapes dans le bon ordre (re-clique une étape choisie pour la retirer) :</p>' +
+      '<div class="order-list" id="orderPicked"></div><div class="order-list" id="orderAvail"></div>';
+    zone.appendChild(wrap);
+    renderOrder(q);
+  } else {
+    const div = document.createElement("div");
+    div.className = "choices";
+    shuffle(q.choices.map((c, i) => ({ c, i }))).forEach(({ c, i }) => {
+      const btn = document.createElement("button");
+      btn.className = "choice"; btn.textContent = c; btn.dataset.orig = i;
+      btn.addEventListener("click", () => {
+        if (session.answered) return;
+        session.selectedChoice = i;
+        div.querySelectorAll(".choice").forEach(x => x.classList.toggle("sel", x === btn));
+      });
+      div.appendChild(btn);
+    });
+    zone.appendChild(div);
+  }
+}
+
+function renderOrder(q) {
+  const picked = $("orderPicked"), avail = $("orderAvail");
+  picked.innerHTML = ""; avail.innerHTML = "";
+  session.orderPick.forEach((s, i) => {
+    const b = document.createElement("button");
+    b.className = "order-item picked";
+    b.textContent = (i + 1) + ". " + s;
+    b.addEventListener("click", () => {
+      if (session.answered) return;
+      session.orderPick = session.orderPick.filter(x => x !== s);
+      renderOrder(q);
+    });
+    picked.appendChild(b);
+  });
+  session.orderShuffled.filter(s => !session.orderPick.includes(s)).forEach(s => {
+    const b = document.createElement("button");
+    b.className = "order-item";
+    b.textContent = s;
+    b.addEventListener("click", () => {
+      if (session.answered) return;
+      session.orderPick.push(s);
+      renderOrder(q);
+    });
+    avail.appendChild(b);
+  });
+}
+
+/* ---------- Validation ---------- */
+function validate(conf) {
+  if (session.answered) return;
+  const q = session.list[session.idx];
+  let ok;
+  if (q.type === "input") {
+    const val = $("answerInput").value;
+    if (!val.trim()) { $("answerInput").focus(); return; }
+    ok = isCorrect(val, q.accept);
+    $("answerInput").disabled = true;
+  } else if (q.type === "order") {
+    if (session.orderPick.length !== q.steps.length) return;
+    ok = q.steps.every((s, i) => session.orderPick[i] === s);
+    document.querySelectorAll(".order-item").forEach(b => b.disabled = true);
+  } else {
+    if (session.selectedChoice === null) return;
+    ok = session.selectedChoice === q.answer;
+    document.querySelectorAll(".choice").forEach(btn => {
+      const i = Number(btn.dataset.orig);
+      btn.disabled = true;
+      if (i === q.answer) btn.classList.add("good");
+      else if (i === session.selectedChoice) btn.classList.add("bad");
+    });
+  }
+  session.answered = true;
+  const srsHtml = recordAndFlag(q, ok, conf || 2, false);
+
+  const errs = getErrors();
+  if (ok) {
+    session.score++; session.streak++;
+    setErrors(errs.filter(id => id !== q.id)); // maîtrisée → sort du mode erreurs
+  } else {
+    session.streak = 0;
+    session.wrongIds.push(q.id);
+    setErrors([...errs, q.id]);
+  }
+  $("score").textContent = session.score;
+  $("streak").textContent = session.streak;
+
+  const goodAnswer = q.type === "input" ? q.accept[0]
+    : q.type === "order" ? q.steps.map((s, i) => (i + 1) + ". " + s).join("<br>")
+    : q.choices[q.answer];
+  const fb = document.createElement("div");
+  fb.className = "feedback " + (ok ? "ok" : "ko");
+  fb.innerHTML =
+    '<div class="verdict">' + (ok ? "✅ Bonne réponse !" : "❌ Raté") + "</div>" +
+    (ok ? "" : '<p class="rep">Réponse attendue : <b>' + goodAnswer + "</b></p>") +
+    '<p class="exp">' + q.explain + "</p>" + srsHtml;
+  $("qFeedback").innerHTML = "";
+  $("qFeedback").appendChild(fb);
+
+  $("btnValidate").classList.add("hidden");
+  $("btnReveal").classList.add("hidden");
+  $("btnNext").classList.remove("hidden");
+  $("btnNext").focus();
+  $("qBar").style.width = ((session.idx + 1) / session.list.length * 100) + "%";
+}
+
+/* ---------- Correction sans répondre (« Je ne sais pas ») ---------- */
+function reveal() {
+  if (session.answered) return;
+  const q = session.list[session.idx];
+  session.answered = true;
+  const srsHtml = recordAndFlag(q, false, 1, true);
+
+  if (q.type === "input") {
+    $("answerInput").disabled = true;
+  } else if (q.type === "order") {
+    document.querySelectorAll(".order-item").forEach(b => b.disabled = true);
+  } else {
+    document.querySelectorAll(".choice").forEach(btn => {
+      btn.disabled = true;
+      if (Number(btn.dataset.orig) === q.answer) btn.classList.add("good");
+    });
+  }
+
+  // Compte comme une erreur : série remise à zéro + ajout au mode « Rejouer mes erreurs »
+  session.streak = 0;
+  session.wrongIds.push(q.id);
+  setErrors([...getErrors(), q.id]);
+  $("streak").textContent = session.streak;
+
+  const goodAnswer = q.type === "input" ? q.accept[0]
+    : q.type === "order" ? q.steps.map((s, i) => (i + 1) + ". " + s).join("<br>")
+    : q.choices[q.answer];
+  const fb = document.createElement("div");
+  fb.className = "feedback info";
+  fb.innerHTML =
+    '<div class="verdict">💡 Correction</div>' +
+    '<p class="rep">La bonne réponse était : <b>' + goodAnswer + "</b></p>" +
+    '<p class="exp">' + q.explain + "</p>" + srsHtml;
+  $("qFeedback").innerHTML = "";
+  $("qFeedback").appendChild(fb);
+
+  $("btnValidate").classList.add("hidden");
+  $("btnReveal").classList.add("hidden");
+  $("btnNext").classList.remove("hidden");
+  $("btnNext").focus();
+  $("qBar").style.width = ((session.idx + 1) / session.list.length * 100) + "%";
+}
+
+function next() {
+  if (session.idx + 1 < session.list.length) { session.idx++; renderQuestion(); }
+  else endSession();
+}
+
+/* ---------- Fin ---------- */
+function endSession() {
+  const total = session.list.length, s = session.score;
+  const pct = Math.round(s / total * 100);
+  $("endScore").textContent = s + " / " + total;
+  let v;
+  if (pct >= 90) v = "🏆 Niveau certification — continue comme ça !";
+  else if (pct >= 70) v = "💪 Solide ! Tu serais au-dessus des 700 points.";
+  else if (pct >= 50) v = "📚 En bonne voie — rejoue tes erreurs.";
+  else v = "🌱 C'est en forgeant… rejoue cette série !";
+  $("endVerdict").textContent = v;
+
+  // Bilan par domaine officiel, trié du plus faible au plus fort
+  const pd = session.perDom || {};
+  $("endByDom").innerHTML = Object.entries(pd)
+    .filter(([, o]) => o.total > 0)
+    .sort((a, b) => (a[1].ok / a[1].total) - (b[1].ok / b[1].total))
+    .map(([k, o]) => {
+      const p = Math.round(o.ok / o.total * 100);
+      const icon = p >= 75 ? "✅" : p >= 50 ? "⚠️" : "❌";
+      return '<span class="dl">' + icon + " " + (DOM_LABEL[k] || k) + '</span><span class="dv">' +
+             o.ok + "/" + o.total + " · " + p + "%</span>";
+    }).join("");
+
+  $("endDetail").textContent = pct + " % de bonnes réponses · " +
+    (total - s) + " erreur(s) ajoutée(s) au mode « Rejouer mes erreurs » (" + getErrors().length + " au total)";
+  $("btnReplayErrors").style.display = getErrors().length ? "" : "none";
+  show("end");
+}
+
+/* ---------- Boutons & clavier ---------- */
+$("btnValidate").addEventListener("click", () => validate(2));
+$("btnReveal").addEventListener("click", reveal);
+$("btnNext").addEventListener("click", next);
+$("btnQuit").addEventListener("click", () => show("home"));
+$("btnHome").addEventListener("click", () => show("home"));
+$("btnLabsHome").addEventListener("click", () => show("home"));
+$("btnReplayErrors").addEventListener("click", () => {
+  const pool = poolFor("err");
+  if (!pool.length) { show("home"); return; }
+  session = { mode: "err", list: shuffle(pool), idx: 0, score: 0, streak: 0, wrongIds: [], selectedChoice: null,
+              answered: false, perDom: {} };
+  show("quiz"); renderQuestion();
+});
+document.addEventListener("keydown", e => {
+  if ($("screen-quiz").classList.contains("hidden")) return;
+  if (e.key !== "Enter") return;
+  if (session && session.answered) next(); else validate(2);
+});
+
+refreshCounts();
+show("home");
+</script>
+
+
+<!--CSL:FOOT-->
+<script src="../../assets/shell.js" data-csl-root="../../"></script>
+<script>
+if("serviceWorker" in navigator && (location.protocol==="https:"||location.hostname==="localhost")){
+  addEventListener("load",()=>navigator.serviceWorker.register("../../sw.js").catch(()=>{}));
+}
+</script>
+<!--/CSL:FOOT-->
+</body>
+</html>

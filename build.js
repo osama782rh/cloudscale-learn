@@ -98,6 +98,11 @@ const CERTIFS = [
     examen:"57 questions · 60 min · closed book",
     desc:"Langage, état, modules et patrons multi-environnements. Un cours avancé complète le simulateur pour l'IaC de l'AZ-400." },
 
+  { id:"dp600", famille:"fabric",
+    code:"DP-600", titre:"Implementing Analytics Solutions Using Microsoft Fabric", domaines:3,
+    examen:"40 à 60 questions · 100 min · 700/1000 requis",
+    desc:"Le parcours data de Fabric : OneLake, lakehouse et warehouse, préparation en T-SQL, KQL et Spark, modèles sémantiques en Direct Lake, sécurité et cycle de vie." },
+
   { id:"cka", famille:"k8s",
     code:"CKA", titre:"Certified Kubernetes Administrator", domaines:5,
     examen:"15 à 20 tâches 100 % pratiques · 2 h · 66 % requis",

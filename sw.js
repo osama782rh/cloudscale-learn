@@ -18,7 +18,7 @@
  *    barre latérale qui change est ainsi visible au rechargement suivant, et
  *    non deux visites plus tard.
  */
-const VERSION = "cloudscale-586734d3";
+const VERSION = "cloudscale-68b1b10e";
 
 const FICHIERS = [
   "./",
