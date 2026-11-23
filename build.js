@@ -290,14 +290,26 @@ const PRECACHE = ["./", "./index.html", "./qcm.html", "./quiz.html", "./formatio
   "./assets/shell.css", "./assets/page.css", "./assets/shell.js", "./assets/data.js",
   "./manifest.webmanifest", "./icone.svg"];
 
+/* L'empreinte couvre le contenu préchargé, la liste elle-même et la stratégie
+   du service worker. Sans ce dernier point, changer la façon de servir le cache
+   laisserait VERSION inchangée, donc les anciens caches en place. La ligne
+   VERSION et le bloc FICHIERS sont neutralisés avant le calcul : tous deux sont
+   réécrits juste après, et les inclure rendrait l'empreinte instable d'un build
+   au suivant. */
+let sw = lire("sw.js");
+const strategie = sw
+  .replace(/const VERSION = "[^"]*";/, "")
+  .replace(/const FICHIERS = \[[\s\S]*?\];/, "");
+
 const empreinte = crypto.createHash("sha1");
 PRECACHE.forEach(f => {
   const p = path.join(root, f.replace("./", ""));
   if (f !== "./" && fs.existsSync(p)) empreinte.update(fs.readFileSync(p));
 });
+empreinte.update(PRECACHE.join("\n"));
+empreinte.update(strategie);
 const VERSION = "cloudscale-" + empreinte.digest("hex").slice(0, 8);
 
-let sw = lire("sw.js");
 sw = sw.replace(/const VERSION = "[^"]*";/, `const VERSION = "${VERSION}";`)
        .replace(/const FICHIERS = \[[\s\S]*?\];/,
          "const FICHIERS = [\n  " + PRECACHE.map(f => JSON.stringify(f)).join(",\n  ") + "\n];");
