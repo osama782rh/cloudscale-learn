@@ -98,6 +98,11 @@ const CERTIFS = [
     examen:"57 questions · 60 min · closed book",
     desc:"Langage, état, modules et patrons multi-environnements. Un cours avancé complète le simulateur pour l'IaC de l'AZ-400." },
 
+  { id:"pl300", famille:"fabric",
+    code:"PL-300", titre:"Microsoft Power BI Data Analyst", domaines:4,
+    examen:"40 à 60 questions · 100 min · 700/1000 requis",
+    desc:"Le métier d'analyste : préparer en Power Query, modéliser en étoile, écrire le DAX, construire des rapports lisibles, puis publier et sécuriser." },
+
   { id:"dp600", famille:"fabric",
     code:"DP-600", titre:"Implementing Analytics Solutions Using Microsoft Fabric", domaines:3,
     examen:"40 à 60 questions · 100 min · 700/1000 requis",
