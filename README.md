@@ -3,7 +3,7 @@
 Plateforme d'entraînement et de montée en compétences **cloud & DevOps**.
 Site statique, sans dépendance, installable hors ligne (PWA).
 
-👉 <https://osama782rh.github.io/prepa-entretien-devops/>
+👉 <https://osama782rh.github.io/cloudscale-learn/>
 
 ## Ce que contient le site
 
