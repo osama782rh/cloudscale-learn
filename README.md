@@ -31,13 +31,21 @@ Un entraînement par certification, regroupé par éditeur dans la barre latéra
 | HashiCorp | Terraform Associate, Terraform avancé |
 | Kubernetes / CNCF | CKA |
 
-Deux moteurs cohabitent :
+Les dix certifications partagent le même simulateur : `certifs/<id>/index.html`
+— 3 niveaux, code à compléter, études de cas, labs, examen blanc pondéré sur les
+pourcentages officiels, répétition espacée.
 
-- `certifs/<id>/index.html` — simulateurs autonomes (3 niveaux, labs, examen blanc pondéré
-  sur les pourcentages officiels, répétition espacée) ;
-- `trainer.html` — module de cours et de questions pour **AZ-305**, **PCDE** et **Terraform avancé**,
-  construit à partir des fichiers Markdown de `contenus/`. La route `#/quiz/<az|gcp|tf>`
-  présélectionne le parcours, `#/course/<track>/<doc>` ouvre un cours.
+Le moteur de référence est `certifs/az104/index.html`. Les simulateurs AZ-305 et PCDE
+en sont dérivés par `node tools/make-certif.js`, qui n'y remplace que ce qui est propre
+à une certification : banque de questions, études de cas, labs, domaines officiels,
+pondérations, couleur d'accentuation et textes d'en-tête. Le contenu de chacune vit dans
+`tools/banque-<id>.js`. Une amélioration de l'interface se fait donc dans le moteur,
+puis se rediffuse d'un coup.
+
+`trainer.html` complète les simulateurs par les **cours longs** d'AZ-305, de PCDE et de
+Terraform avancé, construits à partir des fichiers Markdown de `contenus/`.
+La route `#/course/<track>/<doc>` ouvre un cours, `#/quiz/<az|gcp|tf>` les questions
+du cours et `#/notebook` le carnet d'erreurs.
 
 `certifications.html` reprend l'ensemble avec filtre par éditeur et tableau des examens blancs.
 
@@ -83,6 +91,7 @@ node audit.js              # trous de couverture et biais de longueur des QCM
 | Questions (choix multiples) | `qcm/*.js` |
 | Fiches d'étude | `fiches/*.js` |
 | Cours de certification (AZ-305, PCDE, Terraform) | `contenus/<parcours>/*.md` |
+| Banques des simulateurs dérivés (AZ-305, PCDE) | `tools/banque-<id>.js` + `node tools/make-certif.js` |
 | Liens de documentation | `tools/documentation.js` |
 | Plan de travail, labs, ressources externes | `tools/cours.js` |
 | Entrées de la barre latérale | `assets/shell.js` (constante `NAV`) |
@@ -93,6 +102,8 @@ node audit.js              # trous de couverture et biais de longueur des QCM
 `assets/trainer-counts.json` et la section `FICHIERS` de `sw.js`.
 Les simulateurs `certifs/*/index.html` sont éditables, mais `build.js` y réinjecte
 la barre latérale entre les marqueurs `<!--CSL:HEAD-->` et `<!--CSL:FOOT-->`.
+Exceptions : `certifs/az305/` et `certifs/gcp-devops/` sont régénérés par
+`tools/make-certif.js` — toute correction s'y fait dans `tools/banque-<id>.js`.
 
 ### Progression
 

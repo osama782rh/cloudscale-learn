@@ -1,0 +1,2093 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AZ-305 Quiz — Designing Azure Infrastructure Solutions</title>
+<style>
+  :root {
+    --ground: #F6F8FB;
+    --surface: #FFFFFF;
+    --ink: #16222E;
+    --muted: #5A6B7C;
+    --accent: #0F6CBD;
+    --accent-deep: #0A4F8C;
+    --accent-soft: #E8F1FA;
+    --good: #1E7A46;
+    --good-soft: #E7F5EC;
+    --bad: #B3352B;
+    --bad-soft: #FBEAE8;
+    --warn: #9A4E00;
+    --border: #D9E2EC;
+    --shadow: 0 2px 8px rgba(22,34,46,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0D141C; --surface: #151F2A; --ink: #DBE6F0; --muted: #8FA3B5;
+      --accent: #5FB0F0; --accent-deep: #8CC6F5; --accent-soft: #14293C;
+      --good: #5BC98A; --good-soft: #12291B; --bad: #F08578; --bad-soft: #2E1512;
+      --warn: #EDAA5F; --border: #243445; --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px; line-height: 1.5; min-height: 100vh;
+  }
+  code { font-family: "Cascadia Code", Consolas, monospace; background: var(--accent-soft); color: var(--accent-deep); padding: 1px 5px; border-radius: 5px; font-size: .9em; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  header.top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
+  header.top h1 { font-size: 20px; margin: 0; font-weight: 700; }
+  header.top h1 .az { color: var(--accent); }
+  .stats { display: flex; gap: 14px; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .stats b { color: var(--ink); }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 22px; box-shadow: var(--shadow);
+  }
+
+  /* --- Accueil --- */
+  .home h2 { margin: 0 0 4px; font-size: 24px; }
+  .home p.sub { color: var(--muted); margin: 0 0 18px; }
+  .modes { display: grid; gap: 10px; }
+  .mode-btn {
+    display: flex; align-items: center; gap: 14px; width: 100%;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; cursor: pointer; text-align: left; color: var(--ink);
+    font-family: inherit; font-size: 15px; transition: border-color .15s, transform .1s;
+  }
+  .mode-btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .mode-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .mode-btn .ico { font-size: 24px; width: 34px; text-align: center; }
+  .mode-btn .t { font-weight: 650; }
+  .mode-btn .d { font-size: 13px; color: var(--muted); }
+  .mode-btn .n { margin-left: auto; font-size: 12.5px; color: var(--accent); background: var(--accent-soft); border-radius: 20px; padding: 2px 10px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .count-row { display: flex; gap: 8px; align-items: center; margin: 18px 0 8px; font-size: 14px; color: var(--muted); flex-wrap: wrap; }
+  .count-row .seg { display: flex; gap: 4px; }
+  .seg button {
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink);
+    border-radius: 8px; padding: 5px 14px; cursor: pointer; font-family: inherit; font-size: 14px;
+  }
+  .seg button.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+  /* --- Quiz --- */
+  .qmeta { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .pill { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; border-radius: 20px; padding: 3px 11px; }
+  .pill.lv1 { background: var(--good-soft); color: var(--good); }
+  .pill.lv2 { background: var(--accent-soft); color: var(--accent); }
+  .pill.lv3 { background: var(--bad-soft); color: var(--bad); }
+  .pill.dom { background: transparent; border: 1px solid var(--border); color: var(--muted); font-weight: 600; }
+  .progressbar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 18px; }
+  .progressbar div { height: 100%; background: var(--accent); border-radius: 3px; transition: width .25s; }
+  .question { font-size: 19px; font-weight: 650; margin: 0 0 18px; line-height: 1.4; text-wrap: balance; }
+
+  input[type=text] {
+    width: 100%; padding: 12px 14px; font-size: 16px; font-family: inherit;
+    border: 2px solid var(--border); border-radius: 10px; background: var(--ground); color: var(--ink);
+  }
+  input[type=text]:focus { outline: none; border-color: var(--accent); }
+  .choices { display: grid; gap: 8px; }
+  .choice {
+    text-align: left; padding: 11px 14px; border: 2px solid var(--border); border-radius: 10px;
+    background: var(--ground); color: var(--ink); cursor: pointer; font-family: inherit; font-size: 15px;
+    transition: border-color .12s;
+  }
+  .choice:hover { border-color: var(--accent); }
+  .choice.sel { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+  .choice.good { border-color: var(--good); background: var(--good-soft); font-weight: 600; }
+  .choice.bad { border-color: var(--bad); background: var(--bad-soft); }
+  .choice:disabled { cursor: default; opacity: .85; }
+
+  .actions { display: flex; gap: 10px; margin-top: 18px; }
+  .btn {
+    padding: 11px 22px; border-radius: 10px; border: none; cursor: pointer;
+    font-family: inherit; font-size: 15px; font-weight: 650;
+  }
+  .btn.primary { background: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent-deep); }
+  .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+  .btn:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
+
+  .feedback { margin-top: 18px; border-radius: 12px; padding: 14px 16px; font-size: 15px; }
+  .feedback.ok { background: var(--good-soft); border: 1px solid var(--good); }
+  .feedback.ko { background: var(--bad-soft); border: 1px solid var(--bad); }
+  .feedback.info { background: var(--accent-soft); border: 1px solid var(--accent); }
+  .feedback .verdict { font-weight: 750; font-size: 16px; }
+  .feedback.ok .verdict { color: var(--good); }
+  .feedback.ko .verdict { color: var(--bad); }
+  .feedback.info .verdict { color: var(--accent-deep); }
+
+  pre.qcode {
+    background: #0F1B26; color: #D7E4F0; border-radius: 10px;
+    padding: 12px 14px; overflow-x: auto; font-size: 13px; line-height: 1.5;
+    font-family: "Cascadia Code", Consolas, monospace; margin: 0 0 14px; text-align: left;
+  }
+  .scenario {
+    background: var(--accent-soft); border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0; padding: 10px 14px; margin: 0 0 14px; font-size: 14px;
+  }
+  .scenario .sc-title { font-weight: 700; color: var(--accent-deep); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+  .scenario p { margin: 0; }
+  .order-hint { font-size: 13.5px; color: var(--muted); margin: 0 0 8px; }
+  .order-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+  .order-list:empty { display: none; }
+  .order-item {
+    text-align: left; padding: 10px 13px; border: 2px solid var(--border); border-radius: 10px;
+    background: var(--ground); color: var(--ink); cursor: pointer; font-family: inherit; font-size: 14.5px;
+  }
+  .order-item:hover { border-color: var(--accent); }
+  .order-item.picked { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+  .order-item:disabled { cursor: default; opacity: .85; }
+
+  .lab { background: var(--ground); border: 1px solid var(--border); border-radius: 12px; padding: 4px 16px 12px; margin-bottom: 10px; }
+  .lab summary { cursor: pointer; font-weight: 650; padding: 10px 0; font-size: 15.5px; }
+  .lab.done summary { color: var(--good); }
+  .lab .lab-time { color: var(--muted); font-weight: 400; font-size: 13px; }
+  .lab ol { padding-left: 20px; font-size: 14.5px; }
+  .lab li { margin: 4px 0; }
+  .lab .lab-obj, .lab .lab-verif { font-size: 14px; }
+  .lab .lab-verif { background: var(--good-soft); border-radius: 8px; padding: 8px 12px; }
+  .labs-note {
+    background: color-mix(in srgb, var(--warn) 12%, transparent);
+    border-radius: 10px; padding: 10px 14px; font-size: 13.5px; color: var(--warn); margin-bottom: 14px;
+  }
+  .feedback .rep { margin: 6px 0 0; }
+  .feedback .exp { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+
+  /* --- Fin --- */
+  .end { text-align: center; }
+  .end .big { font-size: 52px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; margin: 10px 0 0; }
+  .end .verdict { font-size: 18px; font-weight: 650; margin: 6px 0 18px; }
+  .end .detail { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+  .streak { color: var(--warn); font-weight: 700; }
+  .kbd-hint { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: 14px; }
+  .hidden { display: none; }
+
+  /* ---- Mode Maîtrise : tableau de bord ---- */
+  .dash {
+    background: var(--accent-soft); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px;
+  }
+  .dash h3 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .07em; color: var(--accent-deep); }
+  .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+  .dash-cell { background: var(--surface); border-radius: 9px; padding: 8px 10px; text-align: center; }
+  .dash-cell .v { font-size: 21px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .dash-cell .k { font-size: 11px; color: var(--muted); line-height: 1.25; }
+  .dash-cell.danger .v { color: var(--bad); }
+  .dash-cell.due .v { color: var(--accent); }
+  .dash-cell.mastered .v { color: var(--good); }
+  .dash-cell.reco .v { color: var(--warn); }
+  .dash-note { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
+
+  .srs-flag { font-size: 12.5px; border-radius: 8px; padding: 7px 11px; margin-top: 10px; }
+  .srs-flag.danger { background: var(--bad-soft); color: var(--bad); border: 1px solid var(--bad); font-weight: 600; }
+  .srs-flag.reco { background: var(--warn-soft); color: var(--warn); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); }
+  .srs-next { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+
+  .bydom { text-align: left; font-size: 13.5px; margin: 0 auto 18px; max-width: 440px; display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; }
+  .bydom .dl { color: var(--muted); }
+  .bydom .dv { font-variant-numeric: tabular-nums; font-weight: 650; }
+</style>
+
+
+<!--CSL:HEAD-->
+<link rel="stylesheet" href="../../assets/shell.css">
+<link rel="manifest" href="../../manifest.webmanifest">
+<link rel="icon" href="../../icone.svg">
+<script src="../../assets/data.js"></script>
+<!--/CSL:HEAD-->
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1><span class="az">AZ-305</span> · Quiz d'entraînement</h1>
+    <div class="stats">
+      <span>Série : <b id="streak">0</b> 🔥</span>
+      <span>Score : <b id="score">0</b></span>
+    </div>
+  </header>
+
+<!-- Accueil -->
+  <div id="screen-home" class="card home">
+    <h2>Choisis ton mode</h2>
+    <p class="sub">Tape ta réponse pour la plupart des questions — comme si c'était le jour J, sans filet. 4 domaines officiels, 3 niveaux, examen blanc pondéré.</p>
+    <div class="dash">
+      <h3>🧠 Mode Maîtrise — ancrage durable</h3>
+      <div class="dash-grid">
+        <div class="dash-cell danger"><div class="v" id="dCroyances">0</div><div class="k">croyances fausses</div></div>
+        <div class="dash-cell due"><div class="v" id="dDue">0</div><div class="k">à réviser</div></div>
+        <div class="dash-cell mastered"><div class="v" id="dMastered">0</div><div class="k">ancrés</div></div>
+        <div class="dash-cell reco"><div class="v" id="dReco">0</div><div class="k">reconnaissance ?</div></div>
+        <div class="dash-cell"><div class="v" id="dNew">0</div><div class="k">jamais vus</div></div>
+      </div>
+      <p class="dash-note" id="dNote"></p>
+    </div>
+    <div class="count-row">
+      Nombre de questions :
+      <div class="seg" id="countSeg">
+        <button data-n="10">10</button>
+        <button data-n="20" class="on">20</button>
+        <button data-n="0">Toutes</button>
+      </div>
+    </div>
+    <div class="count-row">
+      Domaine officiel :
+      <div class="seg" id="domSeg">
+        <button data-d="all" class="on">Tous</button>
+        <button data-d="iden">Identité &amp; gouvernance</button>
+        <button data-d="data">Données</button>
+        <button data-d="bcdr">Continuité</button>
+        <button data-d="infra">Infrastructure</button>
+      </div>
+    </div>
+    <div class="modes">
+      <button class="mode-btn" data-mode="maitrise" style="border-color:var(--accent);background:var(--accent-soft)">
+        <span class="ico">🧠</span>
+        <span><span class="t">Session Maîtrise (recommandé au quotidien)</span><br><span class="d">Répétition espacée — corrige d'abord ce que tu crois savoir à tort</span></span>
+        <span class="n" id="nmaitrise"></span>
+      </button>
+      <button class="mode-btn" data-mode="1">
+        <span class="ico">🌱</span>
+        <span><span class="t">Niveau 1 — Vocabulaire &amp; bases</span><br><span class="d">Landing zone, scope, SKU, redondance, sigles — le socle de vocabulaire de la conception</span></span>
+        <span class="n" id="n1"></span>
+      </button>
+      <button class="mode-btn" data-mode="2">
+        <span class="ico">⚙️</span>
+        <span><span class="t">Niveau 2 — Les faits d'examen</span><br><span class="d">Limites, quotas, valeurs par défaut, noms exacts — ce qui tombe littéralement</span></span>
+        <span class="n" id="n2"></span>
+      </button>
+      <button class="mode-btn" data-mode="3">
+        <span class="ico">🎯</span>
+        <span><span class="t">Niveau 3 — Scénarios &amp; pièges</span><br><span class="d">« Pourquoi ça ne marche pas ? » — diagnostics, pièges et choix d'architecture</span></span>
+        <span class="n" id="n3"></span>
+      </button>
+      <button class="mode-btn" data-mode="code">
+        <span class="ico">💻</span>
+        <span><span class="t">Code à compléter</span><br><span class="d">Bicep, JSON de policy et de rôle, KQL, az CLI — le format exact de l'examen</span></span>
+        <span class="n" id="ncode"></span>
+      </button>
+      <button class="mode-btn" data-mode="cas">
+        <span class="ico">🧩</span>
+        <span><span class="t">Études de cas &amp; séquences</span><br><span class="d">Scénarios d'entreprise + étapes à remettre dans l'ordre</span></span>
+        <span class="n" id="ncas"></span>
+      </button>
+      <button class="mode-btn" data-mode="blanc">
+        <span class="ico">🎓</span>
+        <span><span class="t">Examen blanc</span><br><span class="d">≈ 45 questions pondérées sur les 4 domaines officiels, études de cas en fin — comme le jour J</span></span>
+        <span class="n" id="nblanc"></span>
+      </button>
+      <button class="mode-btn" data-mode="mix">
+        <span class="ico">🎲</span>
+        <span><span class="t">Tout mélanger</span><br><span class="d">Toute la banque mélangée aléatoirement</span></span>
+        <span class="n" id="nmix"></span>
+      </button>
+      <button class="mode-btn" data-mode="err">
+        <span class="ico">🩹</span>
+        <span><span class="t">Rejouer mes erreurs</span><br><span class="d">Uniquement les questions déjà ratées</span></span>
+        <span class="n" id="nerr"></span>
+      </button>
+      <button class="mode-btn" data-mode="labs">
+        <span class="ico">🧪</span>
+        <span><span class="t">Labs guidés</span><br><span class="d">8 labs de conception sur ton abonnement Azure, commandes az fournies</span></span>
+        <span class="n" id="nlabs"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div id="screen-quiz" class="card hidden">
+    <div class="qmeta">
+      <span class="pill" id="qLevel"></span>
+      <span class="pill dom" id="qDom"></span>
+      <span style="margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums" id="qCount"></span>
+    </div>
+    <div class="progressbar"><div id="qBar" style="width:0%"></div></div>
+    <div id="qScenario"></div>
+    <p class="question" id="qText"></p>
+    <div id="qInputZone"></div>
+    <div class="actions">
+      <button class="btn primary" id="btnValidate">Valider</button>
+      <button class="btn primary hidden" id="btnNext">Question suivante →</button>
+      <button class="btn ghost" id="btnReveal">💡 Je ne sais pas</button>
+      <button class="btn ghost" id="btnQuit">Quitter</button>
+    </div>
+    <div id="qFeedback"></div>
+    <p class="kbd-hint">Entrée = valider / question suivante</p>
+  </div>
+
+  <!-- Fin -->
+  <div id="screen-end" class="card end hidden">
+    <h2>Session terminée !</h2>
+    <p class="big" id="endScore"></p>
+    <p class="verdict" id="endVerdict"></p>
+    <div class="bydom" id="endByDom"></div>
+    <p class="detail" id="endDetail"></p>
+    <div class="actions" style="justify-content:center">
+      <button class="btn primary" id="btnReplayErrors">🩹 Rejouer mes erreurs</button>
+      <button class="btn ghost" id="btnHome">← Menu</button>
+    </div>
+  </div>
+
+  <!-- Labs -->
+  <div id="screen-labs" class="card hidden">
+    <h2>🧪 Labs guidés — conception sur ton abonnement Azure</h2>
+    <p class="labs-note">⚠️ Chaque lab se termine par la suppression du resource group (<code>az group delete</code>) pour ne rien payer inutilement. Le lab 6 déploie un Azure Firewall et le lab 7 deux plans App Service Premium : ce sont les deux à ne pas laisser tourner. Remplace <code>&lt;unique&gt;</code> par un suffixe à toi (les noms de compte de stockage, de serveur SQL et de webapp sont mondiaux). Utilise le Cloud Shell du portail ou <code>az login</code> en local.</p>
+    <div id="labsList"></div>
+    <div class="actions">
+      <button class="btn ghost" id="btnLabsHome">← Menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   BANQUE DE QUESTIONS — AZ-305 Designing Azure Infrastructure Solutions
+   type "input" : réponse à taper — accept = variantes acceptées
+   type "qcm"   : choix multiple — answer = index de la bonne réponse
+   ===================================================================== */
+/* =====================================================================
+   BANQUE DE QUESTIONS AZ-104 — Azure Administrator Associate
+   Domaines officiels (d) :
+     iden = Identités & gouvernance (20-25 %)
+     stor = Stockage (15-20 %)
+     comp = Compute (20-25 %)
+     net  = Réseau (15-20 %)
+     mon  = Supervision & maintenance (10-15 %)
+   type "input" : réponse à taper — accept = variantes acceptées
+   type "qcm"   : choix multiple — answer = index de la bonne réponse
+   type "order" : étapes à remettre dans l'ordre — steps = ordre correct
+   ===================================================================== */
+const QUESTIONS = [
+/* ================= NIVEAU 1 — VOCABULAIRE & BASES ================= */
+
+{ id:"n1-mg", level:1, d:"iden", dom:"Hiérarchie", type:"input",
+  q:"Conteneur qui regroupe plusieurs abonnements pour leur appliquer les mêmes stratégies et attributions RBAC par héritage. Quel nom ?",
+  accept:["management group","groupe d'administration","groupe de gestion","management groups"],
+  explain:"La hiérarchie complète : management group → abonnement → groupe de ressources → ressource. Tout ce qui est posé en haut descend ; rien ne remonte." },
+{ id:"n1-landingzone", level:1, d:"iden", dom:"Cloud Adoption Framework", type:"qcm",
+  q:"Qu'est-ce qu'une landing zone Azure ?",
+  choices:["Un environnement préconfiguré (abonnements, réseau, identité, gouvernance, supervision) prêt à accueillir des charges de travail","Une région Azure","Un type de machine virtuelle","Un groupe de ressources vide"],
+  answer:0,
+  explain:"C'est le vocabulaire du Cloud Adoption Framework. On distingue la plateforme (identité, connectivité, gestion) des landing zones applicatives qui en héritent." },
+{ id:"n1-pim", level:1, d:"iden", dom:"Entra ID", type:"input",
+  q:"Fonctionnalité Entra ID P2 qui rend un rôle « éligible » : l'administrateur doit l'activer pour une durée limitée, avec MFA, justification et approbation. Quel sigle ?",
+  accept:["pim","privileged identity management"],
+  explain:"PIM transforme un droit permanent en droit juste-à-temps. C'est la réponse attendue dès qu'un énoncé parle d'activation temporaire ou d'approbation." },
+{ id:"n1-ca", level:1, d:"iden", dom:"Entra ID", type:"input",
+  q:"Fonctionnalité qui évalue des signaux (utilisateur, emplacement, appareil, risque) et impose des contrôles comme le MFA avant d'accorder l'accès. Quel nom ?",
+  accept:["conditional access","acces conditionnel","accès conditionnel"],
+  explain:"Conditional Access répond au « quand et d'où », PIM au « pendant combien de temps », RBAC au « sur quoi »." },
+{ id:"n1-b2b", level:1, d:"iden", dom:"Identités externes", type:"qcm",
+  q:"À quoi sert Microsoft Entra B2B ?",
+  choices:["Inviter des utilisateurs d'une autre organisation qui s'authentifient avec leurs propres identifiants, sans créer de comptes avec mot de passe chez vous","Gérer les identités de millions de clients grand public","Joindre des VM à un domaine managé","Synchroniser un AD local vers Entra ID"],
+  answer:0,
+  explain:"B2B = partenaires. External ID / B2C = clients grand public. Domain Services = jonction de domaine. Entra Connect = synchronisation." },
+{ id:"n1-b2c", level:1, d:"iden", dom:"Identités externes", type:"qcm",
+  q:"Quel service gère l'inscription et la connexion de clients grand public, avec fournisseurs sociaux (Google, Facebook) et parcours personnalisables ?",
+  choices:["Microsoft Entra External ID (anciennement Azure AD B2C)","Entra B2B","Entra Domain Services","Entra Connect"],
+  answer:0,
+  explain:"C'est le CIAM d'Azure. Le réflexe d'examen : « grand public, millions d'utilisateurs, connexion sociale » → External ID, jamais B2B." },
+{ id:"n1-mi", level:1, d:"iden", dom:"Identités managées", type:"qcm",
+  q:"Quelle est la différence entre une identité managée system-assigned et user-assigned ?",
+  choices:["System-assigned est liée au cycle de vie d'une seule ressource et disparaît avec elle ; user-assigned est une ressource autonome, partageable par plusieurs services","User-assigned est moins sécurisée","System-assigned est partageable","Il n'y a aucune différence"],
+  answer:0,
+  explain:"Dès qu'un énoncé mentionne plusieurs ressources qui doivent avoir les mêmes droits, la réponse est user-assigned : une seule attribution RBAC à maintenir." },
+{ id:"n1-policy-vs-rbac", level:1, d:"iden", dom:"Gouvernance", type:"qcm",
+  q:"Quelle est la différence de nature entre Azure RBAC et Azure Policy ?",
+  choices:["RBAC décide QUI peut agir ; Policy décide CE QUI peut exister, indépendamment de l'identité","Ils font la même chose","Policy remplace RBAC","RBAC s'applique seulement aux groupes de ressources"],
+  answer:0,
+  explain:"Conséquence directe : une policy Deny bloque même un Owner. C'est la réponse à toutes les questions « pourquoi l'administrateur n'arrive-t-il pas à créer cette ressource ? »." },
+{ id:"n1-lock", level:1, d:"iden", dom:"Gouvernance", type:"qcm",
+  q:"Que permet et qu'interdit un verrou CanNotDelete ?",
+  choices:["Lecture et modification autorisées, suppression interdite","Lecture seule","Suppression autorisée, modification interdite","Tout est interdit"],
+  answer:0,
+  explain:"ReadOnly est plus strict : il bloque aussi les modifications, et provoque souvent des effets de bord (une opération de lecture qui écrit en coulisse échoue)." },
+{ id:"n1-kv-mhsm", level:1, d:"iden", dom:"Key Vault", type:"qcm",
+  q:"Quelle est la différence entre Key Vault Premium et Managed HSM ?",
+  choices:["Premium utilise des HSM mutualisés entre locataires ; Managed HSM est un pool HSM mono-locataire dédié, avec contrôle du domaine de sécurité","Managed HSM est moins cher","Premium est mono-locataire","Managed HSM ne gère pas les clés"],
+  answer:0,
+  explain:"Les mots déclencheurs d'un Managed HSM en examen : « mono-locataire », « dédié », « FIPS 140-3 niveau 3 », « contrôle total du domaine de sécurité »." },
+{ id:"n1-ai", level:1, d:"iden", dom:"Supervision", type:"input",
+  q:"Composant d'Azure Monitor qui trace les requêtes, les dépendances et les exceptions d'une application, et en dessine la carte applicative. Quel nom ?",
+  accept:["application insights","app insights"],
+  explain:"Application Insights est l'APM d'Azure. Log Analytics est le magasin de logs derrière, interrogé en KQL." },
+{ id:"n1-law", level:1, d:"iden", dom:"Supervision", type:"input",
+  q:"Ressource qui stocke les logs collectés par Azure Monitor et se requête en KQL. Quel nom ?",
+  accept:["log analytics workspace","log analytics","espace de travail log analytics"],
+  explain:"Les métriques vont dans un magasin de séries temporelles distinct : c'est pour cela qu'une alerte de métrique est bien plus réactive qu'une alerte de log." },
+{ id:"n1-dcr", level:1, d:"iden", dom:"Supervision", type:"input",
+  q:"Objet qui décrit quelles données l'Azure Monitor Agent collecte, comment les transformer et vers quelle destination les envoyer. Quel sigle ?",
+  accept:["dcr","data collection rule","regle de collecte de donnees","règle de collecte de données"],
+  explain:"La DCR est le levier numéro un de réduction de coût d'Azure Monitor : on filtre à la source plutôt que d'ingérer puis de jeter." },
+
+{ id:"n1-lrs", level:1, d:"data", dom:"Redondance", type:"qcm",
+  q:"Que protège exactement chaque option de redondance d'un compte de stockage ?",
+  choices:["LRS : panne de matériel dans un datacenter · ZRS : perte d'une zone · GRS : perte de la région · GZRS : les deux derniers à la fois","LRS protège de la perte d'une région","ZRS copie dans une autre région","GRS est synchrone"],
+  answer:0,
+  explain:"Le préfixe RA (read-access) est orthogonal : il ajoute la lecture du secondaire sans basculement. RA-GZRS est l'option maximale." },
+{ id:"n1-tiers", level:1, d:"data", dom:"Niveaux d'accès", type:"qcm",
+  q:"Comment évoluent coût de stockage et coût d'accès entre les niveaux Hot, Cool, Cold et Archive ?",
+  choices:["Le stockage coûte de moins en moins cher, l'accès de plus en plus cher, et la durée minimale de conservation augmente","Tout devient moins cher","Tout devient plus cher","Seule la vitesse change"],
+  answer:0,
+  explain:"Durées minimales : Cool 30 jours, Cold 90 jours, Archive 180 jours. Sortir un blob avant la fin déclenche une pénalité de suppression anticipée." },
+{ id:"n1-worm", level:1, d:"data", dom:"Immuabilité", type:"input",
+  q:"Mode de stockage où un objet, une fois écrit, ne peut plus être modifié ni supprimé avant la fin de sa rétention. Quel sigle en trois lettres ?",
+  accept:["worm","write once read many"],
+  explain:"Sur Blob Storage, cela se configure par une politique de rétention temporelle ou un legal hold. Verrouillée, la politique résiste même à un Owner." },
+{ id:"n1-cosmos-session", level:1, d:"data", dom:"Cosmos DB", type:"qcm",
+  q:"Quel niveau de cohérence Cosmos DB garantit qu'un client relit toujours ses propres écritures, avec un bon compromis de latence ?",
+  choices:["Session, qui est aussi le niveau par défaut","Strong","Eventual","Consistent prefix"],
+  answer:0,
+  explain:"Les cinq niveaux du plus fort au plus faible : Strong, Bounded staleness, Session, Consistent prefix, Eventual. Plus on descend, plus la latence et le coût en RU baissent." },
+{ id:"n1-cosmos-ru", level:1, d:"data", dom:"Cosmos DB", type:"input",
+  q:"Unité de facturation du débit dans Cosmos DB, qui agrège CPU, mémoire et IOPS d'une opération. Quel sigle ?",
+  accept:["ru","ru/s","request unit","unite de requete","unité de requête"],
+  explain:"Une lecture de point de 1 Ko consomme environ 1 RU. Le mode autoscale ajuste entre 10 % et 100 % d'un maximum choisi ; le mode serverless facture à la consommation." },
+{ id:"n1-sqlmi", level:1, d:"data", dom:"Azure SQL", type:"qcm",
+  q:"Quel service Azure SQL offre la compatibilité la plus proche d'un SQL Server complet, y compris SQL Agent et les requêtes entre bases ?",
+  choices:["Azure SQL Managed Instance","Azure SQL Database (base unique)","Cosmos DB","Azure Database for PostgreSQL"],
+  answer:0,
+  explain:"La phrase déclenchante de l'examen : « migrer avec le minimum de changements de code ». SQL Database ne connaît ni SQL Agent, ni le CLR, ni les requêtes inter-bases classiques." },
+{ id:"n1-hyperscale", level:1, d:"data", dom:"Azure SQL", type:"qcm",
+  q:"Quel niveau de service Azure SQL vise les très grandes bases, avec sauvegardes par instantané et réplicas de lecture nommés ?",
+  choices:["Hyperscale","General Purpose","Business Critical","Basic"],
+  answer:0,
+  explain:"Business Critical plafonne autour de 4 To mais offre la latence la plus basse (stockage local SSD, groupe de disponibilité). Hyperscale monte à environ 100 To." },
+{ id:"n1-eventhubs", level:1, d:"data", dom:"Messagerie", type:"qcm",
+  q:"Quel service ingère des flux de télémétrie à très haut débit, avec une API compatible Kafka ?",
+  choices:["Event Hubs","Service Bus","Event Grid","Storage Queue"],
+  answer:0,
+  explain:"Les trois à ne jamais confondre : Event Hubs = flux massif, Event Grid = événements réactifs publication/abonnement, Service Bus = messages métier ordonnés et transactionnels." },
+{ id:"n1-adls", level:1, d:"data", dom:"Analytique", type:"qcm",
+  q:"Qu'ajoute Azure Data Lake Storage Gen2 à un compte de stockage Blob ?",
+  choices:["Un espace de noms hiérarchique, avec de vrais répertoires, des ACL POSIX et des renommages atomiques","Une base relationnelle","Un moteur de requêtes SQL","Le chiffrement, absent de Blob"],
+  answer:0,
+  explain:"Sans espace de noms hiérarchique, renommer un « dossier » recopie tous les objets. C'est ce qui rend ADLS Gen2 indispensable pour les charges analytiques." },
+{ id:"n1-databox", level:1, d:"data", dom:"Migration", type:"qcm",
+  q:"À quoi sert Azure Data Box ?",
+  choices:["Transférer de très gros volumes de données par un appareil physique expédié, quand la bande passante rendrait le transfert réseau trop long","Sauvegarder des VM","Héberger une base de données","Créer un réseau privé"],
+  answer:0,
+  explain:"Le calcul à savoir faire : 250 To sur 100 Mb/s, c'est plusieurs années. Au-delà de quelques dizaines de To, l'appareil physique gagne toujours." },
+
+{ id:"n1-sla-serie", level:1, d:"bcdr", dom:"SLA", type:"qcm",
+  q:"Comment se calcule le SLA composite de deux composants en série, chacun indispensable au service ?",
+  choices:["On multiplie leurs SLA : le résultat est toujours inférieur au plus faible des deux","On prend le plus faible","On fait la moyenne","On additionne"],
+  answer:0,
+  explain:"En parallèle, c'est l'inverse : 1 − (1−SLA₁) × (1−SLA₂), et le résultat est meilleur que chaque composant pris isolément." },
+{ id:"n1-rpo-rto", level:1, d:"bcdr", dom:"Continuité", type:"qcm",
+  q:"Que mesurent respectivement le RPO et le RTO ?",
+  choices:["Le RPO est la quantité de données que l'on accepte de perdre ; le RTO est la durée acceptable avant retour en service","L'inverse","Les deux mesurent le temps de restauration","Les deux mesurent la perte de données"],
+  answer:0,
+  explain:"RPO regarde vers le passé (depuis quand n'a-t-on pas sauvegardé ?), RTO vers l'avenir (dans combien de temps est-ce reparti ?). C'est le RPO qui dicte le choix Backup / Site Recovery." },
+{ id:"n1-asr", level:1, d:"bcdr", dom:"Reprise", type:"input",
+  q:"Service Azure qui réplique en continu des VM vers une autre région, avec plans de reprise et tests de basculement isolés. Quel nom ?",
+  accept:["azure site recovery","site recovery","asr"],
+  explain:"Site Recovery vise un RPO de l'ordre de la minute. Azure Backup, lui, se planifie et vise un RPO de l'ordre de l'heure ou du jour." },
+{ id:"n1-az", level:1, d:"bcdr", dom:"Zones", type:"qcm",
+  q:"Quelle est la différence entre un availability set et des zones de disponibilité ?",
+  choices:["L'availability set répartit les VM sur des domaines de panne et de mise à jour dans UN datacenter ; les zones sont des datacenters physiquement séparés dans la région","Ils sont identiques","Les zones sont dans des régions différentes","Un availability set protège d'une panne régionale"],
+  answer:0,
+  explain:"D'où les SLA : 99,95 % pour un availability set, 99,99 % pour des VM réparties sur au moins deux zones. Aucun des deux ne protège d'une panne régionale." },
+{ id:"n1-failovergroup", level:1, d:"bcdr", dom:"Azure SQL", type:"qcm",
+  q:"Qu'apporte un auto-failover group à une base Azure SQL par rapport à une simple géo-réplication ?",
+  choices:["Des points de terminaison de lecture et d'écriture stables, qui suivent le basculement, et un basculement coordonné pour un groupe de bases","Un coût plus faible","Un chiffrement supplémentaire","Une sauvegarde locale"],
+  answer:0,
+  explain:"L'intérêt pratique : la chaîne de connexion de l'application ne change pas après le basculement. C'est l'argument décisif en examen." },
+{ id:"n1-softdelete", level:1, d:"bcdr", dom:"Sauvegarde", type:"qcm",
+  q:"Que fait le soft delete d'un coffre Recovery Services ?",
+  choices:["Il conserve les sauvegardes supprimées pendant une période de grâce, le temps de les restaurer avant disparition définitive","Il supprime immédiatement","Il chiffre les sauvegardes","Il les copie dans une autre région"],
+  answer:0,
+  explain:"À combiner avec le coffre immuable et l'autorisation multi-utilisateurs (Resource Guard) pour résister à un attaquant qui aurait obtenu des droits d'administration." },
+
+{ id:"n1-pe", level:1, d:"infra", dom:"Réseau privé", type:"qcm",
+  q:"Quelle est la différence essentielle entre un service endpoint et un Private Endpoint ?",
+  choices:["Le Private Endpoint donne une adresse IP privée dans votre VNet, joignable depuis le réseau local, et permet de couper l'accès public ; le service endpoint garde l'IP publique du service et n'est pas joignable depuis le on-premises","Ils sont équivalents","Le service endpoint donne une IP privée","Le Private Endpoint n'existe que pour le stockage"],
+  answer:0,
+  explain:"C'est LA distinction qui tranche la moitié des questions réseau de l'AZ-305 : dès qu'un énoncé parle d'accès depuis le on-premises, le service endpoint est éliminé." },
+{ id:"n1-privatedns", level:1, d:"infra", dom:"DNS", type:"qcm",
+  q:"Pourquoi un Private Endpoint a-t-il besoin d'une zone DNS privée privatelink.* ?",
+  choices:["Parce que le nom public du service doit se résoudre vers l'adresse IP privée de l'endpoint, sinon le client continue de viser l'IP publique","Pour chiffrer le trafic","Pour créer le sous-réseau","Pour facturer le service"],
+  answer:0,
+  explain:"Le symptôme classique : tout est bien configuré mais le trafic sort par Internet. Un nslookup qui renvoie une IP publique confirme le problème DNS." },
+{ id:"n1-peering", level:1, d:"infra", dom:"Connectivité", type:"qcm",
+  q:"Que faut-il savoir du peering de VNets ?",
+  choices:["Il n'est pas transitif : si A est appairé à B et B à C, A ne joint pas C sans route explicite ou appliance","Il est transitif par défaut","Il impose une passerelle VPN","Il ne marche que dans une même région"],
+  answer:0,
+  explain:"C'est pour cela qu'un hub-and-spoke impose des UDR vers le pare-feu du hub, et le drapeau « allow forwarded traffic » sur les peerings." },
+{ id:"n1-vwan", level:1, d:"infra", dom:"Connectivité", type:"qcm",
+  q:"Quand préfère-t-on Azure Virtual WAN à un hub-and-spoke construit à la main ?",
+  choices:["Quand il faut raccorder un grand nombre de sites (VPN, SD-WAN, ExpressRoute) avec un transit automatique et un minimum d'administration","Quand il n'y a qu'un seul VNet","Pour héberger des VM","Pour faire du DNS"],
+  answer:0,
+  explain:"Virtual WAN fournit un hub managé et le routage inter-branches. Le hub-and-spoke manuel reste pertinent quand on veut maîtriser chaque route." },
+{ id:"n1-afd-vs-agw", level:1, d:"infra", dom:"Équilibrage", type:"qcm",
+  q:"Comment choisir entre Azure Front Door, Application Gateway, Traffic Manager et Load Balancer ?",
+  choices:["Front Door : L7 global avec WAF et accélération · Application Gateway : L7 régional avec WAF · Traffic Manager : routage DNS, tout protocole · Load Balancer : L4 régional","Ils sont interchangeables","Traffic Manager fait du L7","Load Balancer fait du WAF"],
+  answer:0,
+  explain:"Deux mots suffisent à trancher : « global » fait sortir Application Gateway et Load Balancer ; « non HTTP » fait sortir Front Door et Application Gateway." },
+{ id:"n1-bastion", level:1, d:"infra", dom:"Accès", type:"qcm",
+  q:"À quoi sert Azure Bastion ?",
+  choices:["Ouvrir une session RDP ou SSH vers une VM depuis le portail, en TLS, sans adresse IP publique sur la VM","À équilibrer la charge","À sauvegarder des VM","À filtrer le trafic sortant"],
+  answer:0,
+  explain:"L'alternative sans Bastion est une IP publique avec un NSG, ou un jump host à administrer. Bastion supprime la surface d'exposition." },
+{ id:"n1-containerapps", level:1, d:"infra", dom:"Conteneurs", type:"qcm",
+  q:"Quel service exécute des conteneurs sans gérer de cluster, avec mise à l'échelle jusqu'à zéro, KEDA et Dapr intégrés ?",
+  choices:["Azure Container Apps","AKS","Azure Batch","Virtual Machine Scale Sets"],
+  answer:0,
+  explain:"AKS donne plus de contrôle mais impose d'exploiter le cluster. Dès qu'un énoncé dit « équipe sans compétences Kubernetes » ou « scale-to-zero », c'est Container Apps." },
+{ id:"n1-apim", level:1, d:"infra", dom:"API", type:"input",
+  q:"Service qui publie des API avec quotas, limitation de débit, authentification, versionnage et portail développeur. Quel nom ?",
+  accept:["api management","apim","azure api management"],
+  explain:"À ne pas confondre avec Application Gateway, qui route et filtre en L7 mais ne fait ni quotas d'abonné, ni portail, ni transformation de charge utile." },
+{ id:"n1-migrate", level:1, d:"infra", dom:"Migration", type:"input",
+  q:"Outil Azure qui découvre un parc existant, analyse les dépendances applicatives, évalue le dimensionnement et le coût, puis migre. Quel nom ?",
+  accept:["azure migrate","migrate"],
+  explain:"L'ordre attendu en examen est toujours le même : découvrir, évaluer, puis migrer par vagues. Jamais migrer d'abord." },
+{ id:"n1-ahb", level:1, d:"infra", dom:"Coûts", type:"input",
+  q:"Avantage qui permet de réutiliser des licences Windows Server ou SQL Server avec Software Assurance sur Azure, pour ne payer que le calcul. Quel nom ?",
+  accept:["azure hybrid benefit","hybrid benefit","avantage hybride"],
+  explain:"Il se cumule avec les réservations et le savings plan : c'est la combinaison attendue pour une charge stable et sous licence." },
+
+
+/* ================= NIVEAU 2 — LES FAITS D'EXAMEN ================= */
+
+{ id:"n2-sla-9995", level:2, d:"bcdr", dom:"SLA", type:"qcm",
+  q:"À quelle indisponibilité maximale par mois de 30 jours correspond un SLA de 99,95 % ?",
+  choices:["Environ 21,6 minutes","Environ 4,3 minutes","Environ 43,2 minutes","Environ 2 heures"],
+  answer:0,
+  explain:"0,0005 × 43 200 minutes = 21,6 minutes. Les repères à retenir sur 30 jours : 99,9 % ≈ 43 min, 99,95 % ≈ 22 min, 99,99 % ≈ 4,3 min." },
+{ id:"n2-sla-999", level:2, d:"bcdr", dom:"SLA", type:"input",
+  q:"Combien de minutes d'indisponibilité un SLA de 99,9 % autorise-t-il sur 30 jours ? Donne le nombre arrondi à l'unité.",
+  accept:["43","43 min","43 minutes","43,2","43.2"],
+  explain:"0,001 × 43 200 = 43,2 minutes. C'est le chiffre qui rend concret un budget d'erreur devant une direction." },
+{ id:"n2-sla-compose", level:2, d:"bcdr", dom:"SLA", type:"qcm",
+  q:"Une application dépend en série de deux composants, à 99,95 % et 99,9 %. Quel est le SLA composite ?",
+  choices:["99,85 %","99,9 %","99,95 %","99,99 %"],
+  answer:0,
+  explain:"0,9995 × 0,999 = 0,99850. En série on multiplie, et le résultat est toujours sous le maillon le plus faible." },
+{ id:"n2-sla-parallele", level:2, d:"bcdr", dom:"SLA", type:"qcm",
+  q:"Deux régions actives hébergent chacune la même application à 99,9 %. Sans compter le routeur, quel est le SLA combiné ?",
+  choices:["99,9999 %","99,9 %","99,99 %","100 %"],
+  answer:0,
+  explain:"1 − (0,001 × 0,001) = 0,999999. En pratique le routeur global placé en série devant les deux régions devient le plafond réel." },
+{ id:"n2-vm-sla", level:2, d:"bcdr", dom:"SLA", type:"qcm",
+  q:"Quels sont les SLA d'une VM selon son déploiement : zones, availability set, instance unique sur disque Premium ?",
+  choices:["99,99 % sur au moins deux zones, 99,95 % en availability set, 99,9 % pour une instance unique sur disque Premium","Toujours 99,99 %","99,9 % dans tous les cas","Il n'y a pas de SLA pour une VM unique"],
+  answer:0,
+  explain:"Une instance unique n'a de SLA que si tous ses disques sont Premium SSD ou mieux. C'est une subtilité régulièrement testée." },
+{ id:"n2-backup-rpo", level:2, d:"bcdr", dom:"Sauvegarde", type:"qcm",
+  q:"Quel ordre de grandeur de RPO distingue Azure Backup d'Azure Site Recovery ?",
+  choices:["Backup : de l'heure au jour selon la politique · Site Recovery : de l'ordre de la minute grâce à la réplication continue","Les deux sont instantanés","Backup est plus rapide","Site Recovery ne garantit rien"],
+  answer:0,
+  explain:"Dès qu'un énoncé annonce un RPO de quelques minutes, Backup est éliminé, quelle que soit la fréquence de la politique." },
+{ id:"n2-instantrestore", level:2, d:"bcdr", dom:"Sauvegarde", type:"qcm",
+  q:"À quoi sert la rétention d'instantané d'Azure Backup, de 2 jours par défaut et jusqu'à 5 ?",
+  choices:["Restaurer depuis l'instantané local, bien plus vite que depuis le coffre : c'est un levier direct sur le RTO","À chiffrer les sauvegardes","À répliquer vers une autre région","À réduire le coût"],
+  answer:0,
+  explain:"C'est le mécanisme Instant Restore. Il coûte un peu de stockage de snapshots, en échange d'une restauration bien plus rapide." },
+{ id:"n2-dr-patterns", level:2, d:"bcdr", dom:"Stratégies", type:"order",
+  q:"Classe ces stratégies de reprise après sinistre du coût le plus bas au coût le plus élevé.",
+  steps:[
+    "Sauvegarde et restauration vers une autre région",
+    "Pilot light : le minimum vital reste allumé dans la région secondaire",
+    "Warm standby : une version réduite tourne en permanence",
+    "Actif-actif multi-région : les deux régions servent le trafic" ],
+  explain:"Le coût monte dans cet ordre, et le RTO descend dans le même ordre. Choisir, c'est donc répondre à une seule question : combien de temps d'arrêt le métier accepte-t-il de payer ?" },
+
+{ id:"n2-storage-min", level:2, d:"data", dom:"Niveaux d'accès", type:"qcm",
+  q:"Quelles sont les durées minimales de conservation facturées pour les niveaux Cool, Cold et Archive ?",
+  choices:["30 jours, 90 jours et 180 jours","7, 30 et 90 jours","Aucune durée minimale","1 an pour les trois"],
+  answer:0,
+  explain:"Supprimer ou déplacer un blob avant ce terme déclenche une pénalité au prorata. C'est ce qui rend une règle de cycle de vie trop agressive plus chère que l'inaction." },
+{ id:"n2-archive-rehydrate", level:2, d:"data", dom:"Niveaux d'accès", type:"qcm",
+  q:"Que faut-il savoir pour lire un blob placé au niveau Archive ?",
+  choices:["Il est hors ligne : il faut le réhydrater en Hot ou Cool, ce qui prend jusqu'à une quinzaine d'heures en priorité standard, ou environ une heure en priorité haute","Il se lit directement","La réhydratation est instantanée","Il est illisible définitivement"],
+  answer:0,
+  explain:"D'où la règle de conception : le niveau Archive convient à de l'archivage réglementaire, jamais à des données qu'une application pourrait demander en ligne." },
+{ id:"n2-cosmos-strong-multi", level:2, d:"data", dom:"Cosmos DB", type:"qcm",
+  q:"Pourquoi ne peut-on pas combiner cohérence Strong et écritures multi-régions dans Cosmos DB ?",
+  choices:["Strong impose une validation synchrone entre régions, incompatible avec des écritures acceptées simultanément dans plusieurs régions","C'est possible et recommandé","Strong n'existe pas en multi-région","C'est seulement une question de coût"],
+  answer:0,
+  explain:"Avec des écritures multi-régions, on descend à Session, Bounded staleness, Consistent prefix ou Eventual, et on définit une politique de résolution de conflits." },
+{ id:"n2-cosmos-partition", level:2, d:"data", dom:"Cosmos DB", type:"qcm",
+  q:"Qu'est-ce qui caractérise une bonne clé de partition dans Cosmos DB ?",
+  choices:["Une cardinalité élevée et une répartition uniforme des requêtes, pour éviter qu'une partition logique concentre le trafic","Une valeur constante","Le moins de valeurs distinctes possible","Toujours la date du jour"],
+  answer:0,
+  explain:"Si 95 % du trafic vient d'un locataire, partitionner sur tenantId crée une partition chaude. On passe alors à une clé synthétique ou à des clés hiérarchiques." },
+{ id:"n2-sql-tiers", level:2, d:"data", dom:"Azure SQL", type:"qcm",
+  q:"Comment choisir entre General Purpose, Business Critical et Hyperscale ?",
+  choices:["General Purpose : équilibré, stockage distant · Business Critical : latence la plus basse et réplica lisible, limité à environ 4 To · Hyperscale : jusqu'à environ 100 To, instantanés et réplicas nommés","Hyperscale est le moins cher","Business Critical accepte 100 To","Ils sont équivalents"],
+  answer:0,
+  explain:"Le raisonnement d'examen tient en deux questions : quelle taille de base, et faut-il une latence d'écriture minimale ?" },
+{ id:"n2-sql-serverless", level:2, d:"data", dom:"Azure SQL", type:"qcm",
+  q:"Que facture Azure SQL Database en mode serverless pendant une pause automatique ?",
+  choices:["Uniquement le stockage : le calcul n'est pas facturé tant que la base est en pause","Rien du tout","Le calcul au minimum provisionné","Le tarif plein"],
+  answer:0,
+  explain:"En contrepartie, la première requête après la pause subit un délai de reprise. C'est le compromis à énoncer pour une application utilisée par intermittence." },
+{ id:"n2-pool", level:2, d:"data", dom:"Azure SQL", type:"qcm",
+  q:"À quelle condition un pool élastique Azure SQL fait-il économiser ?",
+  choices:["Quand les bases ont des pics de charge décalés dans le temps, ce qui permet de mutualiser les ressources","Quand toutes les bases ont leur pic en même temps","Quand il n'y a qu'une seule base","Quand les bases sont inactives en permanence"],
+  answer:0,
+  explain:"Si tous les pics coïncident, le pool doit être dimensionné pour la somme des pics et ne fait plus rien gagner." },
+{ id:"n2-storage-limits", level:2, d:"data", dom:"Limites", type:"qcm",
+  q:"Quelles sont les limites à retenir pour un compte de stockage standard ?",
+  choices:["Environ 5 Pio de capacité et 20 000 requêtes par seconde : au-delà, on répartit sur plusieurs comptes","1 To et 100 requêtes par seconde","Aucune limite","10 Go par conteneur"],
+  answer:0,
+  explain:"Ces plafonds expliquent les architectures qui éclatent la charge sur plusieurs comptes de stockage plutôt que d'en gonfler un seul." },
+{ id:"n2-dms", level:2, d:"data", dom:"Migration", type:"qcm",
+  q:"Que permet le mode en ligne du Database Migration Service, par rapport au mode hors ligne ?",
+  choices:["Une synchronisation continue pendant que la source reste en production, puis une bascule courte au moment choisi","Une migration plus lente","De migrer sans la source","De supprimer la base cible"],
+  answer:0,
+  explain:"Le mode hors ligne impose un arrêt pendant toute la copie. C'est le mode en ligne qu'on choisit dès qu'un énoncé parle de temps d'arrêt minimal." },
+
+{ id:"n2-policy-effects", level:2, d:"iden", dom:"Azure Policy", type:"qcm",
+  q:"Que font respectivement les effets Deny, Audit, Append, Modify et DeployIfNotExists ?",
+  choices:["Deny bloque la requête · Audit signale sans bloquer · Append ajoute un champ à la création · Modify corrige aussi l'existant après remédiation · DeployIfNotExists déploie une ressource manquante","Ils bloquent tous la création","Append et Modify sont identiques","Seul Deny existe réellement"],
+  answer:0,
+  explain:"Modify et DeployIfNotExists exigent une identité managée et une tâche de remédiation pour corriger ce qui existe déjà. Append ne touche jamais l'existant." },
+{ id:"n2-policy-code", level:2, d:"iden", dom:"Azure Policy", type:"qcm",
+  q:"Quel est l'effet de cette définition si elle est assignée à un management group ?",
+  code:"{\n  \"if\": {\n    \"field\": \"location\",\n    \"notIn\": [\"francecentral\", \"westeurope\"]\n  },\n  \"then\": { \"effect\": \"deny\" }\n}",
+  choices:["Toute création ou mise à jour de ressource hors de France Central et West Europe est refusée dans tous les abonnements de la hiérarchie, y compris pour un Owner","Les ressources existantes hors de ces régions sont supprimées","Un simple avertissement est journalisé","Les ressources sont déplacées automatiquement"],
+  answer:0,
+  explain:"Policy s'applique avant RBAC dans la chaîne ARM : aucun rôle ne permet de passer outre un Deny. L'existant n'est pas supprimé, il devient non conforme." },
+{ id:"n2-policy-dine", level:2, d:"iden", dom:"Azure Policy", type:"input",
+  q:"Complète l'effet de policy qui déploie automatiquement un paramètre de diagnostic quand il manque sur une ressource. Quel effet ?",
+  code:"{ \"then\": { \"effect\": \"???\", \"details\": { \"type\": \"Microsoft.Insights/diagnosticSettings\" } } }",
+  accept:["deployifnotexists","deploy if not exists","deployIfNotExists"],
+  explain:"Il faut en plus une identité managée portant les droits de déploiement, et une tâche de remédiation pour traiter les ressources déjà en place." },
+{ id:"n2-rbac-code", level:2, d:"iden", dom:"RBAC", type:"input",
+  q:"Complète la commande qui attribue un rôle à une identité sur une étendue donnée. Quel sous-groupe de commandes manque ?",
+  code:"az ??? create --assignee <objectId> --role \"Key Vault Secrets User\" \\\n  --scope /subscriptions/<sub>/resourceGroups/rg-app",
+  accept:["role assignment","role-assignment"],
+  explain:"az role assignment create. Les trois paramètres reflètent exactement les trois pièces de RBAC : qui, quel rôle, sur quelle étendue." },
+{ id:"n2-kv-rbac", level:2, d:"iden", dom:"Key Vault", type:"qcm",
+  q:"Quel rôle intégré donne le droit minimal de LIRE un secret dans Key Vault en mode RBAC ?",
+  choices:["Key Vault Secrets User","Key Vault Administrator","Contributor","Key Vault Secrets Officer"],
+  answer:0,
+  explain:"Secrets Officer peut aussi créer et supprimer des secrets ; Contributor gère le coffre mais ne lit pas les secrets en mode RBAC. Le moindre privilège, c'est Secrets User." },
+{ id:"n2-hybrid-auth", level:2, d:"iden", dom:"Identité hybride", type:"qcm",
+  q:"Comment choisir entre Password Hash Sync, Pass-through Authentication et fédération AD FS ?",
+  choices:["PHS ne dépend pas du site local au moment de la connexion ; PTA et AD FS en dépendent, mais AD FS reste nécessaire pour des exigences particulières comme les cartes à puce ou un MFA tiers","AD FS est toujours le plus simple","PTA ne nécessite aucun agent","PHS exige un serveur de fédération"],
+  answer:0,
+  explain:"La règle : on prend PHS par défaut, on monte en complexité seulement si une contrainte l'impose. « Déploiement minimal et résilient » désigne toujours PHS." },
+{ id:"n2-law-cost", level:2, d:"iden", dom:"Coûts de supervision", type:"qcm",
+  q:"Quels leviers réduisent la facture Log Analytics sans perdre la capacité d'enquêter ?",
+  choices:["Filtrer à la source dans les DCR, basculer les tables verbeuses en niveau Basic, raccourcir la rétention interactive et basculer le reste en archive","Supprimer les logs","Augmenter la rétention","Créer un workspace par ressource"],
+  answer:0,
+  explain:"L'ordre d'efficacité : ce qu'on n'ingère pas ne coûte rien. Ensuite seulement viennent les niveaux de table et la rétention." },
+{ id:"n2-law-design", level:2, d:"iden", dom:"Supervision", type:"qcm",
+  q:"Quelle est la conception recommandée par défaut pour les espaces de travail Log Analytics ?",
+  choices:["Le moins d'espaces possible, avec un RBAC adapté ; on n'en sépare que pour la souveraineté des données, une facturation distincte ou une isolation de sécurité","Un espace par ressource","Un espace par développeur","Un espace par région systématiquement"],
+  answer:0,
+  explain:"Multiplier les espaces casse la corrélation entre applications et complique chaque requête KQL. La centralisation est le défaut, la séparation l'exception justifiée." },
+{ id:"n2-kql", level:2, d:"iden", dom:"KQL", type:"input",
+  q:"Complète la requête KQL qui compte les échecs de connexion par utilisateur sur 24 heures. Quel opérateur d'agrégation manque ?",
+  code:"SigninLogs\n| where TimeGenerated > ago(24h) and ResultType != 0\n| ??? count() by UserPrincipalName\n| order by count_ desc",
+  accept:["summarize"],
+  explain:"L'enchaînement type : where filtre, project choisit les colonnes, extend en calcule, summarize agrège, order by trie, take limite." },
+{ id:"n2-alert-type", level:2, d:"iden", dom:"Alertes", type:"qcm",
+  q:"Pourquoi une alerte de log réagit-elle moins vite qu'une alerte de métrique ?",
+  choices:["Elle s'évalue à intervalle défini et subit en plus la latence d'ingestion des logs, de quelques minutes","Elle n'utilise pas KQL","Elle ne cible qu'une ressource","Elle est traitée une fois par jour"],
+  answer:0,
+  explain:"Pour un besoin quasi temps réel — disponibilité, CPU, latence — on prend toujours une alerte de métrique. Les logs servent aux corrélations complexes." },
+
+{ id:"n2-udr-code", level:2, d:"infra", dom:"Routage", type:"input",
+  q:"Complète la route qui force tout le trafic sortant d'un spoke vers le pare-feu du hub. Quel type de saut suivant manque ?",
+  code:"az network route-table route create -g rg-net --route-table-name rt-spoke \\\n  -n vers-firewall --address-prefix 0.0.0.0/0 \\\n  --next-hop-type ??? --next-hop-ip-address 10.0.1.4",
+  accept:["virtualappliance","virtual appliance","VirtualAppliance"],
+  explain:"Les types de saut possibles : VirtualAppliance, VirtualNetworkGateway, VnetLocal, Internet et None. Sans UDR, le peering ne force aucune inspection." },
+{ id:"n2-peering-flags", level:2, d:"infra", dom:"Peering", type:"qcm",
+  q:"Que font les options allow gateway transit et use remote gateways sur un peering ?",
+  choices:["Côté hub, allow gateway transit partage sa passerelle ; côté spoke, use remote gateways consomme celle du hub au lieu d'en déployer une","Elles chiffrent le peering","Elles rendent le peering transitif pour tout le trafic","Elles sont obligatoires"],
+  answer:0,
+  explain:"C'est la paire qui permet à des spokes d'utiliser une seule passerelle VPN ou ExpressRoute, posée dans le hub." },
+{ id:"n2-snat", level:2, d:"infra", dom:"Sortie Internet", type:"qcm",
+  q:"Quel est le symptôme d'un épuisement de ports SNAT, et quelle est la réponse de conception ?",
+  choices:["Des connexions sortantes qui échouent par intermittence sous forte charge ; on associe une NAT Gateway au sous-réseau pour disposer d'un SNAT évolutif","Une latence réseau constante ; on augmente la taille des VM","Un problème DNS ; on change de résolveur","Une erreur de certificat ; on renouvelle le TLS"],
+  answer:0,
+  explain:"Une NAT Gateway fournit environ 64 000 ports par adresse IP publique attachée, et s'ajoute sans toucher aux applications." },
+{ id:"n2-expressroute", level:2, d:"infra", dom:"Hybride", type:"qcm",
+  q:"Comment améliorer la résilience d'une liaison ExpressRoute critique, du moins cher au plus robuste ?",
+  choices:["Un VPN site-à-site de secours d'abord, puis un second circuit dans un autre emplacement de peering pour la haute disponibilité maximale","Doubler le circuit dans la même salle suffit","Basculer sur Internet sans tunnel","Aucune redondance n'est possible"],
+  answer:0,
+  explain:"Deux circuits au même emplacement de peering partagent le même point de défaillance physique : la vraie redondance passe par un second emplacement." },
+{ id:"n2-firewall-vs-nsg", level:2, d:"infra", dom:"Sécurité réseau", type:"qcm",
+  q:"Quelle est la différence de rôle entre un NSG et Azure Firewall ?",
+  choices:["Le NSG filtre au niveau du sous-réseau ou de la carte réseau sur IP, port et protocole ; Azure Firewall est un service centralisé avec filtrage applicatif, FQDN, renseignement sur les menaces et journalisation unifiée","Ils sont équivalents","Le NSG fait du filtrage par FQDN","Azure Firewall remplace le routage"],
+  answer:0,
+  explain:"On les combine : NSG pour la micro-segmentation locale, Firewall dans le hub pour l'inspection centralisée imposée par des UDR." },
+{ id:"n2-appsvc-sla", level:2, d:"infra", dom:"App Service", type:"qcm",
+  q:"Que faut-il pour qu'une application App Service atteigne un SLA de 99,99 % dans une région ?",
+  choices:["Un plan qui supporte la redondance de zone, avec au moins trois instances réparties sur les zones","Une seule instance suffit","Le niveau Free convient","Il faut deux régions"],
+  answer:0,
+  explain:"La redondance de zone d'App Service impose un nombre minimal d'instances. Sans cela, le SLA retombe au niveau d'un déploiement mono-zone." },
+{ id:"n2-functions-plan", level:2, d:"infra", dom:"Functions", type:"qcm",
+  q:"Quel plan Azure Functions choisir pour supprimer le démarrage à froid, intégrer un VNet et autoriser des exécutions longues ?",
+  choices:["Le plan Premium, qui garde des instances préchauffées","Le plan Consumption","Logic Apps Consumption","Container Instances"],
+  answer:0,
+  explain:"Le plan Consumption limite l'exécution à quelques minutes par défaut et subit le démarrage à froid. Le plan dédié avec Always On est l'autre réponse acceptable." },
+{ id:"n2-aks-vs-aca", level:2, d:"infra", dom:"Conteneurs", type:"qcm",
+  q:"Quand AKS reste-t-il justifié face à Container Apps ?",
+  choices:["Quand on a besoin de contrôler l'ordonnanceur, d'opérateurs personnalisés, de GPU ou de configurations réseau avancées, et qu'une équipe sait exploiter un cluster","Toujours, AKS est supérieur","Jamais","Quand on veut du scale-to-zero sans opérer de cluster"],
+  answer:0,
+  explain:"Container Apps masque Kubernetes ; AKS l'expose. Le critère décisif en examen est l'effort opérationnel accepté." },
+{ id:"n2-savings", level:2, d:"infra", dom:"Coûts", type:"qcm",
+  q:"Quelle différence entre une réservation et un savings plan for compute ?",
+  choices:["La réservation engage sur une famille et une région précises pour la meilleure remise ; le savings plan engage sur un montant horaire et reste flexible sur la taille, la région et le service","Ils sont identiques","Le savings plan est plus rigide","La réservation s'applique à n'importe quelle ressource"],
+  answer:0,
+  explain:"Si l'énoncé indique que les tailles ou les régions peuvent changer, c'est le savings plan. Si la charge est figée, la réservation remise davantage." },
+{ id:"n2-spot", level:2, d:"infra", dom:"Coûts", type:"qcm",
+  q:"À quoi servent les VM Spot et quelle est leur contrainte ?",
+  choices:["Elles exploitent la capacité inutilisée à prix très réduit, mais peuvent être évincées avec un préavis court : elles conviennent aux traitements interruptibles","Elles sont garanties en production","Elles sont plus chères","Elles ne peuvent pas être évincées"],
+  answer:0,
+  explain:"Jamais pour une charge critique ni pour un composant d'état. Lot de calcul, rendu, tests : oui." },
+
+
+/* ======= NIVEAU 3 — SCÉNARIOS : IDENTITÉ, GOUVERNANCE & SUPERVISION ======= */
+
+{ id:"s-iden-b2b", level:3, d:"iden", dom:"Identités externes", type:"qcm",
+  q:"Des employés d'un partenaire doivent accéder à votre application d'entreprise avec leurs propres identifiants professionnels, sans que vous créiez de comptes avec mot de passe chez vous. Que concevez-vous ?",
+  choices:["Microsoft Entra B2B : les partenaires sont invités et s'authentifient auprès de leur propre fournisseur d'identité","Des comptes locaux dans votre tenant","Entra Domain Services","Entra Connect"],
+  answer:0,
+  explain:"Aucun mot de passe à gérer chez vous, et la révocation côté partenaire suffit à couper l'accès. C'est tout l'intérêt du modèle invité." },
+{ id:"s-iden-b2c", level:3, d:"iden", dom:"Identités externes", type:"qcm",
+  q:"Vous lancez une application grand public : les clients doivent pouvoir s'inscrire avec Google, Facebook ou un e-mail, avec des parcours d'inscription personnalisés. Quelle solution ?",
+  choices:["Microsoft Entra External ID (anciennement Azure AD B2C)","Entra B2B","Entra Connect Sync","Entra Domain Services"],
+  answer:0,
+  explain:"B2B sert les partenaires identifiés, External ID sert une population de clients inconnue et massive, avec des parcours que vous maîtrisez." },
+{ id:"s-iden-pim", level:3, d:"iden", dom:"Accès privilégié", type:"qcm",
+  q:"Les administrateurs ne doivent détenir des droits Contributor sur la production que pendant deux heures, après approbation et justification. Que concevez-vous ?",
+  choices:["Privileged Identity Management : rôle éligible, activation limitée dans le temps, MFA, justification et approbation","Conditional Access seul","Des access reviews","Une Azure Policy"],
+  answer:0,
+  explain:"Conditional Access conditionne la connexion, pas la durée de détention d'un rôle. Seul PIM rend un droit temporaire et traçable." },
+{ id:"s-iden-pim-reviews", level:3, d:"iden", dom:"Accès privilégié", type:"qcm",
+  q:"Exigences : activation à la demande des droits d'administration, approbation par un responsable, MFA à l'activation, et revue trimestrielle des affectations. Quelle combinaison ?",
+  choices:["PIM pour l'activation juste-à-temps avec approbation et MFA, complété par des access reviews pour la revue périodique","PIM seul","Conditional Access seul","Des groupes de sécurité statiques"],
+  answer:0,
+  explain:"PIM traite l'instant de l'élévation, les access reviews traitent la dérive dans la durée. Les deux sont complémentaires, pas substituables." },
+{ id:"s-iden-mi-shared", level:3, d:"iden", dom:"Identités managées", type:"qcm",
+  q:"Une application déployée sur quatre VM identiques doit lire des secrets dans Key Vault sans stocker d'identifiants, avec une seule attribution de droits à maintenir. Que concevez-vous ?",
+  choices:["Une identité managée user-assigned partagée par les quatre VM, avec le rôle Key Vault Secrets User","Une identité system-assigned par VM","Un service principal avec un secret dans le fichier de configuration","Une clé d'accès de compte de stockage"],
+  answer:0,
+  explain:"System-assigned fonctionnerait aussi, mais imposerait quatre attributions RBAC à créer et à suivre. L'énoncé insiste sur plusieurs ressources identiques." },
+{ id:"s-iden-appsvc-kv", level:3, d:"iden", dom:"Identités managées", type:"qcm",
+  q:"Une application App Service doit lire un secret Key Vault : aucun secret dans la configuration, droits minimaux, secret rotatif. Quelle conception ?",
+  choices:["Identité managée de l'App Service, rôle Key Vault Secrets User sur le coffre, et référence Key Vault dans les paramètres de l'application","Service principal avec secret client dans les paramètres","Clé d'accès du compte de stockage","Une access policy accordant toutes les permissions"],
+  answer:0,
+  explain:"La référence Key Vault permet à l'application de lire le secret comme un paramètre ordinaire, tout en laissant la rotation au coffre." },
+{ id:"s-iden-phs", level:3, d:"iden", dom:"Identité hybride", type:"qcm",
+  q:"Vous synchronisez un Active Directory local avec Entra ID. Exigences : l'authentification doit rester disponible même si le site local est hors ligne, avec le déploiement le plus léger. Quelle méthode ?",
+  choices:["Password Hash Synchronization, complétée par Seamless SSO","Pass-through Authentication","Fédération AD FS","Authentification locale uniquement"],
+  answer:0,
+  explain:"PHS valide le mot de passe dans le cloud : une coupure du site local n'empêche pas les connexions. PTA et AD FS en dépendent." },
+{ id:"s-iden-adfs", level:3, d:"iden", dom:"Identité hybride", type:"qcm",
+  q:"Une entreprise authentifie par cartes à puce et utilise déjà un fournisseur MFA tiers adossé à AD FS. Que retenir pour l'identité hybride ?",
+  choices:["Conserver la fédération AD FS, seule capable de porter ces exigences, en acceptant une infrastructure plus lourde","Password Hash Sync","Pass-through Authentication","Un tenant cloud uniquement"],
+  answer:0,
+  explain:"C'est l'exception à la règle « PHS par défaut » : une exigence d'authentification que le cloud ne sait pas reproduire justifie la fédération." },
+{ id:"s-iden-ca", level:3, d:"iden", dom:"Conditional Access", type:"qcm",
+  q:"Vous devez exiger le MFA pour tout accès à Microsoft 365 depuis l'extérieur du réseau d'entreprise. Quelle solution ?",
+  choices:["Une stratégie Conditional Access basée sur l'emplacement réseau, imposant le MFA hors des emplacements approuvés","Un NSG","Azure Firewall","Azure Policy"],
+  answer:0,
+  explain:"Les contrôles réseau ne voient pas une connexion SaaS. Conditional Access est le seul point où l'on peut conditionner une authentification." },
+{ id:"s-iden-breakglass", level:3, d:"iden", dom:"Conditional Access", type:"qcm",
+  q:"Vous déployez des stratégies Conditional Access strictes. Comment concevoir les comptes d'urgence (break-glass) ?",
+  choices:["Deux comptes cloud-only, mots de passe longs conservés hors ligne, exclus des stratégies habituelles ou protégés par un MFA résistant au hameçonnage dédié, avec alerte à chaque connexion","Un compte nominatif d'administrateur","Aucun compte d'urgence","Un compte partagé avec MFA par SMS"],
+  answer:0,
+  explain:"Le risque réel d'une stratégie trop stricte est le verrouillage total du tenant. Deux comptes, parce qu'un seul peut lui-même être perdu." },
+{ id:"s-iden-reviews", level:3, d:"iden", dom:"Gouvernance des accès", type:"qcm",
+  q:"Chaque trimestre, les propriétaires doivent confirmer que les membres des groupes privilégiés ont encore besoin de leur accès. Quelle fonctionnalité ?",
+  choices:["Les access reviews d'Entra ID Governance, qui retirent automatiquement les accès non confirmés","Les alertes PIM","Azure Monitor","Resource Graph"],
+  answer:0,
+  explain:"Sans revue automatisée, les droits s'accumulent au fil des mobilités internes : c'est la première cause de privilèges excessifs en entreprise." },
+{ id:"s-iden-mhsm", level:3, d:"iden", dom:"Clés", type:"qcm",
+  q:"Des clés de chiffrement doivent résider dans un HSM dédié mono-locataire, certifié FIPS 140-3 niveau 3, avec contrôle total du domaine de sécurité. Quel service ?",
+  choices:["Azure Key Vault Managed HSM","Key Vault Premium","Key Vault Standard","Un compte de stockage chiffré"],
+  answer:0,
+  explain:"Key Vault Premium s'appuie sur des HSM mutualisés : il ne répond ni au « mono-locataire » ni au contrôle du domaine de sécurité." },
+{ id:"s-iden-policy-mg", level:3, d:"iden", dom:"Azure Policy", type:"qcm",
+  q:"Toutes les ressources de tous les abonnements doivent être déployées uniquement en France Central et West Europe, et recevoir automatiquement un tag CostCenter s'il manque. Que concevez-vous ?",
+  choices:["Deux stratégies assignées au management group : Allowed locations en effet Deny, et une stratégie Modify pour le tag, avec identité managée et remédiation","Un rôle RBAC personnalisé","Des verrous de ressource","Des NSG"],
+  answer:0,
+  explain:"RBAC ne décide que de qui agit. Pour contraindre ce qui peut exister, et le corriger, il faut Policy — posée le plus haut possible pour l'héritage." },
+{ id:"s-iden-policy-dine", level:3, d:"iden", dom:"Azure Policy", type:"qcm",
+  q:"Toutes les nouvelles ressources de trente abonnements doivent recevoir automatiquement un paramètre de diagnostic vers Log Analytics. Quelle solution ?",
+  choices:["Une stratégie DeployIfNotExists assignée au management group, avec une identité managée de remédiation et une tâche de remédiation pour l'existant","Un script PowerShell hebdomadaire","Un verrou de ressource","Un tag obligatoire"],
+  answer:0,
+  explain:"L'héritage couvre aussi les abonnements créés plus tard : c'est ce qui distingue une stratégie d'un script, qui ne verra jamais les nouveaux." },
+{ id:"s-iden-policy-owner", level:3, d:"iden", dom:"Diagnostic", type:"qcm",
+  q:"Un utilisateur Owner d'un abonnement n'arrive pas à créer une VM dans la région East US. Quelle est la cause la plus probable ?",
+  choices:["Une stratégie Deny de type Allowed locations héritée d'un management group","Un rôle insuffisant","Un quota ARM épuisé","Un problème de licence"],
+  answer:0,
+  explain:"Un quota produirait un message explicite de dépassement. Un refus net malgré le rôle Owner désigne presque toujours Policy." },
+{ id:"s-iden-locks", level:3, d:"iden", dom:"Verrous", type:"qcm",
+  q:"Vous voulez éviter la suppression accidentelle d'un groupe de ressources de production, tout en laissant les équipes modifier les ressources. Que posez-vous ?",
+  choices:["Un verrou CanNotDelete sur le groupe de ressources","Un verrou ReadOnly","Le retrait de tous les droits","Un tag « ne pas supprimer »"],
+  answer:0,
+  explain:"ReadOnly bloquerait aussi les mises à jour légitimes, et casse souvent des opérations qui écrivent en coulisse. CanNotDelete est le bon curseur." },
+{ id:"s-iden-mg", level:3, d:"iden", dom:"Hiérarchie", type:"qcm",
+  q:"Vous gérez quarante abonnements et voulez appliquer les mêmes stratégies et attributions RBAC à des ensembles d'abonnements, Production et Hors-production. Que concevez-vous ?",
+  choices:["Une hiérarchie de management groups, avec les stratégies et les rôles posés aux nœuds concernés","Un abonnement unique","Un groupe de ressources par abonnement","Des tags"],
+  answer:0,
+  explain:"C'est la base de l'architecture de landing zones : la hiérarchie porte la gouvernance, les abonnements portent les charges." },
+{ id:"s-iden-tenant-merge", level:3, d:"iden", dom:"Multi-tenant", type:"qcm",
+  q:"Votre entreprise rachète une société qui a son propre tenant. Les employés de la filiale doivent accéder à des applications du tenant principal sans comptes dupliqués, et votre IT doit gérer les abonnements de la filiale sans y créer de comptes. Que concevez-vous ?",
+  choices:["Entra B2B ou synchronisation inter-tenants pour l'accès applicatif, et Azure Lighthouse pour la gestion déléguée des abonnements","La fusion immédiate des deux tenants","Des comptes dupliqués dans les deux tenants","Un partage d'identifiants d'administration"],
+  answer:0,
+  explain:"Lighthouse délègue la gestion sans invité ni compte supplémentaire : c'est exactement le cas d'usage d'un fournisseur de services ou d'une IT groupe." },
+{ id:"s-iden-law-residency", level:3, d:"iden", dom:"Supervision", type:"qcm",
+  q:"Des applications réparties sur trois régions envoient leurs journaux. Exigences : corrélation entre applications, administration simple, et données des clients européens qui doivent rester en Europe. Quelle conception de Log Analytics ?",
+  choices:["Un espace de travail centralisé par frontière de résidence des données : un en Europe, un ailleurs","Un espace de travail unique aux États-Unis","Un espace de travail par application","Pas d'espace de travail, stockage local"],
+  answer:0,
+  explain:"On centralise au maximum pour la corrélation, on ne sépare que là où une contrainte légale l'impose. C'est le compromis attendu." },
+{ id:"s-iden-appinsights", level:3, d:"iden", dom:"Supervision", type:"qcm",
+  q:"Vous devez suivre les performances d'une application web, tracer ses dépendances SQL et API, voir les exceptions et disposer d'une carte applicative. Quel service ?",
+  choices:["Application Insights","Network Watcher","Azure Advisor","Service Health"],
+  answer:0,
+  explain:"Network Watcher diagnostique le réseau, Service Health les incidents de plateforme. Seul Application Insights instrumente l'application elle-même." },
+{ id:"s-iden-law-cost", level:3, d:"iden", dom:"Coûts de supervision", type:"qcm",
+  q:"Il faut réduire le coût de Log Analytics tout en conservant sept ans de journaux d'audit, consultés rarement. Quelle conception ?",
+  choices:["Rétention interactive courte, par exemple 90 jours, puis archive longue durée ; filtrage à la source dans les DCR et tables Basic pour les journaux verbeux","Conserver sept ans en rétention interactive","Supprimer les journaux au bout d'un an","Stocker les journaux sur le disque d'une VM"],
+  answer:0,
+  explain:"L'archive coûte une fraction du tarif interactif, au prix d'une requête de restauration ou d'une recherche asynchrone quand il faut enquêter." },
+
+
+/* ============ NIVEAU 3 — SCÉNARIOS : STOCKAGE DE DONNÉES ============ */
+
+{ id:"s-data-sqlmi", level:3, d:"data", dom:"Choix de plateforme", type:"qcm",
+  q:"Une application utilise SQL Server avec des travaux SQL Agent et des requêtes qui joignent douze bases entre elles. Elle doit passer en PaaS avec le minimum de modifications, et rester joignable en privé depuis le réseau local. Que choisissez-vous ?",
+  choices:["SQL Managed Instance déployée dans un sous-réseau du VNet","Azure SQL Database en base unique","Un pool élastique Azure SQL Database","Cosmos DB"],
+  answer:0,
+  explain:"SQL Agent et les requêtes inter-bases sont les deux marqueurs qui éliminent Azure SQL Database. Managed Instance vit dans un VNet, donc l'accès privé est natif." },
+{ id:"s-data-hyperscale", level:3, d:"data", dom:"Choix de plateforme", type:"qcm",
+  q:"Une base relationnelle doit atteindre 60 To, offrir des restaurations rapides et plusieurs réplicas de lecture. Quel niveau d'Azure SQL Database ?",
+  choices:["Hyperscale","Business Critical","General Purpose","Le modèle DTU Standard"],
+  answer:0,
+  explain:"Business Critical plafonne à 4 To : la taille seule tranche. Hyperscale restaure par instantanés de pages, indépendamment du volume." },
+{ id:"s-data-bc-readreplica", level:3, d:"data", dom:"Choix de plateforme", type:"qcm",
+  q:"Une base de 500 Go exige la latence la plus basse possible en écriture, un réplica de lecture gratuit pour les rapports, et une bascule locale en quelques secondes. Quel niveau ?",
+  choices:["Business Critical, qui place les réplicas sur stockage local SSD et offre un réplica de lecture inclus","General Purpose","Hyperscale","Serverless General Purpose"],
+  answer:0,
+  explain:"General Purpose sépare calcul et stockage distant : la latence d'écriture y est structurellement plus élevée. Business Critical est le niveau « tout local »." },
+{ id:"s-data-serverless", level:3, d:"data", dom:"Coûts", type:"qcm",
+  q:"Une base de développement est utilisée quelques heures par jour, de manière imprévisible, et son coût doit suivre l'usage réel. Quelle configuration ?",
+  choices:["Azure SQL Database General Purpose en mode serverless, avec mise en pause automatique","Business Critical provisionné","Un pool élastique","SQL Managed Instance"],
+  answer:0,
+  explain:"Le serverless facture le calcul à la seconde et met la base en pause. En contrepartie, le premier accès après la pause subit un délai de reprise." },
+{ id:"s-data-pool", level:3, d:"data", dom:"Coûts", type:"qcm",
+  q:"Un éditeur héberge 200 bases clients dont les pics de charge ne coïncident jamais. Comment réduire la facture sans dégrader les pics ?",
+  choices:["Les regrouper dans un pool élastique, qui met en commun les eDTU ou vCore entre toutes les bases","Provisionner chaque base au niveau de son pic","Fusionner les 200 bases en une seule","Passer en Business Critical"],
+  answer:0,
+  explain:"C'est le cas d'usage canonique du pool : on paie la somme des moyennes au lieu de la somme des pics. Il perd son intérêt si toutes les bases montent en charge ensemble." },
+{ id:"s-data-cosmos-partition", level:3, d:"data", dom:"Cosmos DB", type:"qcm",
+  q:"Une collection Cosmos DB contient des documents { tenantId, orderId } et 95 % du trafic vient d'un seul tenant. Quelle clé de partition évite le point chaud ?",
+  choices:["Une clé composite ou hiérarchique, par exemple tenantId puis orderId","tenantId seul","Une valeur constante pour tous les documents","Le pays du client"],
+  answer:0,
+  explain:"tenantId seul concentrerait 95 % des requêtes sur une partition logique, donc sur une partition physique plafonnée. Les clés hiérarchiques permettent de garder le filtre par tenant tout en répartissant." },
+{ id:"s-data-cosmos-strong", level:3, d:"data", dom:"Cosmos DB", type:"qcm",
+  q:"Une application mondiale écrit dans trois régions Cosmos DB. Un architecte propose la cohérence Strong. Quel est le problème ?",
+  choices:["Strong n'est pas compatible avec les écritures multi-régions : il faut Session, Bounded staleness ou Eventual","Strong coûte moins cher mais perd des écritures","Strong désactive la réplication","Aucun problème"],
+  answer:0,
+  explain:"Strong impose un quorum synchrone global, incompatible avec plusieurs régions d'écriture. Session est le compromis par défaut : cohérent pour l'utilisateur qui écrit." },
+{ id:"s-data-cosmos-api", level:3, d:"data", dom:"Cosmos DB", type:"qcm",
+  q:"Une équipe migre une application MongoDB existante vers un service managé, sans réécrire sa couche d'accès aux données. Que proposez-vous ?",
+  choices:["Cosmos DB avec l'API pour MongoDB, qui parle le protocole filaire MongoDB","Cosmos DB API NoSQL, en réécrivant les requêtes","Azure SQL Database","Table Storage"],
+  answer:0,
+  explain:"Le choix d'API Cosmos se décide à la migration, pas après : il est figé à la création du compte. L'API NoSQL reste la plus riche en fonctionnalités pour un développement neuf." },
+{ id:"s-data-cosmos-autoscale", level:3, d:"data", dom:"Cosmos DB", type:"qcm",
+  q:"Le trafic d'un conteneur Cosmos DB varie d'un facteur dix entre la nuit et la journée, sans horaire fixe. Quel mode de débit ?",
+  choices:["Le débit autoscale, qui ajuste les RU/s entre 10 % et 100 % du maximum défini","Un débit manuel calé sur le pic","Un débit manuel calé sur la moyenne","Le mode serverless"],
+  answer:0,
+  explain:"Autoscale facture le pic horaire constaté, avec un plancher à 10 % du maximum. Le mode serverless ne convient qu'aux charges vraiment intermittentes et de faible volume." },
+{ id:"s-data-changefeed", level:3, d:"data", dom:"Cosmos DB", type:"qcm",
+  q:"Chaque écriture dans Cosmos DB doit déclencher un traitement en aval, sans interroger la base en boucle et sans perdre d'événement. Que concevez-vous ?",
+  choices:["Le change feed de Cosmos DB, consommé par une Azure Function avec le déclencheur Cosmos DB","Une requête planifiée toutes les minutes","Un trigger SQL","Event Grid sur le compte de stockage"],
+  answer:0,
+  explain:"Le change feed est un journal ordonné et persistant des créations et mises à jour. Il ne contient pas les suppressions : on les modélise par un marqueur logique avec TTL." },
+{ id:"s-data-ragzrs", level:3, d:"data", dom:"Redondance", type:"qcm",
+  q:"Un compte de stockage doit survivre à la perte d'une zone, survivre à la perte de la région, être lisible en secondaire sans basculement, et coûter le moins possible à exigences égales. Quelle option ?",
+  choices:["RA-GZRS","RA-GRS","GZRS","ZRS"],
+  answer:0,
+  explain:"Les trois premières exigences imposent RA-GZRS. Le critère de coût ne fait que trancher entre les options qui satisfont déjà tout le reste — c'est le piège classique de l'énoncé." },
+{ id:"s-data-worm", level:3, d:"data", dom:"Immuabilité", type:"qcm",
+  q:"Des comptes rendus réglementaires doivent être inaltérables pendant dix ans, y compris pour un administrateur de la souscription. Que concevez-vous ?",
+  choices:["Une stratégie d'immuabilité de rétention temporelle verrouillée, au niveau conteneur ou version, sur un compte avec gestion des versions","Un verrou CanNotDelete sur le resource group","Le soft delete à 365 jours","Des permissions RBAC en lecture seule"],
+  answer:0,
+  explain:"Tant que la stratégie est à l'état verrouillé, personne ne peut la raccourcir, pas même le propriétaire du compte. RBAC et les verrous se retirent, donc ne prouvent rien devant un auditeur." },
+{ id:"s-data-lifecycle", level:3, d:"data", dom:"Cycle de vie", type:"qcm",
+  q:"Des images de scan sont consultées intensément une semaine, rarement pendant six mois, puis conservées sept ans pour la conformité. Quelle conception économique ?",
+  choices:["Une règle de cycle de vie : Hot, puis Cool après 30 jours, puis Archive après 180 jours, avec suppression à sept ans","Tout garder en Hot","Tout placer en Archive dès le téléversement","Tout placer en Cool sans règle"],
+  answer:0,
+  explain:"Il faut respecter les durées minimales facturées de chaque niveau — 30, 90 et 180 jours — sinon la pénalité au prorata annule l'économie." },
+{ id:"s-data-adls", level:3, d:"data", dom:"Analytique", type:"qcm",
+  q:"Une plateforme analytique doit stocker des pétaoctets de fichiers organisés en dossiers, avec des droits POSIX par répertoire et un accès optimisé pour Spark et Synapse. Quel service ?",
+  choices:["Azure Data Lake Storage Gen2, c'est-à-dire un compte Blob avec l'espace de noms hiérarchique activé","Azure Files Standard","Blob Storage sans espace de noms hiérarchique","Table Storage"],
+  answer:0,
+  explain:"L'espace de noms hiérarchique s'active à la création et pas après. Il transforme le renommage de dossier en opération atomique, ce qui change tout pour les moteurs analytiques." },
+{ id:"s-data-netapp", level:3, d:"data", dom:"Fichiers", type:"qcm",
+  q:"Une charge HPC et une base Oracle exigent du NFS à très faible latence, avec un niveau de service choisi par volume. Quel service ?",
+  choices:["Azure NetApp Files, avec ses niveaux Standard, Premium et Ultra","Azure Files Standard","Blob Storage avec NFS 3.0","Azure Files Premium"],
+  answer:0,
+  explain:"Azure Files Premium couvre bien les partages d'entreprise, mais pas les latences inférieures à la milliseconde réclamées par SAP, Oracle ou le HPC." },
+{ id:"s-data-files-premium", level:3, d:"data", dom:"Fichiers", type:"qcm",
+  q:"Un partage de fichiers d'entreprise doit être monté en SMB par des VM Windows, offrir des IOPS prévisibles et s'intégrer à l'authentification de domaine. Quelle conception ?",
+  choices:["Azure Files Premium en FileStorage, avec l'authentification Entra Domain Services ou AD DS sur le partage","Blob Storage avec un montage FUSE","Azure NetApp Files Ultra","Un disque managé partagé entre les VM"],
+  answer:0,
+  explain:"Les IOPS d'Azure Files Standard dépendent du quota ; le niveau Premium provisionne la performance. L'intégration AD apporte les permissions NTFS habituelles." },
+{ id:"s-data-databox", level:3, d:"data", dom:"Migration", type:"qcm",
+  q:"500 To d'archives doivent rejoindre Azure. La liaison WAN du site plafonne à 200 Mbit/s et le projet dispose de six semaines. Quelle approche ?",
+  choices:["Azure Data Box : transfert hors ligne par appliance expédiée au datacenter","AzCopy en continu sur la liaison WAN","Azure File Sync","ExpressRoute Direct provisionné pour l'occasion"],
+  answer:0,
+  explain:"Le calcul tranche sans débat : 500 To à 200 Mbit/s représentent plus de sept mois de transfert, même à saturation parfaite de la liaison." },
+{ id:"s-data-eventhubs-capture", level:3, d:"data", dom:"Flux", type:"qcm",
+  q:"Des capteurs produisent 1,5 million d'événements par seconde. Il faut alimenter des alertes temps réel et archiver l'intégralité du flux pour l'analyse, sans écrire de code d'archivage. Quelle architecture ?",
+  choices:["Event Hubs, avec Capture vers ADLS Gen2 pour le chemin froid et Stream Analytics pour le chemin chaud","Service Bus puis une insertion dans Azure SQL","Des files de stockage lues par une Function","Event Grid vers un compte de stockage"],
+  answer:0,
+  explain:"Capture écrit les fichiers Avro automatiquement, à la fenêtre de temps ou de taille. Service Bus est un courtier de messages métier, pas un pipeline de millions d'événements par seconde." },
+{ id:"s-data-servicebus-sessions", level:3, d:"data", dom:"Messagerie", type:"qcm",
+  q:"Des commandes doivent être traitées dans l'ordre pour un même client, avec transactions, file de rebut et plusieurs applications abonnées selon des filtres différents. Quel service ?",
+  choices:["Service Bus avec des rubriques, des abonnements filtrés et des sessions pour l'ordre par client","Event Hubs","Event Grid","Les files de Storage"],
+  answer:0,
+  explain:"Quatre marqueurs pointent vers Service Bus : ordre par session, transactions, dead-letter et filtres d'abonnement. Aucun autre service de la plateforme ne réunit les quatre." },
+{ id:"s-data-eventgrid", level:3, d:"data", dom:"Messagerie", type:"qcm",
+  q:"Le dépôt d'un fichier dans un conteneur Blob doit déclencher plusieurs traitements indépendants, en poussant la notification vers eux plutôt qu'en les faisant interroger le stockage. Quel service ?",
+  choices:["Event Grid, qui distribue l'événement du compte de stockage à plusieurs abonnés","Service Bus","Event Hubs","Une Function sur minuterie"],
+  answer:0,
+  explain:"Event Grid est réactif et discret : des événements unitaires, poussés, avec réessais. Event Hubs sert les flux massifs, Service Bus les messages métier à garanties fortes." },
+{ id:"s-data-pitr", level:3, d:"data", dom:"Sauvegarde", type:"qcm",
+  q:"Une base Azure SQL doit pouvoir être restaurée à n'importe quel instant des 35 derniers jours, et conserver une sauvegarde annuelle pendant dix ans. Quelle conception ?",
+  choices:["La restauration à un instant dans le passé avec une rétention de 35 jours, complétée par une stratégie de rétention à long terme","Un export BACPAC hebdomadaire vers le stockage","Azure Backup sur la base","Des instantanés de disque"],
+  answer:0,
+  explain:"PITR est automatique mais plafonne à 35 jours. Tout horizon au-delà relève des sauvegardes de rétention à long terme, hebdomadaires, mensuelles ou annuelles." },
+{ id:"s-data-tde-byok", level:3, d:"data", dom:"Chiffrement", type:"qcm",
+  q:"Une direction de la sécurité exige de maîtriser la clé de chiffrement de la base et de pouvoir la révoquer unilatéralement. Quelle conception ?",
+  choices:["Le chiffrement transparent avec une clé gérée par le client, stockée dans Key Vault et accessible via une identité managée","Le chiffrement transparent avec la clé gérée par la plateforme","Always Encrypted sur toutes les colonnes","Le chiffrement du disque de la VM"],
+  answer:0,
+  explain:"Le modèle « clé gérée par le client » déplace le point de contrôle : retirer l'accès à la clé rend la base illisible. C'est précisément l'effet recherché, et le risque à assumer." },
+{ id:"s-data-always-encrypted", level:3, d:"data", dom:"Chiffrement", type:"qcm",
+  q:"Des numéros de carte ne doivent jamais apparaître en clair, même pour un administrateur de la base de données. Quelle fonctionnalité ?",
+  choices:["Always Encrypted : le chiffrement et le déchiffrement ont lieu dans le pilote client, la clé reste hors du moteur","Le chiffrement transparent","Le masquage dynamique des données","La sécurité au niveau des lignes"],
+  answer:0,
+  explain:"Le chiffrement transparent protège les fichiers au repos, donc pas l'administrateur connecté. Le masquage dynamique n'est qu'un affichage : la donnée reste lisible par requête directe." },
+{ id:"s-data-redis", level:3, d:"data", dom:"Performance", type:"qcm",
+  q:"Un catalogue produit est lu des milliers de fois par seconde pour des données qui changent une fois par heure, et la base sature. Quelle conception ?",
+  choices:["Un cache Azure Cache for Redis devant la base, avec expiration adaptée au rythme de mise à jour","Passer la base en Business Critical","Ajouter des réplicas de lecture géo-distribués","Augmenter la taille des vCore"],
+  answer:0,
+  explain:"Le rapport entre fréquence de lecture et fréquence d'écriture est l'indice : c'est le profil pour lequel un cache existe. Monter la base en gamme coûte plus et traite le symptôme." },
+{ id:"s-data-synapse", level:3, d:"data", dom:"Analytique", type:"qcm",
+  q:"Des analystes doivent interroger en SQL des fichiers Parquet posés dans le lac de données, sans charger préalablement les données dans un entrepôt. Quelle approche ?",
+  choices:["Le pool SQL serverless de Synapse, qui interroge les fichiers sur place et se facture au volume de données scanné","Un pool SQL dédié avec chargement préalable","Azure SQL Database","Cosmos DB avec l'API NoSQL"],
+  answer:0,
+  explain:"Le pool serverless n'a pas d'infrastructure à provisionner : on paie la requête. Le pool dédié ne se justifie que pour un entrepôt stable et fortement sollicité." },
+{ id:"s-data-purview", level:3, d:"data", dom:"Gouvernance des données", type:"qcm",
+  q:"Un groupe doit savoir où se trouvent ses données personnelles sur des dizaines de sources, les classer et en suivre la provenance. Quel service ?",
+  choices:["Microsoft Purview, pour l'inventaire, la classification et le suivi de lignage","Azure Policy","Microsoft Defender for Cloud","Log Analytics"],
+  answer:0,
+  explain:"Azure Policy gouverne la forme des ressources, Purview gouverne le contenu des données. Les deux répondent au mot « conformité » mais jamais à la même question." },
+{ id:"s-data-storage-firewall", level:3, d:"data", dom:"Accès privé", type:"qcm",
+  q:"Un compte de stockage doit être joignable uniquement depuis deux sous-réseaux applicatifs, sans aucune exposition publique, et les clés d'accès ne doivent plus servir. Quelle conception ?",
+  choices:["Des private endpoints sur le sous-ressource voulu, l'accès réseau public désactivé, et RBAC avec identités managées à la place des clés","Le pare-feu du compte ouvert aux IP sortantes des sous-réseaux","Des SAS à durée limitée distribuées aux applications","Des service endpoints et la rotation régulière des clés"],
+  answer:0,
+  explain:"Les service endpoints laissent le point de terminaison public en place et ne sont pas joignables depuis le réseau local. Les private endpoints permettent, eux, de couper l'accès public." },
+
+
+/* ========== NIVEAU 3 — SCÉNARIOS : CONTINUITÉ D'ACTIVITÉ ========== */
+
+{ id:"s-bcdr-asr", level:3, d:"bcdr", dom:"Reprise", type:"qcm",
+  q:"Exigences de reprise : RTO d'une heure, RPO de cinq minutes, VM IaaS anciennes, région de secours distincte, et tests de bascule sans impact sur la production. Quelle solution ?",
+  choices:["Azure Site Recovery, avec un plan de reprise et des bascules de test","Azure Backup avec une politique horaire","Des instantanés de disque planifiés","Une réinstallation documentée"],
+  answer:0,
+  explain:"Seule la réplication continue approche un RPO de cinq minutes, et seule Site Recovery sait monter une bascule de test dans un réseau isolé." },
+{ id:"s-bcdr-backup-vs-asr", level:3, d:"bcdr", dom:"Reprise", type:"qcm",
+  q:"Un énoncé demande à la fois la protection contre un rançongiciel et une reprise régionale en moins d'une heure. Quelle conception ?",
+  choices:["Azure Backup pour la restauration granulaire et la protection contre la suppression, et Site Recovery pour la bascule régionale rapide","Site Recovery seul","Azure Backup seul","La géo-redondance du stockage seule"],
+  answer:0,
+  explain:"Les deux services répondent à deux risques différents : la corruption de données d'un côté, la perte d'une région de l'autre. Les opposer est une erreur de lecture fréquente." },
+{ id:"s-bcdr-vault-immutable", level:3, d:"bcdr", dom:"Protection des sauvegardes", type:"qcm",
+  q:"Un attaquant qui obtient le rôle Owner de la souscription de production doit être incapable de détruire les sauvegardes. Quelle conception ?",
+  choices:["Un coffre immuable avec soft delete et autorisation multi-utilisateurs par Resource Guard, dans une souscription distincte gérée par une autre équipe","Un coffre dans la même souscription, en LRS","Un verrou CanNotDelete sur le coffre","Des sauvegardes chiffrées avec une clé client"],
+  answer:0,
+  explain:"La séparation des responsabilités est le cœur de la réponse : le Resource Guard vit ailleurs, donc les droits de production ne suffisent plus à affaiblir la protection." },
+{ id:"s-bcdr-crr", level:3, d:"bcdr", dom:"Protection des sauvegardes", type:"qcm",
+  q:"Les sauvegardes de VM doivent rester restaurables même si la région primaire est entièrement indisponible, sans attendre un basculement de la plateforme. Quelle option du coffre ?",
+  choices:["La redondance géo-redondante du coffre, avec la restauration inter-régions activée","La redondance locale du coffre","Un second coffre dans la région secondaire, alimenté manuellement","La restauration inter-régions suffit sans géo-redondance"],
+  answer:0,
+  explain:"La restauration inter-régions se configure sur un coffre géo-redondant et doit être activée avant l'incident. Elle ne s'ajoute pas rétroactivement aux points de récupération déjà pris." },
+{ id:"s-bcdr-zones", level:3, d:"bcdr", dom:"Haute disponibilité", type:"qcm",
+  q:"Une application repose sur un availability set dans un seul datacenter et doit désormais survivre à la perte de ce datacenter. Quelle modification minimale ?",
+  choices:["Répartir les instances sur au moins deux zones de disponibilité et choisir des services zone-redondants","Ajouter des VM dans le même availability set","Passer le stockage en LRS","Ajouter un groupe de sécurité réseau"],
+  answer:0,
+  explain:"Un availability set protège du rack et de la maintenance, à l'intérieur d'un datacenter. Seules les zones répondent à la perte du bâtiment." },
+{ id:"s-bcdr-sla-serie", level:3, d:"bcdr", dom:"Calcul de SLA", type:"qcm",
+  q:"Une chaîne Front Door à 99,99 %, App Service à 99,95 % et Azure SQL à 99,99 % est traversée en série. Quel SLA composite annoncer ?",
+  choices:["Environ 99,93 %","99,99 %","99,95 %","99,90 %"],
+  answer:0,
+  explain:"0,9999 × 0,9995 × 0,9999 ≈ 0,99930. Chaque composant ajouté en série abaisse le résultat, même excellent : c'est l'argument pour réduire le nombre de maillons." },
+{ id:"s-bcdr-sla-plafond", level:3, d:"bcdr", dom:"Calcul de SLA", type:"qcm",
+  q:"Deux régions actives hébergent la même application à 99,9 %, derrière un Traffic Manager à 99,99 %. Quel SLA global approximatif ?",
+  choices:["Environ 99,99 %, car le routeur commun placé en série devient le plafond","99,9999 %","99,9 %","100 %"],
+  answer:0,
+  explain:"Le parallélisme des deux régions donne 99,9999 %, mais 0,9999 × 0,999999 ≈ 0,99990. Doubler les régions ne sert à rien si le point d'entrée reste unique et moins fiable." },
+{ id:"s-bcdr-sla-objectif", level:3, d:"bcdr", dom:"Calcul de SLA", type:"qcm",
+  q:"Le métier réclame un SLA contractuel de 99,99 % sur une application composée d'une passerelle, d'un service applicatif et d'une base. Quelle conclusion de conception ?",
+  choices:["Chaque maillon en série doit être nettement au-dessus de 99,99 %, ou être redondé, car la composition en série ne peut qu'abaisser le total","Il suffit que chaque composant soit à 99,99 %","Le SLA du composant le plus fiable s'applique","Le SLA ne se calcule pas pour une application composée"],
+  answer:0,
+  explain:"C'est le raisonnement attendu à l'examen : on part de l'objectif, on multiplie les maillons, et on redonde là où le produit décroche. Le SLA composite ne se négocie pas." },
+{ id:"s-bcdr-sql-fg", level:3, d:"bcdr", dom:"Azure SQL", type:"qcm",
+  q:"Une base Azure SQL doit basculer vers une autre région sans changer la chaîne de connexion de l'application. Quelle conception ?",
+  choices:["Un groupe de basculement automatique, dont l'écouteur de lecture-écriture suit la région primaire","Une géo-réplication active, l'application changeant de chaîne de connexion à la main","Une restauration géographique depuis les sauvegardes","Un export BACPAC répliqué"],
+  answer:0,
+  explain:"La géo-réplication active fournit le réplica mais pas l'abstraction du nom. L'écouteur du groupe de basculement est exactement ce qui évite de toucher à l'application." },
+{ id:"s-bcdr-sql-georestore", level:3, d:"bcdr", dom:"Azure SQL", type:"qcm",
+  q:"Un environnement de test doit pouvoir repartir dans une autre région après un sinistre, au coût le plus bas, avec un RPO d'une heure et un RTO de quelques heures acceptés. Quelle option ?",
+  choices:["La restauration géographique depuis les sauvegardes géo-répliquées, sans réplica permanent","Un groupe de basculement automatique","La géo-réplication active vers quatre régions","Business Critical zone-redondant"],
+  answer:0,
+  explain:"La restauration géographique est incluse et ne coûte rien en régime normal, en échange d'un RPO d'environ une heure et d'un RTO qui se compte en heures." },
+{ id:"s-bcdr-cosmos-failover", level:3, d:"bcdr", dom:"Cosmos DB", type:"qcm",
+  q:"Un compte Cosmos DB mono-région d'écriture doit continuer à servir les écritures si sa région primaire tombe, sans intervention humaine. Que configurez-vous ?",
+  choices:["Plusieurs régions de lecture avec le basculement automatique activé et un ordre de priorité défini","Un basculement manuel documenté dans le plan de reprise","Les écritures multi-régions, obligatoires dans ce cas","Des sauvegardes périodiques restaurées à la demande"],
+  answer:0,
+  explain:"Le basculement automatique promeut la première région disponible de la liste de priorité. Les écritures multi-régions répondent à un autre besoin : la latence d'écriture locale." },
+{ id:"s-bcdr-storage-failover", level:3, d:"bcdr", dom:"Stockage", type:"qcm",
+  q:"Que faut-il savoir du basculement d'un compte de stockage géo-redondant lancé par le client ?",
+  choices:["La réplication étant asynchrone, les écritures les plus récentes peuvent être perdues, et le compte repasse en redondance locale après le basculement","Il est synchrone, donc sans perte","Il est automatique à la moindre latence","Il est impossible sur un compte GRS"],
+  answer:0,
+  explain:"Les deux conséquences doivent être énoncées ensemble dans une conception : une perte de données possible, et une redondance dégradée à rétablir après la bascule." },
+{ id:"s-bcdr-rpo-zero", level:3, d:"bcdr", dom:"Objectifs", type:"qcm",
+  q:"Une application financière n'accepte aucune perte de données, soit un RPO de zéro, mais tolère quinze minutes d'arrêt. Quelle conception ?",
+  choices:["Une réplication synchrone à l'intérieur d'une région, par exemple Business Critical zone-redondant, car un RPO nul est hors de portée d'une réplication inter-régions","Une réplication asynchrone inter-régions","Des sauvegardes toutes les cinq minutes","Site Recovery entre deux régions"],
+  answer:0,
+  explain:"Au-delà de quelques dizaines de kilomètres, la vitesse de la lumière interdit la réplication synchrone sans ruiner la latence d'écriture. Un RPO nul se traite donc dans la région, par zones." },
+{ id:"s-bcdr-cout", level:3, d:"bcdr", dom:"Stratégies", type:"qcm",
+  q:"Une application accepte 24 heures d'arrêt et 12 heures de perte de données. Quelle stratégie de reprise minimise le coût ?",
+  choices:["Sauvegarde et restauration vers une autre région, avec un coffre géo-redondant et la restauration inter-régions","Actif-actif multi-région","Warm standby","Pilot light avec des réplicas de base permanents"],
+  answer:0,
+  explain:"Des objectifs larges autorisent la stratégie la moins chère. Proposer de l'actif-actif ici, c'est facturer au métier une disponibilité qu'il n'a pas demandée." },
+{ id:"s-bcdr-pilotlight", level:3, d:"bcdr", dom:"Stratégies", type:"qcm",
+  q:"Le métier demande un RTO de deux heures et un RPO de quinze minutes, avec un budget contraint sur l'environnement de secours. Quelle stratégie ?",
+  choices:["Pilot light : base répliquée en continu et socle minimal déployé, le calcul étant monté en charge au moment de la bascule","Actif-actif à capacité pleine","Sauvegarde et restauration","Aucun site secondaire, remontage depuis l'infrastructure as code uniquement"],
+  answer:0,
+  explain:"La réplication de données tient le RPO, l'infrastructure as code tient le RTO. On ne paie la capacité de calcul complète que le jour où on en a besoin." },
+{ id:"s-bcdr-appsvc-multiregion", level:3, d:"bcdr", dom:"Applications", type:"qcm",
+  q:"Un site web PaaS doit rester disponible malgré la perte d'une région, avec bascule automatique du trafic et terminaison TLS au plus près des utilisateurs. Quelle conception ?",
+  choices:["Deux App Service zone-redondants dans deux régions, derrière Azure Front Door qui sonde les deux origines","Un seul App Service zone-redondant","Deux App Service derrière un Application Gateway régional","Deux App Service, bascule DNS manuelle"],
+  answer:0,
+  explain:"Application Gateway est régional : il tombe avec sa région. Front Door est le point d'entrée global, avec sondes et bascule automatique." },
+{ id:"s-bcdr-aks-multiregion", level:3, d:"bcdr", dom:"Conteneurs", type:"qcm",
+  q:"Une plateforme AKS doit survivre à la perte d'une région. Quels éléments la conception doit-elle prévoir au-delà du cluster ?",
+  choices:["Un second cluster dans une autre région, un registre de conteneurs géo-répliqué, une donnée répliquée et un routage global avec sondes","Uniquement un second cluster","Un cluster étendu sur deux régions","Des sauvegardes etcd restaurées à la demande"],
+  answer:0,
+  explain:"Un cluster Kubernetes ne s'étend pas sur deux régions. Les trois dépendances qu'on oublie dans les copies d'examen sont le registre d'images, l'état persistant et le routage." },
+{ id:"s-bcdr-testfailover", level:3, d:"bcdr", dom:"Exercices", type:"qcm",
+  q:"Un auditeur demande la preuve annuelle que le plan de reprise fonctionne, sans interrompre la production. Que mettez-vous en place ?",
+  choices:["Une bascule de test Site Recovery dans un réseau isolé, suivie d'un nettoyage, avec le rapport conservé comme preuve","Une bascule réelle de production une fois par an","Une revue documentaire du plan","Une restauration de sauvegarde sur un poste de travail"],
+  answer:0,
+  explain:"La séquence complète est : bascule de test, nettoyage, puis — en cas de sinistre réel — bascule, validation, et protection inverse pour revenir." },
+{ id:"s-bcdr-paires", level:3, d:"bcdr", dom:"Régions", type:"qcm",
+  q:"Pourquoi privilégier la région appairée lors du choix d'une région de secours ?",
+  choices:["Les mises à jour de la plateforme y sont déployées séquentiellement et jamais en même temps, et la réplication géo-redondante du stockage s'y fait par défaut","Parce que la latence y est toujours la plus faible","Parce que c'est la seule région où Site Recovery fonctionne","Parce que les tarifs y sont identiques"],
+  answer:0,
+  explain:"La résidence des données peut tout de même imposer une autre région que la paire officielle : l'appairage est un argument, pas une obligation." },
+{ id:"s-bcdr-quorum", level:3, d:"bcdr", dom:"Haute disponibilité", type:"qcm",
+  q:"Un cluster de base de données à quorum est réparti sur deux zones. Quel défaut de conception ?",
+  choices:["Deux zones ne permettent pas de trancher un quorum : il faut une troisième zone ou un témoin","Deux zones suffisent toujours","Le quorum ne concerne pas Azure","Il faut au contraire une seule zone"],
+  answer:0,
+  explain:"Avec deux membres, la perte d'une zone laisse un survivant incapable de savoir s'il est le dernier ou s'il est isolé. D'où les trois zones, ou le témoin dans une troisième." },
+{ id:"s-bcdr-gateway-zone", level:3, d:"bcdr", dom:"Réseau", type:"qcm",
+  q:"Un VPN de site à site doit survivre à la perte d'une zone de disponibilité. Que choisissez-vous ?",
+  choices:["Une passerelle VPN de SKU zone-redondant, déployée sur plusieurs zones","Une passerelle de SKU Basic","Deux passerelles dans la même zone","Un ExpressRoute sans redondance"],
+  answer:0,
+  explain:"La redondance de zone se choisit à la création du SKU de la passerelle : on ne convertit pas une passerelle existante. Le SKU Basic est à écarter dans toute conception neuve." },
+{ id:"s-bcdr-budget-erreur", level:3, d:"bcdr", dom:"SRE", type:"qcm",
+  q:"Un objectif de niveau de service de 99,9 % par mois est fixé. À quoi sert le budget d'erreur qui en découle ?",
+  choices:["À arbitrer : tant qu'il reste du budget, on livre ; quand il est consommé, on gèle les évolutions pour traiter la fiabilité","À calculer les pénalités contractuelles","À dimensionner les sauvegardes","À choisir la région de secours"],
+  answer:0,
+  explain:"99,9 % par mois, c'est environ 43 minutes d'indisponibilité autorisées. Le budget d'erreur transforme ce chiffre en règle de décision partagée entre études et exploitation." },
+{ id:"s-bcdr-dependances", level:3, d:"bcdr", dom:"Conception", type:"qcm",
+  q:"Un plan de reprise ne prévoit que les VM applicatives. Quel oubli classique compromet la bascule le jour J ?",
+  choices:["Les dépendances : DNS, identité, secrets de Key Vault, règles de pare-feu, certificats et dépendances externes doivent aussi être disponibles dans la région de secours","Rien, les VM suffisent","Le nombre de disques","Le type de licence"],
+  answer:0,
+  explain:"Le test de bascule sert précisément à faire apparaître ces oublis. Un plan jamais exercé est une hypothèse, pas un plan." },
+
+
+/* ============ NIVEAU 3 — SCÉNARIOS : INFRASTRUCTURE ============ */
+
+{ id:"s-infra-pe-onprem", level:3, d:"infra", dom:"Accès privé", type:"qcm",
+  q:"Un compte de stockage doit être joignable depuis le réseau local via ExpressRoute, sans aucun accès public, avec une résolution de noms correcte des deux côtés. Que faut-il mettre en place ?",
+  choices:["Un private endpoint, la zone DNS privée privatelink liée au VNet, et un DNS Private Resolver ou des redirecteurs pour résoudre cette zone depuis le local","Un service endpoint sur le sous-réseau","Le pare-feu du compte ouvert aux plages du réseau local","Une SAS distribuée aux applications locales"],
+  answer:0,
+  explain:"Les trois pièces sont indissociables : l'adresse privée, la zone qui la publie, et le chemin de résolution depuis le local. Les service endpoints ne sont pas joignables depuis l'extérieur d'Azure." },
+{ id:"s-infra-pls", level:3, d:"infra", dom:"Accès privé", type:"qcm",
+  q:"Vous exposez votre propre service, derrière un Standard Load Balancer, à des clients situés dans d'autres tenants, en privé et sans peering. Quelle fonctionnalité ?",
+  choices:["Private Link Service : le client crée un private endpoint vers votre service","Un peering de VNet par client","Un VPN point à site par client","Un service endpoint"],
+  answer:0,
+  explain:"Private Link Service inverse le modèle : vous publiez, le consommateur s'abonne. Aucun espace d'adressage partagé, donc aucun risque de chevauchement de plages." },
+{ id:"s-infra-hubspoke-udr", level:3, d:"infra", dom:"Routage", type:"qcm",
+  q:"Dans une topologie hub and spoke, le trafic entre spokes et vers Internet doit être inspecté par l'Azure Firewall du hub. Que configurez-vous ?",
+  choices:["Des routes définies par l'utilisateur pointant vers l'IP privée du pare-feu sur les sous-réseaux des spokes, et des peerings autorisant le trafic transféré","Un groupe de sécurité réseau autorisant tout","Des service endpoints sur chaque spoke","Rien : le peering est transitif"],
+  answer:0,
+  explain:"Le peering n'est pas transitif : sans UDR, deux spokes ne se voient pas, et avec UDR mais sans autorisation de trafic transféré, le hub laisse tomber les paquets." },
+{ id:"s-infra-vwan", level:3, d:"infra", dom:"Connectivité", type:"qcm",
+  q:"Une organisation relie 200 sites avec du SD-WAN, des VPN et de l'ExpressRoute, et veut un transit automatique avec le minimum d'administration. Que choisissez-vous ?",
+  choices:["Azure Virtual WAN, dont le hub managé assure le transit entre tous les types de connexions","Un hub and spoke construit à la main avec des peerings","Un VPN par site vers un VNet unique","Traffic Manager"],
+  answer:0,
+  explain:"À cette échelle, la table de routage manuelle devient le vrai risque d'exploitation. Virtual WAN existe pour supprimer ce travail répétitif." },
+{ id:"s-infra-er-vpn", level:3, d:"infra", dom:"Hybride", type:"qcm",
+  q:"Une liaison ExpressRoute est en place et le métier exige la continuité de la connectivité hybride même en cas de coupure du circuit. Quelle conception ?",
+  choices:["Un VPN de site à site en secours de l'ExpressRoute, avec des préférences de routage cohérentes","Un second circuit du même fournisseur sur le même point de peering","Rien : ExpressRoute est garanti","Un VPN point à site pour les administrateurs"],
+  answer:0,
+  explain:"Le VPN de secours est le schéma le moins cher ; deux circuits sur des points de peering distincts offrent une meilleure bande passante en mode dégradé, mais coûtent nettement plus." },
+{ id:"s-infra-snat", level:3, d:"infra", dom:"Sortie Internet", type:"qcm",
+  q:"Des VM d'un sous-réseau multiplient les connexions sortantes vers des API externes et subissent des erreurs d'épuisement des ports SNAT. Quelle solution ?",
+  choices:["Associer une NAT Gateway au sous-réseau, avec une ou plusieurs IP publiques dédiées","Ajouter des règles de groupe de sécurité réseau","Réduire la taille des VM","Activer Azure Bastion"],
+  answer:0,
+  explain:"La NAT Gateway apporte un parc de ports bien plus large et une IP sortante stable, ce qui règle au passage la question des listes d'autorisation chez les partenaires." },
+{ id:"s-infra-agw-vs-afd", level:3, d:"infra", dom:"Équilibrage", type:"qcm",
+  q:"Une application HTTPS régionale nécessite un routage par chemin d'URL, la terminaison TLS et un pare-feu applicatif. Quel service ?",
+  choices:["Application Gateway en SKU WAF v2","Azure Load Balancer","Traffic Manager","NAT Gateway"],
+  answer:0,
+  explain:"Application Gateway est le niveau 7 régional. Dès que l'énoncé dit « mondial », « accélération » ou « cache », il faut basculer sur Front Door." },
+{ id:"s-infra-afd-privatelink", level:3, d:"infra", dom:"Équilibrage", type:"qcm",
+  q:"Un site doit être publié mondialement par Front Door, et son App Service ne doit accepter aucun trafic qui ne passe pas par Front Door. Quelle conception ?",
+  choices:["Front Door Premium avec une origine en Private Link vers l'App Service, l'accès public de l'App Service désactivé","Front Door Standard et un filtrage par en-tête applicatif","Une restriction d'IP sur l'App Service listant les adresses de Front Door","Un Application Gateway devant l'App Service"],
+  answer:0,
+  explain:"Le filtrage par en-tête se contourne et les plages d'IP changent. La liaison privée Front Door vers origine est la seule qui permette de couper réellement l'accès public." },
+{ id:"s-infra-lb-niveau4", level:3, d:"infra", dom:"Équilibrage", type:"qcm",
+  q:"Un cluster répartit un protocole propriétaire sur TCP 5671 entre plusieurs VM, avec conservation de l'adresse source cliente. Quel service ?",
+  choices:["Azure Load Balancer Standard, qui travaille au niveau 4","Application Gateway","Front Door","API Management"],
+  answer:0,
+  explain:"Les services de niveau 7 ne comprennent que HTTP et HTTPS. Un protocole non HTTP impose le niveau 4, donc le Load Balancer." },
+{ id:"s-infra-aca", level:3, d:"infra", dom:"Conteneurs", type:"qcm",
+  q:"Des microservices HTTP doivent descendre à zéro instance hors charge, l'équipe n'a aucune compétence Kubernetes, et le code utilise Dapr. Quel service ?",
+  choices:["Azure Container Apps, qui intègre KEDA et Dapr sans exposer Kubernetes","AKS","Des VM Scale Sets","Azure Batch"],
+  answer:0,
+  explain:"Les trois marqueurs — mise à l'échelle à zéro, pas de compétences Kubernetes, Dapr — désignent Container Apps sans ambiguïté." },
+{ id:"s-infra-aks", level:3, d:"infra", dom:"Conteneurs", type:"qcm",
+  q:"Une plateforme doit exécuter des charges hétérogènes avec des opérateurs Kubernetes personnalisés, des règles d'affinité fines et un maillage de services. Quel service ?",
+  choices:["AKS, car ces besoins exigent l'accès à l'API Kubernetes complète","Container Apps","Container Instances","App Service"],
+  answer:0,
+  explain:"Container Apps masque l'API Kubernetes : dès qu'un énoncé parle d'opérateurs, de CRD ou d'affinité de pods, l'abstraction ne suffit plus." },
+{ id:"s-infra-aks-prive", level:3, d:"infra", dom:"Conteneurs", type:"qcm",
+  q:"Le serveur d'API d'un cluster AKS ne doit être joignable que depuis le réseau d'entreprise, et les images doivent être tirées sans passer par Internet. Quelle conception ?",
+  choices:["Un cluster privé avec private endpoint sur le serveur d'API, et un registre de conteneurs Premium avec private endpoint","Un cluster public avec une liste d'IP autorisées et un registre public","Un cluster privé et un registre public","Un cluster public et un registre avec private endpoint"],
+  answer:0,
+  explain:"Les deux chemins se traitent séparément : l'accès des administrateurs au plan de contrôle, et l'accès des nœuds aux images. Il faut nommer les deux dans la réponse." },
+{ id:"s-infra-aks-cni", level:3, d:"infra", dom:"Réseau des conteneurs", type:"qcm",
+  q:"Les pods d'un cluster AKS doivent être joignables directement depuis le réseau local, avec une adresse routable issue du plan d'adressage. Quel modèle réseau ?",
+  choices:["Azure CNI, qui attribue aux pods des adresses du sous-réseau du VNet","kubenet, avec des adresses de pods superposées","Le mode host network pour tous les pods","Un service de type LoadBalancer par pod"],
+  answer:0,
+  explain:"Azure CNI consomme des adresses du VNet : il faut dimensionner le sous-réseau pour le nombre maximal de pods, sinon la mise à l'échelle s'arrête faute d'adresses." },
+{ id:"s-infra-functions-premium", level:3, d:"infra", dom:"Functions", type:"qcm",
+  q:"Une fonction doit s'exécuter sans démarrage à froid, accéder à des ressources d'un VNet et gérer des traitements longs. Quel plan d'hébergement ?",
+  choices:["Le plan Premium, avec ses instances préchauffées et son intégration au VNet","Le plan Consumption","Logic Apps en Consumption","Container Instances"],
+  answer:0,
+  explain:"Le plan Consumption limite l'exécution à dix minutes et subit les démarrages à froid. Le plan Dedicated avec Always On répond aussi, au prix d'une mise à l'échelle moins fine." },
+{ id:"s-infra-apim-interne", level:3, d:"infra", dom:"API", type:"qcm",
+  q:"Une passerelle d'API doit n'être accessible que depuis le réseau d'entreprise, publier des API internes et appliquer des quotas par abonné. Quelle conception ?",
+  choices:["API Management en SKU Premium ou Developer, déployé en mode VNet interne","API Management en SKU Consumption","Application Gateway seul","Front Door avec des règles de limitation de débit"],
+  answer:0,
+  explain:"Seuls les SKU qui s'injectent dans un VNet offrent le mode interne. C'est le critère qui écarte Consumption et Basic dans toute conception privée." },
+{ id:"s-infra-appsvc-vnet", level:3, d:"infra", dom:"App Service", type:"qcm",
+  q:"Une web app doit appeler une base de données joignable uniquement par private endpoint, tout en restant publiée sur Internet. Quelle conception ?",
+  choices:["L'intégration au VNet pour le trafic sortant de la web app, et un private endpoint sur la base","Un private endpoint sur la web app","Un service endpoint sur le sous-réseau de la base","Un peering entre l'App Service et le VNet"],
+  answer:0,
+  explain:"Il faut distinguer les deux sens : l'intégration VNet traite le trafic sortant de l'application, le private endpoint traite le trafic entrant vers un service." },
+{ id:"s-infra-ase", level:3, d:"infra", dom:"App Service", type:"qcm",
+  q:"Une application doit être hébergée sur une infrastructure App Service dédiée à l'entreprise, isolée du réseau et déployée dans un sous-réseau. Quelle option ?",
+  choices:["Un App Service Environment v3, qui injecte l'infrastructure dans votre VNet","Un plan Premium v3 avec intégration VNet","Un plan Isolated sans App Service Environment","Un plan Basic avec restrictions d'accès"],
+  answer:0,
+  explain:"L'App Service Environment répond à une exigence d'isolation du tenant et de réseau. Son coût fixe élevé le réserve aux cas où cette exigence est explicite." },
+{ id:"s-infra-firewall-premium", level:3, d:"infra", dom:"Sécurité réseau", type:"qcm",
+  q:"Le trafic HTTPS sortant doit être inspecté en profondeur, avec détection d'intrusion et filtrage d'URL complètes. Quelle solution ?",
+  choices:["Azure Firewall Premium, qui apporte l'inspection TLS, l'IDPS et le filtrage d'URL","Azure Firewall Standard","Des groupes de sécurité réseau avec des étiquettes de service","Un WAF sur Application Gateway"],
+  answer:0,
+  explain:"Le SKU Standard filtre sur le nom de domaine, pas sur l'URL complète, et ne déchiffre rien. Le WAF, lui, protège le trafic entrant, pas le sortant." },
+{ id:"s-infra-ddos", level:3, d:"infra", dom:"Sécurité réseau", type:"qcm",
+  q:"Un service public doit être protégé des attaques volumétriques, avec des rapports d'atténuation et une assistance pendant l'attaque. Quelle option ?",
+  choices:["Azure DDoS Protection en plan Network ou IP, qui ajoute l'adaptation au trafic, la télémétrie et le support","La protection DDoS d'infrastructure, active par défaut","Un groupe de sécurité réseau restrictif","Azure Firewall Standard"],
+  answer:0,
+  explain:"La protection de base existe pour protéger la plateforme, pas votre application : elle n'offre ni réglage, ni rapport, ni garantie de coût." },
+{ id:"s-infra-bastion", level:3, d:"infra", dom:"Accès d'administration", type:"qcm",
+  q:"Les administrateurs doivent atteindre les VM en RDP et SSH sans aucune IP publique sur les VM et sans client VPN. Quelle conception ?",
+  choices:["Azure Bastion dans le VNet, utilisé depuis le portail, avec la journalisation des sessions","Une IP publique par VM, protégée par un groupe de sécurité réseau","Une VM de rebond avec IP publique","L'accès VM juste-à-temps seul"],
+  answer:0,
+  explain:"L'accès juste-à-temps ouvre temporairement un port public : il réduit la fenêtre, il ne supprime pas l'exposition. Bastion la supprime." },
+{ id:"s-infra-migrate", level:3 , d:"infra", dom:"Migration", type:"qcm",
+  q:"Avant de migrer 800 serveurs, il faut obtenir le dimensionnement cible, le niveau de préparation et une estimation de coût, avec les dépendances applicatives. Quelle approche ?",
+  choices:["Azure Migrate : appliance de découverte, analyse des dépendances, évaluation, puis migration par vagues","Un rehost immédiat sans analyse","Un inventaire manuel dans un tableur","Une expédition Data Box"],
+  answer:0,
+  explain:"L'analyse des dépendances est ce qui permet de constituer des vagues cohérentes. Migrer un serveur sans ses voisins est la cause d'incident numéro un des projets de migration." },
+{ id:"s-infra-rehost", level:3, d:"infra", dom:"Migration", type:"qcm",
+  q:"Un éditeur doit quitter son datacenter dans trois mois, sans budget de réécriture. Quelle stratégie de migration pour l'essentiel du parc ?",
+  choices:["Rehost en IaaS, en traitant la modernisation par itérations après la sortie du datacenter","Refactor vers du PaaS pour toutes les applications","Rearchitect vers des microservices","Replace par des solutions SaaS"],
+  answer:0,
+  explain:"La contrainte de délai commande. Le rehost tient l'échéance ; la modernisation se traite ensuite, application par application, avec un vrai dossier de valeur." },
+{ id:"s-infra-savings", level:3, d:"infra", dom:"Coûts", type:"qcm",
+  q:"Une charge de calcul est stable sur trois ans, mais les tailles de VM et les régions pourraient changer. Quelle option d'engagement ?",
+  choices:["Un Savings Plan for compute sur trois ans, qui engage une dépense horaire et reste flexible sur la taille, la région et le service","Une réservation de trois ans sur une taille précise","Des instances Spot","Le tarif à la demande"],
+  answer:0,
+  explain:"La réservation est plus avantageuse mais rigide ; le savings plan achète la flexibilité. L'indice de l'énoncé est toujours la mention d'un changement possible." },
+{ id:"s-infra-spot", level:3, d:"infra", dom:"Coûts", type:"qcm",
+  q:"Un traitement de rendu par lots est interruptible, rejouable, et doit coûter le moins possible. Quelle option de calcul ?",
+  choices:["Des VM Spot ou un pool Azure Batch à faible priorité, avec reprise des tâches évincées","Des VM réservées trois ans","Des VM à la demande en Premium SSD","Des Dedicated Hosts"],
+  answer:0,
+  explain:"Le Spot n'est acceptable que si l'éviction, notifiée trente secondes à l'avance, ne coûte rien d'autre que du temps. C'est le cas d'un lot rejouable." },
+{ id:"s-infra-ahb", level:3, d:"infra", dom:"Coûts", type:"qcm",
+  q:"Une entreprise détient des licences Windows Server avec Software Assurance et migre 300 serveurs en IaaS. Quel levier de coût appliquer ?",
+  choices:["Azure Hybrid Benefit, pour n'acheter que le calcul et réutiliser les licences détenues","Des instances Spot","Un App Service Environment","Le tarif à la demande, les licences Azure étant toujours incluses"],
+  answer:0,
+  explain:"C'est l'économie la plus souvent oubliée dans les copies. Elle s'applique aussi à SQL Server, et se cumule avec les réservations ou le savings plan." },
+{ id:"s-infra-dedicated-host", level:3, d:"infra", dom:"Conformité", type:"qcm",
+  q:"Une exigence réglementaire interdit de partager le matériel physique avec d'autres clients, et impose de maîtriser la fenêtre de maintenance. Quelle option ?",
+  choices:["Azure Dedicated Host, qui réserve un serveur physique à votre seule souscription","Un groupe de placement de proximité","Un availability set","Un App Service Environment"],
+  answer:0,
+  explain:"Le groupe de placement de proximité rapproche les VM pour la latence, sans garantir l'exclusivité du matériel. Ce sont deux besoins souvent confondus." },
+{ id:"s-infra-ppg", level:3, d:"infra", dom:"Performance", type:"qcm",
+  q:"Deux tiers applicatifs échangent intensément et exigent la latence réseau la plus faible possible entre eux. Quelle option, et à quel prix ?",
+  choices:["Un groupe de placement de proximité, qui rapproche physiquement les VM mais réduit la protection contre les pannes puisqu'il concentre le déploiement","Les étaler sur trois zones","Un Load Balancer Standard","Un accélérateur réseau sur les cartes"],
+  answer:0,
+  explain:"C'est l'arbitrage à énoncer explicitement : la latence et la résilience tirent en sens inverse. La bonne réponse d'examen nomme le compromis, pas seulement l'option." },
+{ id:"s-infra-acr-georeplication", level:3, d:"infra", dom:"Conteneurs", type:"qcm",
+  q:"Des clusters déployés sur quatre continents tirent les mêmes images et subissent des latences de téléchargement. Quelle conception ?",
+  choices:["Un registre de conteneurs Premium géo-répliqué, avec un nom unique résolu vers la réplique la plus proche","Un registre par région, synchronisé par un script","Un registre Basic avec un cache CDN","Des images stockées en Blob Storage"],
+  answer:0,
+  explain:"La géo-réplication conserve un seul nom et une seule identité d'image, ce qui évite de réécrire les manifestes de déploiement par région." },
+{ id:"s-infra-landingzone", level:3, d:"infra", dom:"Landing zone", type:"qcm",
+  q:"Comment organiser les abonnements d'une landing zone d'entreprise selon le Cloud Adoption Framework ?",
+  choices:["Séparer les abonnements de plateforme — identité, connectivité, gestion — des abonnements de landing zones applicatives, le tout sous une hiérarchie de management groups","Un abonnement unique pour tout","Un abonnement par application, sans management groups","Un abonnement par région"],
+  answer:0,
+  explain:"La séparation plateforme et application est ce qui permet de déléguer les applications aux équipes tout en gardant la gouvernance et le réseau centralisés." },
+{ id:"s-infra-ip-plan", level:3, d:"infra", dom:"Adressage", type:"qcm",
+  q:"Un projet veut relier son VNet 10.0.0.0/16 au réseau local, qui utilise déjà 10.0.0.0/8. Quel problème, et quelle conception ?",
+  choices:["Les plages se chevauchent : il faut réadresser le VNet dans une plage libre du plan d'adressage de l'entreprise avant tout peering ou VPN","Aucun problème, Azure gère le chevauchement","Il suffit d'ajouter des routes définies par l'utilisateur","Il suffit d'activer le NAT sur la passerelle VPN"],
+  answer:0,
+  explain:"Le chevauchement d'adressage est la contrainte structurante de toute conception hybride, et le réadressage coûte d'autant plus cher qu'on le découvre tard." },
+
+
+/* ====== CODE À COMPLÉTER — BICEP, POLICY, KQL, CLI DE CONCEPTION ====== */
+
+{ id:"c-bicep-zones", level:2, d:"infra", dom:"Bicep", type:"input",
+  q:"Cette VM doit être déployée dans la zone de disponibilité 2. Quelle propriété manque à la place de ??? ?",
+  code:"resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {\n  name: 'vm-app-01'\n  location: location\n  ???: ['2']\n  properties: { ... }\n}",
+  accept:["zones","zone"],
+  explain:"La propriété zones est un tableau au niveau de la ressource, pas dans properties. Une VM n'accepte qu'une seule zone ; les scale sets en acceptent plusieurs." },
+{ id:"c-bicep-sql-fg", level:3, d:"bcdr", dom:"Bicep", type:"qcm",
+  q:"Que décrit exactement cette ressource ?",
+  code:"resource fg 'Microsoft.Sql/servers/failoverGroups@2023-05-01-preview' = {\n  parent: serveurPrimaire\n  name: 'fg-prod'\n  properties: {\n    readWriteEndpoint: { failoverPolicy: 'Automatic', failoverWithDataLossGracePeriodMinutes: 60 }\n    partnerServers: [ { id: serveurSecondaire.id } ]\n  }\n}",
+  choices:["Un groupe de basculement automatique dont la bascule se déclenche après 60 minutes d'indisponibilité, avec un écouteur stable pour l'application","Une sauvegarde planifiée toutes les 60 minutes","Une géo-réplication manuelle sans écouteur","Un pool élastique de 60 bases"],
+  answer:0,
+  explain:"Le délai de grâce est le temps pendant lequel la plateforme attend avant d'accepter une bascule avec perte de données. Le raccourcir améliore le RTO et dégrade le RPO." },
+{ id:"c-bicep-pe", level:3, d:"infra", dom:"Bicep", type:"input",
+  q:"Ce private endpoint cible le sous-ressource blob d'un compte de stockage. Quelle propriété manque à la place de ??? ?",
+  code:"privateLinkServiceConnections: [ {\n  name: 'c-blob'\n  properties: {\n    privateLinkServiceId: stockage.id\n    ???: [ 'blob' ]\n  }\n} ]",
+  accept:["groupids","group ids","groupid"],
+  explain:"groupIds désigne le sous-ressource : blob, file, table, queue, sqlServer, vault… Un private endpoint par sous-ressource, chacun avec sa zone DNS privée." },
+{ id:"c-policy-deny-sku", level:3, d:"iden", dom:"Azure Policy", type:"qcm",
+  q:"Quel effet produit cette définition une fois assignée à un management group ?",
+  code:"{\n  \"if\": {\n    \"allOf\": [\n      { \"field\": \"type\", \"equals\": \"Microsoft.Storage/storageAccounts\" },\n      { \"field\": \"Microsoft.Storage/storageAccounts/sku.name\", \"notIn\": [\"Standard_GZRS\", \"Standard_RAGZRS\"] }\n    ]\n  },\n  \"then\": { \"effect\": \"deny\" }\n}",
+  choices:["Toute création ou mise à jour de compte de stockage hors GZRS et RA-GZRS est refusée sur toutes les souscriptions rattachées","Les comptes existants sont convertis en GZRS","Un avertissement est journalisé sans blocage","Seules les souscriptions nommément assignées sont concernées"],
+  answer:0,
+  explain:"Deny agit à la requête ARM et s'hérite vers le bas, sans toucher à l'existant. Pour inventorier l'existant, on assigne la même règle avec l'effet audit." },
+{ id:"c-policy-dine", level:3, d:"iden", dom:"Azure Policy", type:"input",
+  q:"Cette policy doit déployer un paramètre de diagnostic quand il est absent. Quel effet manque à la place de ??? ?",
+  code:"{\n  \"if\": { \"field\": \"type\", \"equals\": \"Microsoft.Network/applicationGateways\" },\n  \"then\": {\n    \"effect\": \"???\",\n    \"details\": {\n      \"type\": \"Microsoft.Insights/diagnosticSettings\",\n      \"roleDefinitionIds\": [ \"/providers/Microsoft.Authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa\" ],\n      \"deployment\": { \"properties\": { \"mode\": \"incremental\" } }\n    }\n  }\n}",
+  accept:["deployifnotexists","deploy if not exists"],
+  explain:"DeployIfNotExists exige une identité managée sur l'assignation, les rôles listés dans roleDefinitionIds, et une tâche de remédiation pour traiter les ressources déjà en place." },
+{ id:"c-policy-initiative", level:2, d:"iden", dom:"Azure Policy", type:"qcm",
+  q:"Que représente cet objet dans la hiérarchie de gouvernance ?",
+  code:"{\n  \"properties\": {\n    \"displayName\": \"Baseline landing zone\",\n    \"policyDefinitions\": [\n      { \"policyDefinitionId\": \"/providers/.../allowedLocations\" },\n      { \"policyDefinitionId\": \"/providers/.../denyPublicBlobAccess\" }\n    ]\n  }\n}",
+  choices:["Une initiative, c'est-à-dire un ensemble de définitions assigné et suivi en une seule fois","Une définition de rôle personnalisée","Un modèle ARM de déploiement","Une exemption de policy"],
+  answer:0,
+  explain:"L'initiative est l'unité de travail d'une landing zone : on assigne un paquet cohérent au management group, et la conformité se lit globalement." },
+{ id:"c-rbac-custom", level:3, d:"iden", dom:"RBAC", type:"qcm",
+  q:"Que permet exactement ce rôle personnalisé ?",
+  code:"{\n  \"Name\": \"Operateur de sauvegarde\",\n  \"Actions\": [\n    \"Microsoft.RecoveryServices/vaults/backupJobs/read\",\n    \"Microsoft.RecoveryServices/vaults/backupPolicies/read\",\n    \"Microsoft.RecoveryServices/Vaults/backupFabrics/protectionContainers/protectedItems/backup/action\"\n  ],\n  \"NotActions\": [],\n  \"AssignableScopes\": [ \"/subscriptions/<subId>\" ]\n}",
+  choices:["Lire les travaux et politiques de sauvegarde et déclencher une sauvegarde à la demande, sans pouvoir restaurer ni modifier une politique","Tout gérer dans le coffre, restauration comprise","Seulement lire, sans action possible","Supprimer des points de récupération"],
+  answer:0,
+  explain:"Un rôle personnalisé n'accorde que ce qu'il énumère. L'absence de l'action de restauration est délibérée : c'est ainsi qu'on sépare sauvegarde et restauration." },
+{ id:"c-kql-dispo", level:3, d:"iden", dom:"KQL", type:"qcm",
+  q:"Que calcule cette requête ?",
+  code:"Heartbeat\n| where TimeGenerated > ago(30d)\n| summarize battements = count() by Computer, bin(TimeGenerated, 1h)\n| summarize heuresVues = count() by Computer\n| extend disponibilite = round(100.0 * heuresVues / (30 * 24), 2)\n| order by disponibilite asc",
+  choices:["Un taux de disponibilité approximatif par machine sur 30 jours, en comptant les heures où au moins un battement a été reçu","Le nombre total de battements par machine","La latence moyenne des agents","Les machines qui n'ont jamais émis de battement"],
+  answer:0,
+  explain:"C'est l'approximation de disponibilité qu'on construit faute d'instrumentation applicative. Son angle mort : une machine qui répond au ping mais dont le service est en panne." },
+{ id:"c-kql-cout", level:3, d:"iden", dom:"KQL", type:"input",
+  q:"Cette requête classe les tables par volume ingéré pour cibler les économies. Quelle table de métadonnées manque à la place de ??? ?",
+  code:"???\n| where TimeGenerated > ago(7d)\n| summarize GoFactures = sum(_BilledSize) / 1024 / 1024 / 1024 by DataType\n| order by GoFactures desc",
+  accept:["usage"],
+  explain:"La table Usage est le point de départ de toute réduction de facture Log Analytics : on filtre à la source dans les DCR les types de données qui dominent ce classement." },
+{ id:"c-cli-redondance", level:2, d:"data", dom:"Azure CLI", type:"input",
+  q:"Complète la commande qui bascule un compte de stockage en géo-zone-redondant avec accès en lecture au secondaire. Quelle valeur de SKU manque ?",
+  code:"az storage account update -n stprod01 -g rg-data --sku ???",
+  accept:["standard_ragzrs","ragzrs","standard ragzrs"],
+  explain:"Le préfixe RA signale l'accès en lecture au secondaire, GZRS la combinaison zones plus géo-réplication. Toutes les conversions ne sont pas possibles en place : certaines imposent une copie." },
+{ id:"c-cli-immutabilite", level:3, d:"data", dom:"Azure CLI", type:"qcm",
+  q:"Quelle est la conséquence de cette séquence de commandes ?",
+  code:"az storage container immutability-policy create --account-name starchive -c conformite --period 3650\naz storage container immutability-policy lock --account-name starchive -c conformite --if-match <etag>",
+  choices:["Les blobs du conteneur deviennent inaltérables dix ans, et la stratégie verrouillée ne peut plus être raccourcie ni supprimée, même par un Owner","La stratégie reste modifiable à tout moment","Seules les écritures sont bloquées, pas les suppressions","Le conteneur devient inaccessible en lecture"],
+  answer:0,
+  explain:"Tant que la stratégie est à l'état non verrouillé, elle sert de test ; le verrouillage est irréversible et seule une extension de durée reste possible." },
+{ id:"c-cli-sla-check", level:3, d:"infra", dom:"Azure CLI", type:"qcm",
+  q:"Que vérifie cette commande dans une revue de conception ?",
+  code:"az network vnet peering show -g rg-hub -n hub-to-spoke1 --vnet-name vnet-hub \\\n  --query \"{transit:allowForwardedTraffic, passerelle:allowGatewayTransit, distant:useRemoteGateways}\"",
+  choices:["Les trois drapeaux qui conditionnent le transit par le hub : trafic transféré, transit de passerelle et usage de la passerelle distante","Le débit du peering","L'état de la liaison ExpressRoute","Les règles du pare-feu du hub"],
+  answer:0,
+  explain:"Ce sont les trois cases qu'on oublie dans un hub and spoke, et la cause la plus fréquente d'un trafic qui part dans le vide malgré des UDR correctes." },
+{ id:"c-arm-tags", level:2, d:"iden", dom:"Bicep", type:"input",
+  q:"Ce module doit propager les tags du groupe de ressources à la ressource déployée. Quelle fonction Bicep manque à la place de ??? ?",
+  code:"param etiquettes object = ???('Microsoft.Resources/resourceGroups', resourceGroup().name, '2021-04-01', 'Full').tags",
+  accept:["reference"],
+  explain:"Les tags ne s'héritent pas tout seuls : il faut les lire explicitement, ou poser une policy à effet modify pour les appliquer à grande échelle." },
+{ id:"c-cli-advisor", level:2, d:"infra", dom:"Azure CLI", type:"qcm",
+  q:"À quoi sert cette commande dans une démarche de conception ?",
+  code:"az advisor recommendation list --category HighAvailability --query \"[].{res:impactedValue, reco:shortDescription.problem}\" -o table",
+  choices:["Lister les écarts de haute disponibilité détectés par Azure Advisor sur les ressources existantes, pour alimenter la revue d'architecture","Appliquer automatiquement les recommandations","Calculer le SLA composite de l'application","Créer un plan de reprise"],
+  answer:0,
+  explain:"Advisor couvre les cinq piliers du Well-Architected Framework. C'est l'entrée la moins coûteuse pour objectiver une revue d'architecture sur un parc existant." },
+
+
+/* ================= ÉTUDES DE CAS ================= */
+
+/* --- Cas A : Contoso Retail --- */
+{ id:"casA-1", level:3, d:"infra", dom:"Plateforme applicative", type:"qcm", scen:"A",
+  q:"Quelle plateforme retenir pour le site web de Contoso ?",
+  choices:["App Service en plan Premium v3 avec redondance de zone","Des VM IIS dans un availability set","AKS avec un maillage de services","Azure Batch"],
+  answer:0,
+  explain:"L'énoncé demande explicitement de réduire l'effort d'administration : le PaaS est imposé. AKS apporterait une plateforme à exploiter sans aucun besoin exprimé qui la justifie." },
+{ id:"casA-2", level:3, d:"data", dom:"Base de données", type:"qcm", scen:"A",
+  q:"Quelle plateforme de base de données, compte tenu de SQL Agent et des bases liées ?",
+  choices:["Azure SQL Managed Instance","Azure SQL Database en base unique","Cosmos DB avec l'API NoSQL","Table Storage"],
+  answer:0,
+  explain:"SQL Agent et les requêtes inter-bases sont deux fonctions absentes d'Azure SQL Database. Managed Instance conserve la compatibilité tout en restant du PaaS." },
+{ id:"casA-3", level:3, d:"iden", dom:"Identité hybride", type:"qcm", scen:"A",
+  q:"Comment les administrateurs continuent-ils à s'authentifier avec leurs identifiants Active Directory, avec le minimum d'infrastructure et une bonne résilience ?",
+  choices:["Entra Connect avec la synchronisation de hachage de mot de passe, complétée par PIM sur les rôles d'administration","Une fédération AD FS","Des comptes cloud séparés, sans lien avec l'annuaire local","Entra Domain Services"],
+  answer:0,
+  explain:"La synchronisation de hachage n'impose aucun serveur en frontal et survit à une panne du site local, contrairement à AD FS qui ajoute une ferme à exploiter et un point de défaillance." },
+{ id:"casA-4", level:3, d:"iden", dom:"Résidence des données", type:"qcm", scen:"A",
+  q:"Comment garantir techniquement que les ressources restent dans l'Union européenne ?",
+  choices:["Une Azure Policy allowedLocations à effet Deny, assignée au management group qui porte les souscriptions","Un verrou de ressource sur chaque resource group","Une convention de nommage et des tags","Des groupes de sécurité réseau"],
+  answer:0,
+  explain:"Seule une policy Deny empêche le déploiement, y compris par un Owner. Les tags documentent l'intention sans jamais l'imposer." },
+{ id:"casA-5", level:3, d:"bcdr", dom:"Objectif de disponibilité", type:"qcm", scen:"A",
+  q:"Le SLA contractuel visé est de 99,95 % minimum. Quelle conception le soutient, sachant que le site est utilisé en France et en Allemagne ?",
+  choices:["App Service zone-redondant et base zone-redondante dans une région de l'UE, avec un groupe de basculement vers une seconde région de l'UE","Une seule instance d'App Service en plan Basic","Deux VM dans un availability set","Un déploiement actif-actif sur quatre continents"],
+  answer:0,
+  explain:"La redondance de zone atteint l'objectif mensuel ; le groupe de basculement couvre le sinistre régional. Multiplier les continents n'ajouterait rien et sortirait de l'UE." },
+{ id:"casA-6", level:3, d:"infra", dom:"Accès privé", type:"qcm", scen:"A",
+  q:"La base ne doit être joignable depuis aucun réseau public. Quelle conception pour l'accès de l'application ?",
+  choices:["Un private endpoint sur Managed Instance ou sur le serveur SQL, l'intégration VNet côté App Service, et l'accès public désactivé","Un service endpoint et le pare-feu de la base ouvert aux IP sortantes de l'App Service","Des chaînes de connexion chiffrées","Une liste d'IP autorisées mise à jour chaque mois"],
+  answer:0,
+  explain:"La liste d'IP sortantes d'un App Service change avec la mise à l'échelle : la maintenir est un travail sans fin. Le couple intégration VNet et private endpoint supprime le problème." },
+{ id:"casA-7", level:3, d:"data", dom:"Sauvegarde", type:"qcm", scen:"A",
+  q:"Le métier demande de pouvoir revenir à n'importe quel instant du dernier mois, et de conserver une image annuelle pendant sept ans. Quelle conception ?",
+  choices:["La restauration à un instant dans le passé avec 35 jours de rétention, et une stratégie de rétention à long terme pour les sauvegardes annuelles","Un export BACPAC quotidien vers un compte de stockage","Azure Backup sur le serveur de base de données","Des instantanés de disque hebdomadaires"],
+  answer:0,
+  explain:"Les deux mécanismes se complètent et répondent à deux phrases différentes de l'énoncé : « n'importe quel instant » d'une part, « sept ans » de l'autre." },
+{ id:"casA-8", level:3, d:"infra", dom:"Coûts", type:"qcm", scen:"A",
+  q:"Contoso détient des licences Windows Server et SQL Server avec Software Assurance, et prévoit une charge stable pendant trois ans. Quels leviers de coût retenir ?",
+  choices:["Azure Hybrid Benefit pour les licences détenues, cumulé avec des réservations ou un savings plan sur la capacité stable","Des instances Spot pour le site de production","Le tarif à la demande, pour garder la souplesse","Un Dedicated Host"],
+  answer:0,
+  explain:"Les deux leviers se cumulent : l'un porte sur la licence, l'autre sur la capacité. Le Spot est exclu dès lors qu'il s'agit d'un site de production exposé aux clients." },
+
+/* --- Cas B : Fabrikam Telemetry --- */
+{ id:"casB-1", level:3, d:"data", dom:"Ingestion", type:"qcm", scen:"B",
+  q:"Quel service d'ingestion pour la télémétrie des deux millions d'appareils ?",
+  choices:["Event Hubs, dimensionné en unités de débit ou en mode premium","Service Bus avec des rubriques","Les files de Storage","Event Grid"],
+  answer:0,
+  explain:"Au-delà de quelques milliers de messages par seconde, un courtier de messages métier n'est plus le bon outil : il faut un pipeline de flux partitionné." },
+{ id:"casB-2", level:3, d:"data", dom:"Stockage analytique", type:"qcm", scen:"B",
+  q:"Où stocker l'historique et l'archive de dix ans non modifiable ?",
+  choices:["ADLS Gen2, avec une stratégie d'immuabilité verrouillée et une règle de cycle de vie vers Archive","Azure SQL Database en Hyperscale","Table Storage","Des disques managés attachés à des VM"],
+  answer:0,
+  explain:"Trois exigences se superposent : lac analytique, WORM réglementaire, et maîtrise du coût sur dix ans. Le cycle de vie traite la troisième sans toucher aux deux premières." },
+{ id:"casB-3", level:3, d:"infra", dom:"Accès privé", type:"qcm", scen:"B",
+  q:"Comment accéder en privé aux services PaaS depuis le réseau local via ExpressRoute ?",
+  choices:["Des private endpoints, les zones DNS privées privatelink liées au VNet, et un DNS Private Resolver pour la résolution depuis le local","Des service endpoints sur les sous-réseaux","Le pare-feu des services ouvert aux plages publiques du site","Des SAS à durée limitée"],
+  answer:0,
+  explain:"Les service endpoints restent inaccessibles depuis l'extérieur d'Azure : c'est la différence qui tranche dès que l'énoncé mentionne le réseau local." },
+{ id:"casB-4", level:3, d:"bcdr", dom:"Redondance du stockage", type:"qcm", scen:"B",
+  q:"Quelle redondance de stockage pour un RPO inférieur à quinze minutes en cas de perte de région ?",
+  choices:["GZRS, ou RA-GZRS si la lecture du secondaire est nécessaire avant tout basculement","LRS","ZRS","Aucune redondance, les appareils réémettent"],
+  answer:0,
+  explain:"La géo-réplication est asynchrone : le RPO annoncé est de l'ordre du quart d'heure, ce qui cadre avec l'exigence. ZRS protège la zone, pas la région." },
+{ id:"casB-5", level:3, d:"data", dom:"Temps réel", type:"qcm", scen:"B",
+  q:"Comment produire les alertes temps réel et l'analyse historique à partir du même flux ?",
+  choices:["Stream Analytics sur le flux pour le chemin chaud, et Capture vers ADLS Gen2 pour le chemin froid, les deux branchés sur le même Event Hub","Deux Event Hubs alimentés en double par les appareils","Une insertion dans SQL puis des requêtes planifiées","Un traitement par lots nocturne uniquement"],
+  answer:0,
+  explain:"C'est l'architecture lambda appliquée aux services managés : un seul point d'ingestion, deux consommateurs aux exigences de latence opposées." },
+{ id:"casB-6", level:3, d:"iden", dom:"Supervision", type:"qcm", scen:"B",
+  q:"Les journaux d'audit doivent être consultables trois ans, mais rarement. Quelle conception de supervision ?",
+  choices:["Un espace de travail Log Analytics avec rétention interactive courte puis archive longue durée, filtrage à la source dans les DCR, et tables Basic pour les journaux verbeux","Trois ans en rétention interactive","Des journaux conservés sur les disques des machines","Aucune conservation au-delà de 30 jours"],
+  answer:0,
+  explain:"L'archive coûte une fraction du tarif interactif, en échange d'une recherche asynchrone. C'est exactement l'arbitrage que décrit « consultables mais rarement »." },
+{ id:"casB-7", level:3, d:"iden", dom:"Clés de chiffrement", type:"qcm", scen:"B",
+  q:"Fabrikam doit maîtriser seule les clés de chiffrement, avec une protection matérielle validée FIPS 140-2 niveau 3 et un contrôle mono-locataire. Quelle solution ?",
+  choices:["Azure Key Vault Managed HSM, avec les clés gérées par le client sur les comptes de stockage","Key Vault Standard","Les clés gérées par la plateforme","Le chiffrement des disques des VM avec BitLocker"],
+  answer:0,
+  explain:"Le niveau FIPS 140-2 niveau 3 et la gestion mono-locataire sont les deux marqueurs du Managed HSM ; Key Vault Premium reste multi-locataire." },
+{ id:"casB-8", level:3, d:"bcdr", dom:"Reprise", type:"qcm", scen:"B",
+  q:"Quelle conception de reprise pour la chaîne d'ingestion elle-même ?",
+  choices:["Un espace de noms Event Hubs dans une seconde région avec la reprise géographique, les consommateurs capables de repartir d'un point de contrôle, et les appareils pointant vers un nom bascule","Rien : les appareils réémettront d'eux-mêmes","Une sauvegarde quotidienne de l'espace de noms","Un second espace de noms alimenté manuellement en cas d'incident"],
+  answer:0,
+  explain:"La reprise géographique d'Event Hubs réplique les métadonnées, pas les données en transit : il faut assumer la perte du contenu du tampon et prévoir la réémission côté appareils." },
+];
+
+/* ---------- Scénarios des études de cas ---------- */
+const SCENARIOS = {
+A: { title: "Contoso Retail",
+      text: "Contoso exploite un site e-commerce sur des VM IIS et un SQL Server hébergés dans son datacenter. Objectifs : migrer vers Azure, réduire nettement l'effort d'administration, tenir un SLA de 99,95 % minimum. Le site sert la France et l'Allemagne, et les données clients doivent rester dans l'Union européenne. La base s'appuie sur SQL Agent et des requêtes entre plusieurs bases liées. Les administrateurs se connectent aujourd'hui avec leurs comptes Active Directory locaux. L'entreprise détient des licences Windows Server et SQL Server avec Software Assurance, et la charge est stable sur trois ans." },
+  B: { title: "Fabrikam Telemetry",
+      text: "Fabrikam collecte la télémétrie de deux millions d'appareils connectés. Besoins : ingérer plusieurs millions d'événements par seconde, produire des alertes en temps réel et de l'analyse historique, archiver dix ans de données de manière non modifiable, atteindre un RPO inférieur à quinze minutes en cas de perte de région, accéder en privé aux services PaaS depuis le réseau local relié par ExpressRoute, conserver trois ans de journaux d'audit consultés rarement, et maîtriser seule les clés de chiffrement avec une protection matérielle mono-locataire." }
+};
+
+/* ---------- Labs guidés ---------- */
+const LABS = [
+{ id:"lab1", title:"Lab 1 · Landing zone : une baseline qui s'hérite", time:"≈ 50 min",
+  obj:"Poser une hiérarchie de management groups et y assigner une initiative, pour constater ce que l'héritage apporte à une conception.",
+  steps:[
+    "Crée un management group mg-az305 sous la racine, et un enfant mg-az305-prod.",
+    "Déplace ta souscription de test sous mg-az305-prod.",
+    "Assigne la policy intégrée « Allowed locations » à mg-az305, limitée à westeurope et francecentral.",
+    "Tente de créer un resource group à eastus : lis le message de refus et repère le nom de l'assignation héritée.",
+    "Assigne « Audit diagnostic setting » au même scope, puis consulte la conformité : observe la différence entre refuser et constater.",
+    "Crée une exemption sur un resource group précis, et vérifie qu'elle n'affecte pas le reste.",
+    "Retire les assignations, remets la souscription à la racine et supprime les management groups." ],
+  cli:"az account management-group create -n mg-az305 --display-name \"AZ-305 bac a sable\"\naz account management-group create -n mg-az305-prod --display-name \"AZ-305 prod\" --parent mg-az305\naz account management-group subscription add -n mg-az305-prod --subscription <subId>\naz policy assignment create -n loc-ue --policy e56962a6-4747-49cd-b67b-bf8b01975c4c --scope /providers/Microsoft.Management/managementGroups/mg-az305 --params '{\"listOfAllowedLocations\":{\"value\":[\"westeurope\",\"francecentral\"]}}'\naz group create -n rg-az305-test -l eastus\naz policy assignment delete -n loc-ue --scope /providers/Microsoft.Management/managementGroups/mg-az305\naz account management-group subscription remove -n mg-az305-prod --subscription <subId>\naz account management-group delete -n mg-az305-prod\naz account management-group delete -n mg-az305",
+  verif:"tu sais dire à quel scope assigner une baseline pour qu'elle couvre les souscriptions qui n'existent pas encore." },
+
+{ id:"lab2", title:"Lab 2 · Accès privilégié : PIM, revue et compte de secours", time:"≈ 40 min",
+  obj:"Rendre un rôle éligible au lieu de permanent, et mesurer ce que cela change dans la trace d'audit.",
+  steps:[
+    "Dans Entra ID, rends ton rôle Contributor sur un resource group éligible au lieu d'actif (PIM pour les ressources Azure).",
+    "Déconnecte-toi, reconnecte-toi, et tente une création de ressource : observe le refus.",
+    "Active le rôle pour une heure avec justification, puis refais la création.",
+    "Configure l'activation avec approbation par un second compte, et refais un cycle complet.",
+    "Crée une access review trimestrielle sur un groupe de sécurité, et lis ce qu'elle produit comme décision.",
+    "Note dans le journal d'audit Entra ID les entrées d'activation : c'est la preuve que réclame un auditeur.",
+    "Remets le rôle en attribution permanente si c'est ton abonnement de travail, ou supprime l'attribution." ],
+  cli:"# PIM se pilote au portail ou via Microsoft Graph ; côté lecture, l'inventaire RBAC reste utile :\naz role assignment list --assignee <monUpn> --all --include-inherited -o table\naz rest --method get --url \"https://graph.microsoft.com/v1.0/roleManagement/directory/roleEligibilitySchedules\"\naz group delete -n rg-az305-lab2 --yes --no-wait",
+  verif:"tu peux expliquer en une phrase ce que PIM apporte que Conditional Access n'apporte pas, et l'inverse." },
+
+{ id:"lab3", title:"Lab 3 · Private endpoint et DNS : le piège de la résolution", time:"≈ 50 min",
+  obj:"Monter un accès privé complet à un compte de stockage, puis casser volontairement la résolution DNS pour en comprendre le rôle.",
+  steps:[
+    "Crée un VNet, un sous-réseau, un compte de stockage et une petite VM Linux dans le VNet.",
+    "Depuis la VM, résous le nom du compte : note l'adresse publique renvoyée.",
+    "Crée un private endpoint sur le sous-ressource blob, SANS zone DNS privée.",
+    "Résous à nouveau depuis la VM : le nom pointe encore sur l'adresse publique — c'est le piège.",
+    "Crée la zone privatelink.blob.core.windows.net, lie-la au VNet, crée l'enregistrement, puis résous encore : l'adresse est désormais privée.",
+    "Désactive l'accès réseau public du compte et vérifie que la VM fonctionne toujours, mais que ton poste ne peut plus.",
+    "Supprime le resource group." ],
+  cli:"az group create -n rg-az305-lab3 -l westeurope\naz network vnet create -g rg-az305-lab3 -n vnet-pe --address-prefix 10.20.0.0/16 --subnet-name snet-app --subnet-prefix 10.20.1.0/24\naz storage account create -n stlab3az305<unique> -g rg-az305-lab3 --sku Standard_LRS --kind StorageV2\naz vm create -g rg-az305-lab3 -n vm-test --image Ubuntu2204 --size Standard_B1s --vnet-name vnet-pe --subnet snet-app --admin-username azureuser --generate-ssh-keys\naz network private-endpoint create -g rg-az305-lab3 -n pe-blob --vnet-name vnet-pe --subnet snet-app --private-connection-resource-id $(az storage account show -n stlab3az305<unique> -g rg-az305-lab3 --query id -o tsv) --group-id blob --connection-name c-blob\naz network private-dns zone create -g rg-az305-lab3 -n privatelink.blob.core.windows.net\naz network private-dns link vnet create -g rg-az305-lab3 -z privatelink.blob.core.windows.net -n lien --virtual-network vnet-pe --registration-enabled false\naz network private-endpoint dns-zone-group create -g rg-az305-lab3 --endpoint-name pe-blob -n zg --private-dns-zone privatelink.blob.core.windows.net --zone-name blob\naz storage account update -n stlab3az305<unique> -g rg-az305-lab3 --public-network-access Disabled\naz group delete -n rg-az305-lab3 --yes --no-wait",
+  verif:"tu as vu de tes yeux qu'un private endpoint sans zone DNS privée ne change rien pour le client." },
+
+{ id:"lab4", title:"Lab 4 · Redondance et immuabilité du stockage", time:"≈ 45 min",
+  obj:"Comparer les SKU de redondance et poser un WORM réglementaire, puis tenter de le contourner.",
+  steps:[
+    "Crée un compte Standard_LRS, téléverse un fichier, puis convertis le compte en Standard_GZRS et observe l'état de la conversion.",
+    "Crée un second compte RA-GZRS et lis le point de terminaison secondaire exposé.",
+    "Sur un conteneur, active la gestion des versions puis crée une stratégie d'immuabilité de 1 jour, à l'état non verrouillé.",
+    "Tente de supprimer un blob : observe le refus, puis raccourcis la stratégie — c'est encore possible.",
+    "Verrouille la stratégie et retente de la raccourcir : note l'erreur.",
+    "Attends l'expiration ou crée un conteneur neuf pour pouvoir supprimer le resource group." ],
+  cli:"az group create -n rg-az305-lab4 -l westeurope\naz storage account create -n stlab4az305<unique> -g rg-az305-lab4 --sku Standard_LRS --kind StorageV2\naz storage account update -n stlab4az305<unique> -g rg-az305-lab4 --sku Standard_GZRS\naz storage account show -n stlab4az305<unique> -g rg-az305-lab4 --query \"{sku:sku.name, geo:geoReplicationStats, secondaire:secondaryEndpoints.blob}\"\naz storage account blob-service-properties update --account-name stlab4az305<unique> -g rg-az305-lab4 --enable-versioning true\naz storage container create -n conformite --account-name stlab4az305<unique> --auth-mode login\naz storage container immutability-policy create --account-name stlab4az305<unique> -c conformite --period 1\naz storage container immutability-policy lock --account-name stlab4az305<unique> -c conformite --if-match <etag>\naz group delete -n rg-az305-lab4 --yes --no-wait",
+  verif:"tu sais pourquoi un verrou CanNotDelete ne répond pas à une exigence d'inaltérabilité, et une stratégie verrouillée oui." },
+
+{ id:"lab5", title:"Lab 5 · Azure SQL : groupe de basculement et chaîne de connexion stable", time:"≈ 55 min",
+  obj:"Monter un groupe de basculement entre deux régions et vérifier que l'écouteur suit la bascule.",
+  steps:[
+    "Crée deux serveurs SQL logiques dans deux régions, et une base sur le primaire.",
+    "Crée un groupe de basculement avec une politique automatique, puis note le nom de l'écouteur de lecture-écriture.",
+    "Connecte-toi par l'écouteur et crée une table, pour disposer d'une donnée témoin.",
+    "Déclenche une bascule planifiée, puis reconnecte-toi par le MÊME nom d'écouteur : la table est là, l'application n'a rien changé.",
+    "Regarde où pointe désormais l'écouteur de lecture seule, et explique à quoi il sert.",
+    "Reviens à la région d'origine par une seconde bascule planifiée.",
+    "Supprime le groupe de basculement, puis les deux resource groups." ],
+  cli:"az group create -n rg-az305-lab5 -l westeurope\naz group create -n rg-az305-lab5b -l northeurope\naz sql server create -g rg-az305-lab5 -n sqlprim<unique> -l westeurope -u adminaz305 -p \"<motDePasseFort>\"\naz sql server create -g rg-az305-lab5b -n sqlsec<unique> -l northeurope -u adminaz305 -p \"<motDePasseFort>\"\naz sql db create -g rg-az305-lab5 -s sqlprim<unique> -n basetest --service-objective S0\naz sql failover-group create -n fg-az305<unique> -g rg-az305-lab5 -s sqlprim<unique> --partner-server sqlsec<unique> --partner-resource-group rg-az305-lab5b --add-db basetest --failover-policy Automatic --grace-period 1\naz sql failover-group show -n fg-az305<unique> -g rg-az305-lab5 -s sqlprim<unique> --query \"{ecouteur:readWriteEndpoint, role:replicationRole}\"\naz sql failover-group set-primary -n fg-az305<unique> -g rg-az305-lab5b -s sqlsec<unique>\naz group delete -n rg-az305-lab5 --yes --no-wait\naz group delete -n rg-az305-lab5b --yes --no-wait",
+  verif:"tu as constaté que l'application n'a pas eu à changer de chaîne de connexion — c'est tout l'intérêt de l'écouteur." },
+
+{ id:"lab6", title:"Lab 6 · Hub and spoke : UDR, pare-feu et transit", time:"≈ 60 min",
+  obj:"Construire le transit spoke à spoke par le hub, en cassant chaque pièce pour voir laquelle manque.",
+  steps:[
+    "Crée un VNet hub avec un sous-réseau AzureFirewallSubnet, et deux spokes avec une VM chacun.",
+    "Crée les deux peerings hub-spoke et tente un ping entre les deux VM : il échoue, le peering n'est pas transitif.",
+    "Déploie un Azure Firewall dans le hub et note son IP privée.",
+    "Crée une table de routes avec 0.0.0.0/0 vers l'IP du pare-feu, associe-la aux sous-réseaux des spokes, et retente le ping : il échoue encore.",
+    "Active allow-forwarded-traffic sur les peerings hub vers spoke, ajoute une règle réseau autorisant le flux, et retente : cette fois ça passe.",
+    "Consulte les journaux du pare-feu pour voir le flux autorisé, puis ajoute une règle de refus et observe la trace.",
+    "Supprime le resource group — le pare-feu est la ressource la plus coûteuse du lab, ne l'oublie pas." ],
+  cli:"az group create -n rg-az305-lab6 -l westeurope\naz network vnet create -g rg-az305-lab6 -n vnet-hub --address-prefix 10.0.0.0/16 --subnet-name AzureFirewallSubnet --subnet-prefix 10.0.1.0/26\naz network vnet create -g rg-az305-lab6 -n vnet-spoke1 --address-prefix 10.1.0.0/16 --subnet-name snet-app --subnet-prefix 10.1.1.0/24\naz network vnet create -g rg-az305-lab6 -n vnet-spoke2 --address-prefix 10.2.0.0/16 --subnet-name snet-app --subnet-prefix 10.2.1.0/24\naz network vnet peering create -g rg-az305-lab6 -n hub-s1 --vnet-name vnet-hub --remote-vnet vnet-spoke1 --allow-vnet-access --allow-forwarded-traffic\naz network vnet peering create -g rg-az305-lab6 -n s1-hub --vnet-name vnet-spoke1 --remote-vnet vnet-hub --allow-vnet-access\naz network public-ip create -g rg-az305-lab6 -n pip-fw --sku Standard --allocation-method Static\naz network firewall create -g rg-az305-lab6 -n fw-hub --sku AZFW_VNet --tier Standard\naz network firewall ip-config create -g rg-az305-lab6 -f fw-hub -n cfg --public-ip-address pip-fw --vnet-name vnet-hub\naz network route-table create -g rg-az305-lab6 -n rt-spoke1\naz network route-table route create -g rg-az305-lab6 --route-table-name rt-spoke1 -n vers-fw --address-prefix 0.0.0.0/0 --next-hop-type VirtualAppliance --next-hop-ip-address <ipPriveeDuPareFeu>\naz network vnet subnet update -g rg-az305-lab6 --vnet-name vnet-spoke1 -n snet-app --route-table rt-spoke1\naz group delete -n rg-az305-lab6 --yes --no-wait",
+  verif:"tu peux citer de mémoire les deux conditions du transit par le hub : les routes, et l'autorisation du trafic transféré." },
+
+{ id:"lab7", title:"Lab 7 · Front Door, deux régions et origine privée", time:"≈ 55 min",
+  obj:"Publier une application dans deux régions derrière Front Door, puis fermer l'accès public aux origines.",
+  steps:[
+    "Crée deux App Service dans deux régions, avec une page distincte pour identifier l'origine servie.",
+    "Crée un profil Front Door Premium, un groupe d'origines avec les deux App Service, et une sonde de santé.",
+    "Appelle le nom Front Door plusieurs fois : note quelle origine répond selon la latence.",
+    "Arrête l'App Service de la région primaire et recharge : la bascule doit être automatique au bout de quelques sondes.",
+    "Active la liaison Private Link vers l'origine, approuve la connexion côté App Service, puis désactive l'accès public des deux App Service.",
+    "Vérifie que le site répond toujours par Front Door, et plus du tout par le nom azurewebsites.net.",
+    "Supprime les resource groups." ],
+  cli:"az group create -n rg-az305-lab7 -l westeurope\naz appservice plan create -g rg-az305-lab7 -n plan-we --sku P1V3 --is-linux\naz webapp create -g rg-az305-lab7 -p plan-we -n app-we-az305<unique> --runtime \"NODE:20-lts\"\naz group create -n rg-az305-lab7b -l northeurope\naz appservice plan create -g rg-az305-lab7b -n plan-ne --sku P1V3 --is-linux\naz webapp create -g rg-az305-lab7b -p plan-ne -n app-ne-az305<unique> --runtime \"NODE:20-lts\"\naz afd profile create -g rg-az305-lab7 --profile-name fd-az305 --sku Premium_AzureFrontDoor\naz afd endpoint create -g rg-az305-lab7 --profile-name fd-az305 --endpoint-name ep-az305<unique> --enabled-state Enabled\naz afd origin-group create -g rg-az305-lab7 --profile-name fd-az305 --origin-group-name og-app --probe-request-type GET --probe-protocol Https --probe-interval-in-seconds 30 --sample-size 4 --successful-samples-required 3 --additional-latency-in-milliseconds 50\naz afd origin create -g rg-az305-lab7 --profile-name fd-az305 --origin-group-name og-app --origin-name o-we --host-name app-we-az305<unique>.azurewebsites.net --origin-host-header app-we-az305<unique>.azurewebsites.net --priority 1 --weight 500 --enabled-state Enabled\naz afd route create -g rg-az305-lab7 --profile-name fd-az305 --endpoint-name ep-az305<unique> --route-name r-defaut --origin-group og-app --supported-protocols Https --https-redirect Enabled --forwarding-protocol HttpsOnly\naz group delete -n rg-az305-lab7 --yes --no-wait\naz group delete -n rg-az305-lab7b --yes --no-wait",
+  verif:"tu sais pourquoi une restriction d'IP sur l'App Service ne remplace pas une origine en Private Link." },
+
+{ id:"lab8", title:"Lab 8 · Coûts : mesurer avant de recommander", time:"≈ 40 min",
+  obj:"Chiffrer une conception avec les outils de la plateforme, pour que la recommandation de coût repose sur un nombre.",
+  steps:[
+    "Dans Cost Management, crée un budget mensuel sur le resource group de tes labs, avec une alerte à 80 %.",
+    "Exporte le coût réel par service des 30 derniers jours et identifie les trois premiers postes.",
+    "Compare, dans le calculateur de prix, une VM à la demande, la même en réservation un an, puis trois ans, et un savings plan trois ans.",
+    "Fais le même exercice en ajoutant Azure Hybrid Benefit sur une VM Windows : note l'écart.",
+    "Lis les recommandations Advisor de la catégorie Cost sur ton abonnement et vérifie laquelle repose sur une mesure d'utilisation.",
+    "Écris en trois lignes la recommandation que tu défendrais devant une direction, avec le chiffre qui la soutient." ],
+  cli:"az consumption usage list --start-date 2026-10-01 --end-date 2026-10-31 --query \"[].{service:meterDetails.meterCategory, cout:pretaxCost}\" -o table\naz consumption budget create --budget-name budget-labs --amount 50 --category Cost --time-grain Monthly --start-date 2026-11-01 --end-date 2027-11-01\naz advisor recommendation list --category Cost --query \"[].{res:impactedValue, reco:shortDescription.problem}\" -o table\naz consumption reservation summary list --grain monthly --reservation-order-id <orderId>",
+  verif:"ta recommandation de coût tient en une phrase et s'appuie sur un chiffre issu de ton abonnement, pas d'une intuition." },
+];
+
+/* =====================================================================
+   MOTEUR DU QUIZ
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const LS_ERRORS = "az305-errors";
+
+const getErrors = () => { try { return JSON.parse(localStorage.getItem(LS_ERRORS)) || []; } catch { return []; } };
+const setErrors = a => localStorage.setItem(LS_ERRORS, JSON.stringify([...new Set(a)]));
+
+/* =====================================================================
+   MOTEUR DE MAÎTRISE — répétition espacée (Leitner)
+   État par question : { box, due, seen, lapses, danger, reco, lastMs }
+   ===================================================================== */
+const LS_SRS = "az305-srs";
+const BOX_DAYS = [0, 1, 2, 4, 8, 16, 30];   // intervalle en jours par palier
+const NEW_CAP = 8;                           // nouvelles questions max par session
+const DAY = 86400000;
+
+const getSrs = () => { try { return JSON.parse(localStorage.getItem(LS_SRS)) || {}; } catch { return {}; } };
+const setSrs = o => localStorage.setItem(LS_SRS, JSON.stringify(o));
+const srsOf = (srs, id) => srs[id] || { box: 0, due: 0, seen: 0, lapses: 0, danger: false, reco: false, lastMs: 0 };
+
+/* Temps de lecture plancher : en dessous, c'est de la reconnaissance, pas du raisonnement */
+function minReasonMs(q) {
+  const len = (q.q || "").length + (q.code || "").length;
+  return Math.max(2000, Math.min(6000, 1200 + 20 * len));
+}
+
+/* Applique le résultat d'une réponse et renvoie l'état mis à jour */
+function srsApply(q, ok, conf, ms, isReveal) {
+  const srs = getSrs();
+  const s = { ...srsOf(srs, q.id) };
+  const before = s.box;
+  s.seen++;
+  s.lastMs = ms;
+
+  // Détection de reconnaissance : correct, déjà vu, et trop rapide pour avoir raisonné
+  s.reco = !!(ok && !isReveal && s.seen >= 2 && ms < minReasonMs(q));
+
+  if (isReveal || !ok) {
+    if (before >= 3) s.lapses++;           // on oublie quelque chose qu'on maîtrisait
+    s.box = 0;
+    s.danger = !isReveal && before >= 3;   // se tromper sur une question déjà ancrée = croyance fausse
+  } else {
+    s.box = Math.min(6, s.box + 1);
+    s.danger = false;                      // réussite → on lève le drapeau
+  }
+  s.due = Date.now() + BOX_DAYS[s.box] * DAY;
+  srs[q.id] = s;
+  setSrs(srs);
+  return s;
+}
+
+/* Construit la session du jour : croyances fausses d'abord, puis les dues, puis du neuf */
+function buildMaitrise(n) {
+  const srs = getSrs(), now = Date.now();
+  const danger = [], due = [], fresh = [], future = [];
+  byDom(QUESTIONS).forEach(q => {
+    const s = srs[q.id];
+    if (!s) { fresh.push(q); return; }
+    if (s.danger) danger.push(q);
+    else if (s.due <= now) due.push(q);
+    else future.push({ q, due: s.due });
+  });
+  const out = [...shuffle(danger), ...shuffle(due)];
+  if (out.length < n) out.push(...shuffle(fresh).slice(0, Math.min(NEW_CAP, n - out.length)));
+  if (out.length < n) {
+    future.sort((a, b) => a.due - b.due);
+    out.push(...future.slice(0, n - out.length).map(x => x.q));
+  }
+  return out.slice(0, n);
+}
+
+function srsStats() {
+  const srs = getSrs(), now = Date.now();
+  let croyances = 0, due = 0, mastered = 0, reco = 0, vus = 0;
+  const parDomaine = {};
+  Object.entries(srs).forEach(([id, s]) => {
+    vus++;
+    if (s.danger) {
+      croyances++;
+      const q = QUESTIONS.find(x => x.id === id);
+      if (q && q.d) parDomaine[q.d] = (parDomaine[q.d] || 0) + 1;
+    }
+    else if (s.due <= now) due++;
+    if (s.box >= 5) mastered++;
+    if (s.reco) reco++;
+  });
+  return { croyances, due, mastered, reco, nouveaux: QUESTIONS.length - vus, parDomaine };
+}
+
+function refreshDash() {
+  const s = srsStats();
+  $("dCroyances").textContent = s.croyances;
+  $("dDue").textContent = s.due;
+  $("dMastered").textContent = s.mastered;
+  $("dReco").textContent = s.reco;
+  $("dNew").textContent = s.nouveaux;
+  $("nmaitrise").textContent = (s.croyances + s.due) > 0
+    ? (s.croyances + s.due) + " en attente"
+    : (s.nouveaux > 0 ? "nouveau" : "à jour");
+  let note;
+  if (s.croyances > 0) {
+    const pires = Object.entries(s.parDomaine).sort((a, b) => b[1] - a[1])
+      .map(([k, v]) => DOM_LABEL[k] + " (" + v + ")").join(", ");
+    note = "🚨 " + s.croyances + " question(s) déjà ancrée(s) où tu t'es retrompé — le plus urgent à corriger." +
+           (pires ? " Domaines concernés : " + pires + "." : "");
+  }
+  else if (s.due > 0)
+    note = "🔁 " + s.due + " question(s) arrivent à échéance. Le bon moment pour les revoir est maintenant, pas avant.";
+  else if (s.nouveaux > 0)
+    note = "✅ Rien à réviser : la prochaine session introduira jusqu'à " + Math.min(NEW_CAP, s.nouveaux) + " nouvelles questions.";
+  else
+    note = "🏆 Toute la banque est planifiée. Reviens quand des questions arriveront à échéance.";
+  $("dNote").textContent = note;
+}
+
+/* Enregistre la réponse dans le planificateur et renvoie les bandeaux à afficher */
+function recordAndFlag(q, ok, conf, isReveal) {
+  const ms = Date.now() - (session.startedAt || Date.now());
+  if (q.d) {
+    const pd = session.perDom || (session.perDom = {});
+    const pe = pd[q.d] || (pd[q.d] = { ok: 0, total: 0 });
+    pe.total++; if (ok && !isReveal) pe.ok++;
+  }
+  const s = srsApply(q, ok, conf, ms, isReveal);
+
+  let html = "";
+  if (s.danger) {
+    html += '<div class="srs-flag danger">🚨 Tu t\'es trompé sur une question que tu avais déjà ancrée — ' +
+            'c\'est le type d\'erreur qui coûte des points sans prévenir. Elle repassera en priorité jusqu\'à ce que tu la réussisses.</div>';
+  }
+  if (s.reco) {
+    html += '<div class="srs-flag reco">⏱️ Répondu en ' + (ms / 1000).toFixed(1) + ' s : trop vite pour avoir raisonné. ' +
+            'Tu as probablement reconnu la question plutôt que raisonné — la progression est volontairement freinée.</div>';
+  }
+  const j = BOX_DAYS[s.box];
+  html += '<p class="srs-next">📅 Prochaine révision : ' +
+          (j === 0 ? "dès la prochaine session" : j === 1 ? "demain" : "dans " + j + " jours") +
+          " · palier " + s.box + "/6</p>";
+  return html;
+}
+
+const escapeReg = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const norm = s => (s || "").toLowerCase()
+  .normalize("NFD").replace(/[̀-ͯ]/g, "")
+  .replace(/[^a-z0-9]+/g, " ").trim();
+
+function isCorrect(user, accepts) {
+  const u = norm(user);
+  if (!u) return false;
+  return accepts.some(a => {
+    const v = norm(a);
+    if (!v) return false;
+    if (u === v) return true;
+    return new RegExp("(^| )" + escapeReg(v) + "( |$)").test(u); // réponse contenue mot-à-mot
+  });
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let session = null; // { list, idx, score, streak, wrongIds, selectedChoice, answered }
+
+/* ---------- Accueil ---------- */
+let pickCount = 20;
+let domFilter = "all";
+const DOM_LABEL = { iden:"Identité & gouvernance", data:"Données", bcdr:"Continuité", infra:"Infrastructure" };
+$("countSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  pickCount = parseInt(b.dataset.n, 10);
+  [...$("countSeg").children].forEach(x => x.classList.toggle("on", x === b));
+});
+$("domSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  domFilter = b.dataset.d;
+  [...$("domSeg").children].forEach(x => x.classList.toggle("on", x === b));
+  refreshCounts();
+});
+const byDom = qs => domFilter === "all" ? qs : qs.filter(q => q.d === domFilter);
+
+function poolFor(mode) {
+  if (mode === "mix") return byDom(QUESTIONS);
+  if (mode === "err") { const errs = getErrors(); return byDom(QUESTIONS.filter(q => errs.includes(q.id))); }
+  if (mode === "code") return byDom(QUESTIONS.filter(q => q.code));
+  if (mode === "cas") return byDom(QUESTIONS.filter(q => q.scen || q.type === "order"));
+  return byDom(QUESTIONS.filter(q => q.level === Number(mode)));
+}
+
+/* Examen blanc : mélange pondéré tous formats, études de cas groupées en fin (comme le vrai examen) */
+/* Pourcentages officiels AZ-305 :
+     identité, gouvernance et supervision 25-30 % · stockage de données 20-25 %
+     continuité d'activité 15-20 % · infrastructure 30-35 % */
+/* 37 questions pondérées + UNE étude de cas tirée au sort (8 questions) = 45,
+   soit la longueur d'un vrai AZ-305. Le vrai examen ne sert qu'un case study. */
+const BLANC_WEIGHTS = { iden: 10, data: 8, bcdr: 6, infra: 13 };
+function buildExamBlanc() {
+  const list = [];
+  Object.entries(BLANC_WEIGHTS).forEach(([dk, n]) => {
+    const pool = QUESTIONS.filter(q => q.d === dk && !q.scen && (q.level >= 2 || q.code || q.type === "order"));
+    list.push(...shuffle(pool).slice(0, n));
+  });
+  const out = shuffle(list);
+  const groups = {};
+  QUESTIONS.filter(q => q.scen).forEach(q => (groups[q.scen] = groups[q.scen] || []).push(q));
+  const tire = shuffle(Object.values(groups))[0];   // une seule étude de cas, groupée en fin
+  if (tire) out.push(...tire);
+  return out;
+}
+
+const getLabsDone = () => { try { return JSON.parse(localStorage.getItem("az305-labs")) || []; } catch { return []; } };
+const setLabsDone = a => localStorage.setItem("az305-labs", JSON.stringify([...new Set(a)]));
+
+function refreshCounts() {
+  $("n1").textContent = QUESTIONS.filter(q => q.level === 1).length + " q";
+  $("n2").textContent = QUESTIONS.filter(q => q.level === 2).length + " q";
+  $("n3").textContent = QUESTIONS.filter(q => q.level === 3).length + " q";
+  $("ncode").textContent = poolFor("code").length + " q";
+  $("ncas").textContent = poolFor("cas").length + " q";
+  $("nblanc").textContent = "≈ 45 q";
+  $("nmix").textContent = poolFor("mix").length + " q";
+  $("nerr").textContent = poolFor("err").length + " q";
+  $("nlabs").textContent = getLabsDone().length + " / " + LABS.length;
+  refreshDash();
+}
+
+document.querySelectorAll(".mode-btn").forEach(b => b.addEventListener("click", () => {
+  const mode = b.dataset.mode;
+  if (mode === "labs") { renderLabs(); show("labs"); return; }
+  let list;
+  if (mode === "maitrise") {
+    list = buildMaitrise(pickCount === 0 ? QUESTIONS.length : pickCount);
+    if (!list.length) { alert("Rien à réviser pour le moment — reviens plus tard !"); return; }
+  } else if (mode === "blanc") {
+    list = buildExamBlanc();
+  } else {
+    const pool = poolFor(mode);
+    if (!pool.length) { alert("Aucune erreur enregistrée pour l'instant — joue d'abord un quiz !"); return; }
+    list = shuffle(pool).slice(0, pickCount === 0 ? pool.length : pickCount);
+  }
+  session = { mode, list, idx: 0, score: 0, streak: 0, wrongIds: [], selectedChoice: null, answered: false, perDom: {} };
+  show("quiz"); renderQuestion();
+}));
+
+/* ---------- Écrans ---------- */
+function show(name) {
+  ["home", "quiz", "end", "labs"].forEach(n =>
+    $("screen-" + n).classList.toggle("hidden", n !== name));
+  if (name === "home") refreshCounts();
+}
+
+/* ---------- Labs ---------- */
+function renderLabs() {
+  const done = getLabsDone();
+  const list = $("labsList");
+  list.innerHTML = "";
+  LABS.forEach(l => {
+    const d = document.createElement("details");
+    d.className = "lab" + (done.includes(l.id) ? " done" : "");
+    const cliSafe = l.cli.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    d.innerHTML =
+      "<summary>" + (done.includes(l.id) ? "✅ " : "⬜ ") + l.title +
+      ' <span class="lab-time">' + l.time + "</span></summary>" +
+      '<p class="lab-obj"><b>Objectif :</b> ' + l.obj + "</p>" +
+      "<ol>" + l.steps.map(s => "<li>" + s + "</li>").join("") + "</ol>" +
+      '<pre class="qcode">' + cliSafe + "</pre>" +
+      '<p class="lab-verif"><b>Lab réussi si :</b> ' + l.verif + "</p>" +
+      '<button class="btn ghost lab-toggle">' + (done.includes(l.id) ? "Marquer non terminé" : "✅ Marquer terminé") + "</button>";
+    d.querySelector(".lab-toggle").addEventListener("click", () => {
+      const cur = getLabsDone();
+      setLabsDone(cur.includes(l.id) ? cur.filter(x => x !== l.id) : [...cur, l.id]);
+      renderLabs();
+    });
+    list.appendChild(d);
+  });
+}
+
+/* ---------- Question ---------- */
+function renderQuestion() {
+  const q = session.list[session.idx];
+  session.answered = false; session.selectedChoice = null;
+  $("qLevel").textContent = "Niveau " + q.level;
+  $("qLevel").className = "pill lv" + q.level;
+  $("qDom").textContent = (DOM_LABEL[q.d] ? DOM_LABEL[q.d] + " · " : "") + q.dom;
+  $("qCount").textContent = (session.idx + 1) + " / " + session.list.length;
+  $("qBar").style.width = (session.idx / session.list.length * 100) + "%";
+  $("qText").textContent = q.q;
+  $("qFeedback").innerHTML = "";
+  $("btnReveal").classList.remove("hidden");
+  $("btnNext").classList.add("hidden");
+
+  $("btnValidate").classList.remove("hidden");
+  session.startedAt = Date.now();
+
+  const scen = q.scen && SCENARIOS[q.scen];
+  $("qScenario").innerHTML = scen
+    ? '<div class="scenario"><div class="sc-title">📋 Étude de cas — ' + scen.title + "</div><p>" + scen.text + "</p></div>"
+    : "";
+
+  const zone = $("qInputZone");
+  zone.innerHTML = "";
+  if (q.code) {
+    const pre = document.createElement("pre");
+    pre.className = "qcode";
+    pre.textContent = q.code;
+    zone.appendChild(pre);
+  }
+  if (q.type === "input") {
+    const inp = document.createElement("input");
+    inp.type = "text"; inp.id = "answerInput";
+    inp.placeholder = "Écris ta réponse…";
+    inp.autocomplete = "off"; inp.spellcheck = false;
+    zone.appendChild(inp);
+    inp.focus();
+  } else if (q.type === "order") {
+    session.orderPick = [];
+    session.orderShuffled = shuffle(q.steps);
+    const wrap = document.createElement("div");
+    wrap.innerHTML = '<p class="order-hint">Clique les étapes dans le bon ordre (re-clique une étape choisie pour la retirer) :</p>' +
+      '<div class="order-list" id="orderPicked"></div><div class="order-list" id="orderAvail"></div>';
+    zone.appendChild(wrap);
+    renderOrder(q);
+  } else {
+    const div = document.createElement("div");
+    div.className = "choices";
+    shuffle(q.choices.map((c, i) => ({ c, i }))).forEach(({ c, i }) => {
+      const btn = document.createElement("button");
+      btn.className = "choice"; btn.textContent = c; btn.dataset.orig = i;
+      btn.addEventListener("click", () => {
+        if (session.answered) return;
+        session.selectedChoice = i;
+        div.querySelectorAll(".choice").forEach(x => x.classList.toggle("sel", x === btn));
+      });
+      div.appendChild(btn);
+    });
+    zone.appendChild(div);
+  }
+}
+
+function renderOrder(q) {
+  const picked = $("orderPicked"), avail = $("orderAvail");
+  picked.innerHTML = ""; avail.innerHTML = "";
+  session.orderPick.forEach((s, i) => {
+    const b = document.createElement("button");
+    b.className = "order-item picked";
+    b.textContent = (i + 1) + ". " + s;
+    b.addEventListener("click", () => {
+      if (session.answered) return;
+      session.orderPick = session.orderPick.filter(x => x !== s);
+      renderOrder(q);
+    });
+    picked.appendChild(b);
+  });
+  session.orderShuffled.filter(s => !session.orderPick.includes(s)).forEach(s => {
+    const b = document.createElement("button");
+    b.className = "order-item";
+    b.textContent = s;
+    b.addEventListener("click", () => {
+      if (session.answered) return;
+      session.orderPick.push(s);
+      renderOrder(q);
+    });
+    avail.appendChild(b);
+  });
+}
+
+/* ---------- Validation ---------- */
+function validate(conf) {
+  if (session.answered) return;
+  const q = session.list[session.idx];
+  let ok;
+  if (q.type === "input") {
+    const val = $("answerInput").value;
+    if (!val.trim()) { $("answerInput").focus(); return; }
+    ok = isCorrect(val, q.accept);
+    $("answerInput").disabled = true;
+  } else if (q.type === "order") {
+    if (session.orderPick.length !== q.steps.length) return;
+    ok = q.steps.every((s, i) => session.orderPick[i] === s);
+    document.querySelectorAll(".order-item").forEach(b => b.disabled = true);
+  } else {
+    if (session.selectedChoice === null) return;
+    ok = session.selectedChoice === q.answer;
+    document.querySelectorAll(".choice").forEach(btn => {
+      const i = Number(btn.dataset.orig);
+      btn.disabled = true;
+      if (i === q.answer) btn.classList.add("good");
+      else if (i === session.selectedChoice) btn.classList.add("bad");
+    });
+  }
+  session.answered = true;
+  const srsHtml = recordAndFlag(q, ok, conf || 2, false);
+
+  const errs = getErrors();
+  if (ok) {
+    session.score++; session.streak++;
+    setErrors(errs.filter(id => id !== q.id)); // maîtrisée → sort du mode erreurs
+  } else {
+    session.streak = 0;
+    session.wrongIds.push(q.id);
+    setErrors([...errs, q.id]);
+  }
+  $("score").textContent = session.score;
+  $("streak").textContent = session.streak;
+
+  const goodAnswer = q.type === "input" ? q.accept[0]
+    : q.type === "order" ? q.steps.map((s, i) => (i + 1) + ". " + s).join("<br>")
+    : q.choices[q.answer];
+  const fb = document.createElement("div");
+  fb.className = "feedback " + (ok ? "ok" : "ko");
+  fb.innerHTML =
+    '<div class="verdict">' + (ok ? "✅ Bonne réponse !" : "❌ Raté") + "</div>" +
+    (ok ? "" : '<p class="rep">Réponse attendue : <b>' + goodAnswer + "</b></p>") +
+    '<p class="exp">' + q.explain + "</p>" + srsHtml;
+  $("qFeedback").innerHTML = "";
+  $("qFeedback").appendChild(fb);
+
+  $("btnValidate").classList.add("hidden");
+  $("btnReveal").classList.add("hidden");
+  $("btnNext").classList.remove("hidden");
+  $("btnNext").focus();
+  $("qBar").style.width = ((session.idx + 1) / session.list.length * 100) + "%";
+}
+
+/* ---------- Correction sans répondre (« Je ne sais pas ») ---------- */
+function reveal() {
+  if (session.answered) return;
+  const q = session.list[session.idx];
+  session.answered = true;
+  const srsHtml = recordAndFlag(q, false, 1, true);
+
+  if (q.type === "input") {
+    $("answerInput").disabled = true;
+  } else if (q.type === "order") {
+    document.querySelectorAll(".order-item").forEach(b => b.disabled = true);
+  } else {
+    document.querySelectorAll(".choice").forEach(btn => {
+      btn.disabled = true;
+      if (Number(btn.dataset.orig) === q.answer) btn.classList.add("good");
+    });
+  }
+
+  // Compte comme une erreur : série remise à zéro + ajout au mode « Rejouer mes erreurs »
+  session.streak = 0;
+  session.wrongIds.push(q.id);
+  setErrors([...getErrors(), q.id]);
+  $("streak").textContent = session.streak;
+
+  const goodAnswer = q.type === "input" ? q.accept[0]
+    : q.type === "order" ? q.steps.map((s, i) => (i + 1) + ". " + s).join("<br>")
+    : q.choices[q.answer];
+  const fb = document.createElement("div");
+  fb.className = "feedback info";
+  fb.innerHTML =
+    '<div class="verdict">💡 Correction</div>' +
+    '<p class="rep">La bonne réponse était : <b>' + goodAnswer + "</b></p>" +
+    '<p class="exp">' + q.explain + "</p>" + srsHtml;
+  $("qFeedback").innerHTML = "";
+  $("qFeedback").appendChild(fb);
+
+  $("btnValidate").classList.add("hidden");
+  $("btnReveal").classList.add("hidden");
+  $("btnNext").classList.remove("hidden");
+  $("btnNext").focus();
+  $("qBar").style.width = ((session.idx + 1) / session.list.length * 100) + "%";
+}
+
+function next() {
+  if (session.idx + 1 < session.list.length) { session.idx++; renderQuestion(); }
+  else endSession();
+}
+
+/* ---------- Fin ---------- */
+function endSession() {
+  const total = session.list.length, s = session.score;
+  const pct = Math.round(s / total * 100);
+  $("endScore").textContent = s + " / " + total;
+  let v;
+  if (pct >= 90) v = "🏆 Niveau certification — continue comme ça !";
+  else if (pct >= 70) v = "💪 Solide ! Tu serais au-dessus des 700 points.";
+  else if (pct >= 50) v = "📚 En bonne voie — rejoue tes erreurs.";
+  else v = "🌱 C'est en forgeant… rejoue cette série !";
+  $("endVerdict").textContent = v;
+
+  // Bilan par domaine officiel, trié du plus faible au plus fort
+  const pd = session.perDom || {};
+  $("endByDom").innerHTML = Object.entries(pd)
+    .filter(([, o]) => o.total > 0)
+    .sort((a, b) => (a[1].ok / a[1].total) - (b[1].ok / b[1].total))
+    .map(([k, o]) => {
+      const p = Math.round(o.ok / o.total * 100);
+      const icon = p >= 75 ? "✅" : p >= 50 ? "⚠️" : "❌";
+      return '<span class="dl">' + icon + " " + (DOM_LABEL[k] || k) + '</span><span class="dv">' +
+             o.ok + "/" + o.total + " · " + p + "%</span>";
+    }).join("");
+
+  $("endDetail").textContent = pct + " % de bonnes réponses · " +
+    (total - s) + " erreur(s) ajoutée(s) au mode « Rejouer mes erreurs » (" + getErrors().length + " au total)";
+  $("btnReplayErrors").style.display = getErrors().length ? "" : "none";
+  show("end");
+}
+
+/* ---------- Boutons & clavier ---------- */
+$("btnValidate").addEventListener("click", () => validate(2));
+$("btnReveal").addEventListener("click", reveal);
+$("btnNext").addEventListener("click", next);
+$("btnQuit").addEventListener("click", () => show("home"));
+$("btnHome").addEventListener("click", () => show("home"));
+$("btnLabsHome").addEventListener("click", () => show("home"));
+$("btnReplayErrors").addEventListener("click", () => {
+  const pool = poolFor("err");
+  if (!pool.length) { show("home"); return; }
+  session = { mode: "err", list: shuffle(pool), idx: 0, score: 0, streak: 0, wrongIds: [], selectedChoice: null,
+              answered: false, perDom: {} };
+  show("quiz"); renderQuestion();
+});
+document.addEventListener("keydown", e => {
+  if ($("screen-quiz").classList.contains("hidden")) return;
+  if (e.key !== "Enter") return;
+  if (session && session.answered) next(); else validate(2);
+});
+
+refreshCounts();
+show("home");
+</script>
+
+
+<!--CSL:FOOT-->
+<script src="../../assets/shell.js" data-csl-root="../../"></script>
+<script>
+if("serviceWorker" in navigator && (location.protocol==="https:"||location.hostname==="localhost")){
+  addEventListener("load",()=>navigator.serviceWorker.register("../../sw.js").catch(()=>{}));
+}
+</script>
+<!--/CSL:FOOT-->
+</body>
+</html>

@@ -48,8 +48,9 @@ const DOMAINES = [
 
 /* ============================================================
    2. Catalogue des certifications
-   `dossier` : simulateur autonome dans certifs/<id>/index.html (compté sur place)
-   `externe` : parcours servi par trainer.html (compteur = parcours du trainer)
+   Chaque entrée correspond à un simulateur autonome dans certifs/<id>/index.html,
+   dont les questions et les labs sont comptés sur place. `externe:"<clé>"` avec
+   une `url` reste possible pour une certification servie par trainer.html.
    ============================================================ */
 const CERTIFS = [
   { id:"az900", famille:"azure", etat:"", etatTexte:"fondamentaux",
@@ -68,11 +69,10 @@ const CERTIFS = [
     examen:"40 à 60 questions · ~120 min · 700/1000 requis",
     desc:"App Service, Functions, conteneurs, Cosmos DB, Key Vault, Service Bus, Event Grid et APIM." },
 
-  { id:"az305", externe:"az", famille:"azure", etat:"", etatTexte:"cours + questions",
+  { id:"az305", famille:"azure", etat:"", etatTexte:"après l'AZ-104",
     code:"AZ-305", titre:"Designing Azure Infrastructure Solutions", domaines:4,
     examen:"40 à 60 questions · ~100 à 120 min · 700/1000 requis",
-    desc:"Le niveau conception : identité et gouvernance, données, continuité d'activité, infrastructure. Cours complet, approfondissement et questions avancées dans le module de certification.",
-    url:"trainer.html#/quiz/az" },
+    desc:"Le niveau conception : identité et gouvernance, données, continuité d'activité, infrastructure. Calculs de SLA, choix de redondance et arbitrages de coût." },
 
   { id:"az400", famille:"azure", etat:"", etatTexte:"après l'AZ-204",
     code:"AZ-400", titre:"Azure DevOps Engineer Expert", domaines:5,
@@ -89,11 +89,10 @@ const CERTIFS = [
     examen:"75 questions · 180 min · 750/1000 requis",
     desc:"CI/CD, IaC CloudFormation et CDK, résilience, supervision, sécurité et gouvernance multi-comptes." },
 
-  { id:"gcp-devops", externe:"gcp", famille:"gcp", etat:"", etatTexte:"cours + questions",
+  { id:"gcp-devops", famille:"gcp", etat:"", etatTexte:"à venir",
     code:"PCDE", titre:"Google Cloud Professional Cloud DevOps Engineer", domaines:5,
     examen:"~50 questions · 120 min · niveau Professional",
-    desc:"SRE, CI/CD sur Cloud Build et Cloud Deploy, GKE, Cloud Logging et Monitoring, gestion d'incidents. Cours, approfondissement et questions avancées dans le module de certification.",
-    url:"trainer.html#/quiz/gcp" },
+    desc:"SRE et budgets d'erreur, CI/CD sur Cloud Build et Cloud Deploy, GKE, Cloud Logging et Monitoring, gestion d'incidents." },
 
   { id:"terraform", famille:"hashi", etat:"obtenue",
     code:"HCTA-004", titre:"HashiCorp Terraform Associate", domaines:9,

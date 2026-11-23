@@ -29,14 +29,15 @@ const PARCOURS = [
       ["Lire", "etude.html#azure", "Fiche Azure"],
       ["S'entraîner", "certifs/az104/index.html", "AZ-104 : 3 niveaux + 10 labs"],
       ["Concevoir", "trainer.html#/course/az/Cours", "Cours AZ-305 par domaine d'examen"],
-      ["Approfondir", "trainer.html#/course/az/Approfondissement", "Calculs de SLA, critères de décision"]
+      ["Approfondir", "trainer.html#/course/az/Approfondissement", "Calculs de SLA, critères de décision"],
+      ["Examen blanc", "certifs/az305/index.html", "AZ-305 : 3 niveaux + 8 labs"]
     ]},
   { n: 4, titre: "Google Cloud et la culture SRE", duree: "3 à 4 semaines", couleur: "gcp",
     quoi: "Le PCDE est autant un examen de SRE que de Google Cloud : SLO, budget d'erreur, incidents.",
     faire: [
       ["Cours", "trainer.html#/course/gcp/Cours", "Cours PCDE par domaine"],
       ["Approfondir", "trainer.html#/course/gcp/Approfondissement", "Burn rate, canary, postmortems"],
-      ["S'entraîner", "trainer.html#/quiz/gcp", "Questions de base puis avancées"]
+      ["S'entraîner", "certifs/gcp-devops/index.html", "PCDE : 3 niveaux + 8 labs"]
     ]},
   { n: 5, titre: "AWS et Kubernetes", duree: "au rythme des besoins", couleur: "aws",
     quoi: "CLF-C02 pour le vocabulaire, DOP-C02 pour le niveau professionnel, CKA pour la pratique kubectl.",

@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCDE Quiz — Google Cloud Professional Cloud DevOps Engineer</title>
+<style>
+  :root {
+    --ground: #F6F8FB;
+    --surface: #FFFFFF;
+    --ink: #16222E;
+    --muted: #5A6B7C;
+    --accent: #1A73E8;
+    --accent-deep: #174EA6;
+    --accent-soft: #E8F0FE;
+    --good: #1E7A46;
+    --good-soft: #E7F5EC;
+    --bad: #B3352B;
+    --bad-soft: #FBEAE8;
+    --warn: #9A4E00;
+    --border: #D9E2EC;
+    --shadow: 0 2px 8px rgba(22,34,46,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0D141C; --surface: #151F2A; --ink: #DBE6F0; --muted: #8FA3B5;
+      --accent: #8AB4F8; --accent-deep: #AECBFA; --accent-soft: #16263D;
+      --good: #5BC98A; --good-soft: #12291B; --bad: #F08578; --bad-soft: #2E1512;
+      --warn: #EDAA5F; --border: #243445; --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px; line-height: 1.5; min-height: 100vh;
+  }
+  code { font-family: "Cascadia Code", Consolas, monospace; background: var(--accent-soft); color: var(--accent-deep); padding: 1px 5px; border-radius: 5px; font-size: .9em; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  header.top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
+  header.top h1 { font-size: 20px; margin: 0; font-weight: 700; }
+  header.top h1 .az { color: var(--accent); }
+  .stats { display: flex; gap: 14px; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .stats b { color: var(--ink); }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 22px; box-shadow: var(--shadow);
+  }
+
+  /* --- Accueil --- */
+  .home h2 { margin: 0 0 4px; font-size: 24px; }
+  .home p.sub { color: var(--muted); margin: 0 0 18px; }
+  .modes { display: grid; gap: 10px; }
+  .mode-btn {
+    display: flex; align-items: center; gap: 14px; width: 100%;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; cursor: pointer; text-align: left; color: var(--ink);
+    font-family: inherit; font-size: 15px; transition: border-color .15s, transform .1s;
+  }
+  .mode-btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .mode-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .mode-btn .ico { font-size: 24px; width: 34px; text-align: center; }
+  .mode-btn .t { font-weight: 650; }
+  .mode-btn .d { font-size: 13px; color: var(--muted); }
+  .mode-btn .n { margin-left: auto; font-size: 12.5px; color: var(--accent); background: var(--accent-soft); border-radius: 20px; padding: 2px 10px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .count-row { display: flex; gap: 8px; align-items: center; margin: 18px 0 8px; font-size: 14px; color: var(--muted); flex-wrap: wrap; }
+  .count-row .seg { display: flex; gap: 4px; }
+  .seg button {
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink);
+    border-radius: 8px; padding: 5px 14px; cursor: pointer; font-family: inherit; font-size: 14px;
+  }
+  .seg button.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+  /* --- Quiz --- */
+  .qmeta { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .pill { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; border-radius: 20px; padding: 3px 11px; }
+  .pill.lv1 { background: var(--good-soft); color: var(--good); }
+  .pill.lv2 { background: var(--accent-soft); color: var(--accent); }
+  .pill.lv3 { background: var(--bad-soft); color: var(--bad); }
+  .pill.dom { background: transparent; border: 1px solid var(--border); color: var(--muted); font-weight: 600; }
+  .progressbar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 18px; }
+  .progressbar div { height: 100%; background: var(--accent); border-radius: 3px; transition: width .25s; }
+  .question { font-size: 19px; font-weight: 650; margin: 0 0 18px; line-height: 1.4; text-wrap: balance; }
+
+  input[type=text] {
+    width: 100%; padding: 12px 14px; font-size: 16px; font-family: inherit;
+    border: 2px solid var(--border); border-radius: 10px; background: var(--ground); color: var(--ink);
+  }
+  input[type=text]:focus { outline: none; border-color: var(--accent); }
+  .choices { display: grid; gap: 8px; }
+  .choice {
+    text-align: left; padding: 11px 14px; border: 2px solid var(--border); border-radius: 10px;
+    background: var(--ground); color: var(--ink); cursor: pointer; font-family: inherit; font-size: 15px;
+    transition: border-color .12s;
+  }
+  .choice:hover { border-color: var(--accent); }
+  .choice.sel { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+  .choice.good { border-color: var(--good); background: var(--good-soft); font-weight: 600; }
+  .choice.bad { border-color: var(--bad); background: var(--bad-soft); }
+  .choice:disabled { cursor: default; opacity: .85; }
+
+  .actions { display: flex; gap: 10px; margin-top: 18px; }
+  .btn {
+    padding: 11px 22px; border-radius: 10px; border: none; cursor: pointer;
+    font-family: inherit; font-size: 15px; font-weight: 650;
+  }
+  .btn.primary { background: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent-deep); }
+  .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+  .btn:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
+
+  .feedback { margin-top: 18px; border-radius: 12px; padding: 14px 16px; font-size: 15px; }
+  .feedback.ok { background: var(--good-soft); border: 1px solid var(--good); }
+  .feedback.ko { background: var(--bad-soft); border: 1px solid var(--bad); }
+  .feedback.info { background: var(--accent-soft); border: 1px solid var(--accent); }
+  .feedback .verdict { font-weight: 750; font-size: 16px; }
+  .feedback.ok .verdict { color: var(--good); }
+  .feedback.ko .verdict { color: var(--bad); }
+  .feedback.info .verdict { color: var(--accent-deep); }
+
+  pre.qcode {
+    background: #0F1B26; color: #D7E4F0; border-radius: 10px;
+    padding: 12px 14px; overflow-x: auto; font-size: 13px; line-height: 1.5;
+    font-family: "Cascadia Code", Consolas, monospace; margin: 0 0 14px; text-align: left;
+  }
+  .scenario {
+    background: var(--accent-soft); border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0; padding: 10px 14px; margin: 0 0 14px; font-size: 14px;
+  }
+  .scenario .sc-title { font-weight: 700; color: var(--accent-deep); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+  .scenario p { margin: 0; }
+  .order-hint { font-size: 13.5px; color: var(--muted); margin: 0 0 8px; }
+  .order-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+  .order-list:empty { display: none; }
+  .order-item {
+    text-align: left; padding: 10px 13px; border: 2px solid var(--border); border-radius: 10px;
+    background: var(--ground); color: var(--ink); cursor: pointer; font-family: inherit; font-size: 14.5px;
+  }
+  .order-item:hover { border-color: var(--accent); }
+  .order-item.picked { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+  .order-item:disabled { cursor: default; opacity: .85; }
+
+  .lab { background: var(--ground); border: 1px solid var(--border); border-radius: 12px; padding: 4px 16px 12px; margin-bottom: 10px; }
+  .lab summary { cursor: pointer; font-weight: 650; padding: 10px 0; font-size: 15.5px; }
+  .lab.done summary { color: var(--good); }
+  .lab .lab-time { color: var(--muted); font-weight: 400; font-size: 13px; }
+  .lab ol { padding-left: 20px; font-size: 14.5px; }
+  .lab li { margin: 4px 0; }
+  .lab .lab-obj, .lab .lab-verif { font-size: 14px; }
+  .lab .lab-verif { background: var(--good-soft); border-radius: 8px; padding: 8px 12px; }
+  .labs-note {
+    background: color-mix(in srgb, var(--warn) 12%, transparent);
+    border-radius: 10px; padding: 10px 14px; font-size: 13.5px; color: var(--warn); margin-bottom: 14px;
+  }
+  .feedback .rep { margin: 6px 0 0; }
+  .feedback .exp { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+
+  /* --- Fin --- */
+  .end { text-align: center; }
+  .end .big { font-size: 52px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; margin: 10px 0 0; }
+  .end .verdict { font-size: 18px; font-weight: 650; margin: 6px 0 18px; }
+  .end .detail { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+  .streak { color: var(--warn); font-weight: 700; }
+  .kbd-hint { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: 14px; }
+  .hidden { display: none; }
+
+  /* ---- Mode Maîtrise : tableau de bord ---- */
+  .dash {
+    background: var(--accent-soft); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px;
+  }
+  .dash h3 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .07em; color: var(--accent-deep); }
+  .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+  .dash-cell { background: var(--surface); border-radius: 9px; padding: 8px 10px; text-align: center; }
+  .dash-cell .v { font-size: 21px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .dash-cell .k { font-size: 11px; color: var(--muted); line-height: 1.25; }
+  .dash-cell.danger .v { color: var(--bad); }
+  .dash-cell.due .v { color: var(--accent); }
+  .dash-cell.mastered .v { color: var(--good); }
+  .dash-cell.reco .v { color: var(--warn); }
+  .dash-note { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
+
+  .srs-flag { font-size: 12.5px; border-radius: 8px; padding: 7px 11px; margin-top: 10px; }
+  .srs-flag.danger { background: var(--bad-soft); color: var(--bad); border: 1px solid var(--bad); font-weight: 600; }
+  .srs-flag.reco { background: var(--warn-soft); color: var(--warn); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); }
+  .srs-next { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+
+  .bydom { text-align: left; font-size: 13.5px; margin: 0 auto 18px; max-width: 440px; display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; }
+  .bydom .dl { color: var(--muted); }
+  .bydom .dv { font-variant-numeric: tabular-nums; font-weight: 650; }
+</style>
+
+
+<!--CSL:HEAD-->
+<link rel="stylesheet" href="../../assets/shell.css">
+<link rel="manifest" href="../../manifest.webmanifest">
+<link rel="icon" href="../../icone.svg">
+<script src="../../assets/data.js"></script>
+<!--/CSL:HEAD-->
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1><span class="az">PCDE</span> · Quiz d'entraînement</h1>
+    <div class="stats">
+      <span>Série : <b id="streak">0</b> 🔥</span>
+      <span>Score : <b id="score">0</b></span>
+    </div>
+  </header>
+
+<!-- Accueil -->
+  <div id="screen-home" class="card home">
+    <h2>Choisis ton mode</h2>
+    <p class="sub">Tape ta réponse pour la plupart des questions — comme si c'était le jour J, sans filet. 5 domaines officiels, 3 niveaux, examen blanc pondéré.</p>
+    <div class="dash">
+      <h3>🧠 Mode Maîtrise — ancrage durable</h3>
+      <div class="dash-grid">
+        <div class="dash-cell danger"><div class="v" id="dCroyances">0</div><div class="k">croyances fausses</div></div>
+        <div class="dash-cell due"><div class="v" id="dDue">0</div><div class="k">à réviser</div></div>
+        <div class="dash-cell mastered"><div class="v" id="dMastered">0</div><div class="k">ancrés</div></div>
+        <div class="dash-cell reco"><div class="v" id="dReco">0</div><div class="k">reconnaissance ?</div></div>
+        <div class="dash-cell"><div class="v" id="dNew">0</div><div class="k">jamais vus</div></div>
+      </div>
+      <p class="dash-note" id="dNote"></p>
+    </div>
+    <div class="count-row">
+      Nombre de questions :
+      <div class="seg" id="countSeg">
+        <button data-n="10">10</button>
+        <button data-n="20" class="on">20</button>
+        <button data-n="0">Toutes</button>
+      </div>
+    </div>
+    <div class="count-row">
+      Domaine officiel :
+      <div class="seg" id="domSeg">
+        <button data-d="all" class="on">Tous</button>
+        <button data-d="boot">Bootstrapping</button>
+        <button data-d="cicd">CI/CD</button>
+        <button data-d="sre">Pratiques SRE</button>
+        <button data-d="obs">Supervision</button>
+        <button data-d="perf">Performances</button>
+      </div>
+    </div>
+    <div class="modes">
+      <button class="mode-btn" data-mode="maitrise" style="border-color:var(--accent);background:var(--accent-soft)">
+        <span class="ico">🧠</span>
+        <span><span class="t">Session Maîtrise (recommandé au quotidien)</span><br><span class="d">Répétition espacée — corrige d'abord ce que tu crois savoir à tort</span></span>
+        <span class="n" id="nmaitrise"></span>
+      </button>
+      <button class="mode-btn" data-mode="1">
+        <span class="ico">🌱</span>
+        <span><span class="t">Niveau 1 — Vocabulaire &amp; bases</span><br><span class="d">SLI, SLO, toil, projet, compte de service, sigles — le socle de vocabulaire SRE et Google Cloud</span></span>
+        <span class="n" id="n1"></span>
+      </button>
+      <button class="mode-btn" data-mode="2">
+        <span class="ico">⚙️</span>
+        <span><span class="t">Niveau 2 — Les faits d'examen</span><br><span class="d">Limites, quotas, valeurs par défaut, noms exacts — ce qui tombe littéralement</span></span>
+        <span class="n" id="n2"></span>
+      </button>
+      <button class="mode-btn" data-mode="3">
+        <span class="ico">🎯</span>
+        <span><span class="t">Niveau 3 — Scénarios &amp; pièges</span><br><span class="d">« Pourquoi ça ne marche pas ? » — diagnostics, pièges et choix d'architecture</span></span>
+        <span class="n" id="n3"></span>
+      </button>
+      <button class="mode-btn" data-mode="code">
+        <span class="ico">💻</span>
+        <span><span class="t">Code à compléter</span><br><span class="d">gcloud, cloudbuild.yaml, clouddeploy.yaml, PromQL, Terraform — le format exact de l'examen</span></span>
+        <span class="n" id="ncode"></span>
+      </button>
+      <button class="mode-btn" data-mode="cas">
+        <span class="ico">🧩</span>
+        <span><span class="t">Études de cas &amp; séquences</span><br><span class="d">Scénarios d'entreprise + étapes à remettre dans l'ordre</span></span>
+        <span class="n" id="ncas"></span>
+      </button>
+      <button class="mode-btn" data-mode="blanc">
+        <span class="ico">🎓</span>
+        <span><span class="t">Examen blanc</span><br><span class="d">≈ 50 questions pondérées sur les 5 domaines officiels, études de cas en fin — comme le jour J</span></span>
+        <span class="n" id="nblanc"></span>
+      </button>
+      <button class="mode-btn" data-mode="mix">
+        <span class="ico">🎲</span>
+        <span><span class="t">Tout mélanger</span><br><span class="d">Toute la banque mélangée aléatoirement</span></span>
+        <span class="n" id="nmix"></span>
+      </button>
+      <button class="mode-btn" data-mode="err">
+        <span class="ico">🩹</span>
+        <span><span class="t">Rejouer mes erreurs</span><br><span class="d">Uniquement les questions déjà ratées</span></span>
+        <span class="n" id="nerr"></span>
+      </button>
+      <button class="mode-btn" data-mode="labs">
+        <span class="ico">🧪</span>
+        <span><span class="t">Labs guidés</span><br><span class="d">8 labs sur ton projet Google Cloud, commandes gcloud fournies</span></span>
+        <span class="n" id="nlabs"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div id="screen-quiz" class="card hidden">
+    <div class="qmeta">
+      <span class="pill" id="qLevel"></span>
+      <span class="pill dom" id="qDom"></span>
+      <span style="margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums" id="qCount"></span>
+    </div>
+    <div class="progressbar"><div id="qBar" style="width:0%"></div></div>
+    <div id="qScenario"></div>
+    <p class="question" id="qText"></p>
+    <div id="qInputZone"></div>
+    <div class="actions">
+      <button class="btn primary" id="btnValidate">Valider</button>
+      <button class="btn primary hidden" id="btnNext">Question suivante →</button>
+      <button class="btn ghost" id="btnReveal">💡 Je ne sais pas</button>
+      <button class="btn ghost" id="btnQuit">Quitter</button>
+    </div>
+    <div id="qFeedback"></div>
+    <p class="kbd-hint">Entrée = valider / question suivante</p>
+  </div>
+
+  <!-- Fin -->
+  <div id="screen-end" class="card end hidden">
+    <h2>Session terminée !</h2>
+    <p class="big" id="endScore"></p>
+    <p class="verdict" id="endVerdict"></p>
+    <div class="bydom" id="endByDom"></div>
+    <p class="detail" id="endDetail"></p>
+    <div class="actions" style="justify-content:center">
+      <button class="btn primary" id="btnReplayErrors">🩹 Rejouer mes erreurs</button>
+      <button class="btn ghost" id="btnHome">← Menu</button>
+    </div>
+  </div>
+
+  <!-- Labs -->
+  <div id="screen-labs" class="card hidden">
+    <h2>🧪 Labs guidés — sur ton projet Google Cloud</h2>
+    <p class="labs-note">⚠️ Chaque lab se termine par la suppression de ce qu'il a créé pour ne rien payer inutilement. Les labs 5, 7 et 8 déploient des clusters GKE et le lab 4 des services Cloud Run : ce sont ceux à ne pas laisser tourner. Remplace <code>&lt;unique&gt;</code> par un suffixe à toi (les identifiants de projet sont mondiaux) et <code>&lt;orgId&gt;</code>, <code>&lt;projet&gt;</code> ou <code>&lt;compte&gt;</code> par tes valeurs. Pense à <code>gcloud config set project</code> avant de commencer, et au niveau gratuit ou aux crédits d'essai pour limiter la dépense.</p>
+    <div id="labsList"></div>
+    <div class="actions">
+      <button class="btn ghost" id="btnLabsHome">← Menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   BANQUE DE QUESTIONS — PCDE Google Cloud Professional Cloud DevOps Engineer
+   type "input" : réponse à taper — accept = variantes acceptées
+   type "qcm"   : choix multiple — answer = index de la bonne réponse
+   ===================================================================== */
+/* =====================================================================
+   BANQUE DE QUESTIONS AZ-104 — Azure Administrator Associate
+   Domaines officiels (d) :
+     iden = Identités & gouvernance (20-25 %)
+     stor = Stockage (15-20 %)
+     comp = Compute (20-25 %)
+     net  = Réseau (15-20 %)
+     mon  = Supervision & maintenance (10-15 %)
+   type "input" : réponse à taper — accept = variantes acceptées
+   type "qcm"   : choix multiple — answer = index de la bonne réponse
+   type "order" : étapes à remettre dans l'ordre — steps = ordre correct
+   ===================================================================== */
+const QUESTIONS = [
+/* ================= NIVEAU 1 — VOCABULAIRE & BASES ================= */
+
+{ id:"n1-hierarchie", level:1, d:"boot", dom:"Hiérarchie", type:"input",
+  q:"Quel est le niveau de la hiérarchie Google Cloud qui sert d'unité de facturation, de quotas, d'activation d'API et d'isolation ? Un seul mot.",
+  accept:["projet","project"],
+  explain:"Hiérarchie complète : organisation, puis dossiers, puis projets, puis ressources. IAM et les org policies s'héritent de haut en bas, jamais l'inverse." },
+{ id:"n1-folder", level:1, d:"boot", dom:"Hiérarchie", type:"qcm",
+  q:"À quoi sert un dossier dans la hiérarchie de ressources ?",
+  choices:["Regrouper des projets pour leur appliquer les mêmes stratégies IAM et org policies par héritage","Facturer séparément un ensemble de projets","Isoler le réseau entre projets","Remplacer les projets pour les petites organisations"],
+  answer:0,
+  explain:"Le découpage classique sépare production et hors-production par dossier, plus un dossier de services partagés pour l'outillage et la journalisation." },
+{ id:"n1-roles-primitifs", level:1, d:"boot", dom:"IAM", type:"qcm",
+  q:"Pourquoi éviter les rôles primitifs Owner, Editor et Viewer en production ?",
+  choices:["Ils accordent des permissions beaucoup trop larges, sans granularité, ce qui rend le moindre privilège impossible","Ils sont dépréciés et ne fonctionnent plus","Ils ne s'héritent pas","Ils coûtent plus cher"],
+  answer:0,
+  explain:"Les rôles prédéfinis sont maintenus par Google et restent granulaires. Le rôle personnalisé n'arrive qu'en troisième choix, quand aucun prédéfini ne convient." },
+{ id:"n1-deny", level:1, d:"boot", dom:"IAM", type:"qcm",
+  q:"Quelle est la particularité des deny policies IAM ?",
+  choices:["Elles interdisent explicitement des permissions et sont évaluées AVANT les autorisations","Elles complètent les rôles en ajoutant des permissions","Elles ne s'appliquent qu'aux comptes de service","Elles remplacent les org policies"],
+  answer:0,
+  explain:"L'ordre d'évaluation est la clé : un deny gagne toujours sur un allow, quel que soit le niveau où l'allow a été accordé." },
+{ id:"n1-sa", level:1, d:"boot", dom:"Comptes de service", type:"qcm",
+  q:"Qu'est-ce qu'un compte de service dans Google Cloud ?",
+  choices:["Une identité pour une application ou un pipeline, qui est à la fois un principal auquel on donne des rôles et une ressource dont on peut autoriser l'usage","Un compte humain avec des droits étendus","Un groupe Google dédié aux administrateurs","Un jeton d'accès à durée de vie longue"],
+  answer:0,
+  explain:"Cette double nature explique l'existence des rôles serviceAccountUser et serviceAccountTokenCreator : donner le droit d'agir en tant que ce compte." },
+{ id:"n1-wif", level:1, d:"boot", dom:"Comptes de service", type:"input",
+  q:"Mécanisme qui permet à un pipeline externe, par exemple GitHub Actions, de s'authentifier à Google Cloud par jeton OIDC, sans aucune clé JSON. Quel nom ?",
+  accept:["workload identity federation","workload identity","federation d'identite de charge de travail"],
+  explain:"C'est la réponse attendue dès qu'un énoncé parle de supprimer les clés de comptes de service. Dans GKE, l'équivalent est Workload Identity for GKE." },
+{ id:"n1-orgpolicy", level:1, d:"boot", dom:"Organization Policies", type:"qcm",
+  q:"Quelle est la différence de nature entre IAM et les org policies ?",
+  choices:["IAM décide QUI peut agir ; une org policy décide CE QUI est possible, y compris pour un Owner","Elles font la même chose à des niveaux différents","Les org policies accordent des permissions","IAM s'applique aux projets, les org policies aux ressources"],
+  answer:0,
+  explain:"Conséquence directe : une contrainte comme compute.vmExternalIpAccess bloque la création d'une IP externe même par un Owner du projet." },
+{ id:"n1-sharedvpc", level:1, d:"boot", dom:"Réseau", type:"qcm",
+  q:"Comment fonctionne un Shared VPC ?",
+  choices:["Un projet hôte possède le réseau, et des projets de service y attachent leurs ressources grâce au rôle networkUser sur les sous-réseaux","Deux VPC sont connectés par un peering","Un VPC est dupliqué dans chaque projet","Les projets partagent les mêmes comptes de service"],
+  answer:0,
+  explain:"C'est le schéma qui concilie une gestion réseau centralisée et l'autonomie des équipes applicatives, sans leur donner la main sur le routage." },
+{ id:"n1-privategoogle", level:1, d:"boot", dom:"Réseau", type:"qcm",
+  q:"À quoi sert Private Google Access ?",
+  choices:["Permettre à des VM sans IP externe d'atteindre les API Google","Donner une IP externe aux VM privées","Connecter deux VPC","Autoriser l'accès Internet sortant"],
+  answer:0,
+  explain:"Pour la sortie Internet des VM sans IP externe, ce n'est pas Private Google Access qu'il faut mais Cloud NAT. Les deux sont régulièrement confondus." },
+{ id:"n1-vpcsc", level:1, d:"boot", dom:"Réseau", type:"input",
+  q:"Fonctionnalité qui crée un périmètre de sécurité autour de services comme Cloud Storage ou BigQuery, pour empêcher l'exfiltration de données. Quel nom ?",
+  accept:["vpc service controls","vpc-sc","vpcsc"],
+  explain:"VPC Service Controls agit sur les API, pas sur le réseau IP : il bloque l'accès aux données depuis l'extérieur du périmètre, même avec des identifiants valides." },
+{ id:"n1-auditlogs", level:1, d:"boot", dom:"Journaux d'audit", type:"qcm",
+  q:"Quel type de journal d'audit n'est PAS activé par défaut ?",
+  choices:["Data Access, sauf pour BigQuery","Admin Activity","System Event","Policy Denied"],
+  answer:0,
+  explain:"Admin Activity et System Event sont actifs et non désactivables, avec 400 jours de rétention. Data Access s'active explicitement, et génère un volume considérable." },
+{ id:"n1-cloudbuild", level:1, d:"cicd", dom:"Cloud Build", type:"qcm",
+  q:"Quelle est l'unité d'exécution d'une étape Cloud Build ?",
+  choices:["Un conteneur, dont l'image est précisée par le champ name","Une machine virtuelle dédiée","Un pod Kubernetes à écrire soi-même","Un script shell exécuté sur l'hôte"],
+  answer:0,
+  explain:"Chaque étape est un conteneur, et les étapes partagent le répertoire de travail /workspace. C'est ce qui rend n'importe quel outil utilisable sans agent à installer." },
+{ id:"n1-artifactregistry", level:1, d:"cicd", dom:"Artifact Registry", type:"qcm",
+  q:"Que stocke Artifact Registry, qui remplace Container Registry ?",
+  choices:["Des images Docker et OCI, mais aussi des paquets Maven, npm, Python, Helm, Apt, Yum, Go et génériques","Uniquement des images Docker","Uniquement des artefacts Java","Des sources Git"],
+  answer:0,
+  explain:"C'est le point unique pour tous les artefacts du pipeline, avec l'analyse de vulnérabilités à la poussée et des stratégies de nettoyage pour le coût." },
+{ id:"n1-remote-repo", level:1, d:"cicd", dom:"Artifact Registry", type:"qcm",
+  q:"À quoi sert un dépôt remote dans Artifact Registry ?",
+  choices:["Servir de proxy et de cache vers un dépôt public, ce qui supprime la dépendance au rate limit du dépôt amont","Agréger plusieurs dépôts derrière un seul nom","Répliquer un dépôt dans plusieurs régions","Stocker les artefacts d'un autre projet"],
+  answer:0,
+  explain:"Le dépôt virtuel, lui, agrège plusieurs dépôts derrière un point d'entrée avec des priorités : c'est la défense contre la confusion de dépendances." },
+{ id:"n1-clouddeploy", level:1, d:"cicd", dom:"Cloud Deploy", type:"qcm",
+  q:"Que décrit un delivery pipeline Cloud Deploy ?",
+  choices:["Une séquence de cibles de déploiement, par exemple dev puis staging puis prod, que les releases parcourent par promotion","Les étapes de compilation d'une application","Un cluster Kubernetes","La configuration d'un dépôt d'artefacts"],
+  answer:0,
+  explain:"Le vocabulaire à maîtriser : la release est un instantané immuable, le rollout est son déploiement sur une cible, la promotion la fait avancer d'une étape." },
+{ id:"n1-release-immuable", level:1, d:"cicd", dom:"Cloud Deploy", type:"qcm",
+  q:"Pourquoi une release Cloud Deploy est-elle immuable ?",
+  choices:["Parce qu'elle contient les manifestes rendus et les images figés, ce qui garantit qu'un retour arrière redéploie exactement ce qui tournait","Pour empêcher les modifications de code","Pour réduire le coût de stockage","Parce que Skaffold l'exige"],
+  answer:0,
+  explain:"C'est ce qui rend le rollback fiable : on ne reconstruit rien, on redéploie un artefact déjà validé." },
+{ id:"n1-binauthz", level:1, d:"cicd", dom:"Chaîne d'approvisionnement", type:"input",
+  q:"Service qui n'autorise le déploiement que d'images signées par des attestors désignés, vérifiées à l'admission dans GKE ou Cloud Run. Quel nom ?",
+  accept:["binary authorization","binauthz","autorisation binaire"],
+  explain:"Artifact Analysis détecte les vulnérabilités, Binary Authorization décide ce qui peut tourner. Le mode dry-run permet de journaliser les violations avant de bloquer." },
+{ id:"n1-configsync", level:1, d:"cicd", dom:"GitOps", type:"qcm",
+  q:"Quel est le principe de GitOps avec Config Sync, Argo CD ou Flux ?",
+  choices:["L'état désiré est décrit dans Git, et un agent dans le cluster réconcilie en continu l'état réel avec cette référence","Un pipeline pousse les manifestes dans le cluster à chaque commit","Les manifestes sont générés à la demande par un opérateur","La configuration est stockée dans une base de données"],
+  answer:0,
+  explain:"La réconciliation continue est ce qui corrige la dérive de configuration : un kubectl edit à la main est annulé tout seul." },
+{ id:"n1-sli", level:1, d:"sre", dom:"Vocabulaire", type:"input",
+  q:"Mesure quantitative de la qualité d'un service, par exemple le pourcentage de requêtes réussies. Quel sigle de trois lettres ?",
+  accept:["sli","service level indicator"],
+  explain:"Le trio à ne jamais confondre : le SLI mesure, le SLO est l'objectif interne, le SLA est le contrat commercial avec pénalités." },
+{ id:"n1-slo-sla", level:1, d:"sre", dom:"Vocabulaire", type:"qcm",
+  q:"Quelle relation doit-on maintenir entre le SLO et le SLA ?",
+  choices:["Le SLO doit être plus strict que le SLA, pour garder une marge avant la pénalité contractuelle","Ils doivent être identiques","Le SLA doit être plus strict","Il n'y a aucune relation"],
+  answer:0,
+  explain:"L'écart est le filet de sécurité : on dépasse l'objectif d'ingénierie bien avant de devoir rembourser un client." },
+{ id:"n1-errorbudget", level:1, d:"sre", dom:"Error budget", type:"qcm",
+  q:"Comment se définit le budget d'erreur ?",
+  choices:["Comme 100 % moins le SLO : la part d'indisponibilité qu'on s'autorise à dépenser","Comme le nombre d'incidents annuels acceptés","Comme le budget financier de l'équipe de fiabilité","Comme la marge entre le SLI et le SLA"],
+  answer:0,
+  explain:"Un SLO de 99,9 % sur 30 jours laisse environ 43 minutes. Ce chiffre transforme un débat d'opinion en règle de décision." },
+{ id:"n1-toil", level:1, d:"sre", dom:"Toil", type:"qcm",
+  q:"Qu'est-ce que le toil au sens SRE ?",
+  choices:["Un travail manuel, répétitif, automatisable, tactique, sans valeur durable, et qui croît avec le service","Tout travail d'exploitation","Le travail d'astreinte","La dette technique du code"],
+  answer:0,
+  explain:"La cible Google est de rester sous 50 % du temps d'un SRE. Au-delà, l'équipe ne fait plus d'ingénierie et le service ne s'améliore plus." },
+{ id:"n1-ic", level:1, d:"sre", dom:"Gestion d'incidents", type:"qcm",
+  q:"Quel est le rôle de l'Incident Commander pendant un incident ?",
+  choices:["Coordonner, décider et déléguer, sans dépanner lui-même, pour conserver la vue d'ensemble","Diagnostiquer la cause racine","Communiquer avec les clients","Modifier la production"],
+  answer:0,
+  explain:"Les trois autres rôles sont l'Operations Lead, seul à toucher au système, le Communications Lead et le Planning Lead." },
+{ id:"n1-postmortem", level:1, d:"sre", dom:"Postmortem", type:"qcm",
+  q:"Que signifie un postmortem sans blâme ?",
+  choices:["On cherche les failles du système et des processus qui ont rendu l'erreur possible, pas un responsable","On ne nomme pas l'incident","On ne publie pas le document","On n'enquête pas sur la cause racine"],
+  answer:0,
+  explain:"L'objectif est opérationnel : si les gens craignent la sanction, l'information cesse de circuler et les causes réelles restent cachées." },
+{ id:"n1-4signaux", level:1, d:"obs", dom:"Observabilité", type:"qcm",
+  q:"Quels sont les quatre signaux dorés du SRE ?",
+  choices:["Latence, trafic, erreurs, saturation","CPU, mémoire, disque, réseau","Disponibilité, durabilité, latence, coût","Build, test, deploy, monitor"],
+  answer:0,
+  explain:"RED, pour Rate, Errors, Duration, est la variante côté services ; USE, pour Utilization, Saturation, Errors, la variante côté ressources." },
+{ id:"n1-piliers", level:1, d:"obs", dom:"Observabilité", type:"qcm",
+  q:"Quel outil Google Cloud correspond à chacun des piliers métriques, journaux et traces ?",
+  choices:["Cloud Monitoring, Cloud Logging et Cloud Trace","Cloud Logging, Cloud Monitoring et Error Reporting","Cloud Trace, Cloud Profiler et Cloud Logging","Managed Prometheus, BigQuery et Pub/Sub"],
+  answer:0,
+  explain:"S'y ajoutent Cloud Profiler pour les profils de code et Error Reporting pour le regroupement des exceptions." },
+{ id:"n1-opsagent", level:1, d:"obs", dom:"Agents", type:"input",
+  q:"Agent unique qui collecte métriques et journaux sur Compute Engine, et qui remplace les anciens agents Monitoring et Logging. Quel nom ?",
+  accept:["ops agent","agent ops","google cloud ops agent"],
+  explain:"Sur GKE, la collecte est intégrée au cluster : logs système et de charge, métriques système, et Managed Service for Prometheus." },
+{ id:"n1-logrouter", level:1, d:"obs", dom:"Cloud Logging", type:"qcm",
+  q:"Quel est le rôle du Log Router ?",
+  choices:["Évaluer chaque entrée de journal contre les sinks et les exclusions, puis l'acheminer vers les destinations retenues","Stocker les journaux pendant 400 jours","Agréger les journaux de plusieurs organisations","Générer les métriques système"],
+  answer:0,
+  explain:"Sans exclusion, l'entrée part aussi dans le bucket _Default. Les filtres d'exclusion sont le premier levier de réduction de la facture de journalisation." },
+{ id:"n1-logbuckets", level:1, d:"obs", dom:"Cloud Logging", type:"qcm",
+  q:"Quelles sont les rétentions par défaut des buckets _Required et _Default ?",
+  choices:["400 jours non modifiables pour _Required, 30 jours configurables pour _Default","30 jours pour les deux","400 jours pour les deux","90 jours et 7 jours"],
+  answer:0,
+  explain:"_Required est gratuit et contient les journaux d'audit Admin Activity et System Event. Tout le reste tombe dans _Default et se facture." },
+{ id:"n1-logmetric", level:1, d:"obs", dom:"Cloud Logging", type:"qcm",
+  q:"Qu'est-ce qu'une métrique basée sur les journaux ?",
+  choices:["Un compteur ou une distribution calculé à partir d'un filtre de journaux, utilisable ensuite dans une alerte","Une métrique système exportée vers BigQuery","Un journal transformé en trace","Un tableau de bord prédéfini"],
+  answer:0,
+  explain:"C'est le pont entre Logging et Monitoring : il permet d'alerter sur un message applicatif qui n'est exposé par aucune métrique." },
+{ id:"n1-trace-profiler", level:1, d:"obs", dom:"Trace & Profiler", type:"qcm",
+  q:"Quelle est la différence d'usage entre Cloud Trace et Cloud Profiler ?",
+  choices:["Trace montre quel service ou quel appel ralentit la requête ; Profiler montre quelle fonction du code consomme les ressources","Trace sert en production, Profiler en développement","Profiler remplace Trace","Trace collecte les erreurs, Profiler les latences"],
+  answer:0,
+  explain:"La règle d'or de l'enquête : les métriques disent quoi, les traces disent où, les journaux et les profils disent pourquoi." },
+{ id:"n1-uptime", level:1, d:"obs", dom:"Disponibilité", type:"qcm",
+  q:"Que mesure un uptime check ?",
+  choices:["La disponibilité vue de l'extérieur, par des sondes HTTP, HTTPS ou TCP lancées depuis plusieurs régions","La charge CPU des instances","Le nombre de requêtes servies","La latence interne entre microservices"],
+  answer:0,
+  explain:"Les private uptime checks couvrent les ressources internes. L'intérêt du contrôle externe est de mesurer ce que l'utilisateur subit, réseau compris." },
+{ id:"n1-metricscope", level:1, d:"obs", dom:"Cloud Monitoring", type:"qcm",
+  q:"À quoi sert un metrics scope dans Cloud Monitoring ?",
+  choices:["Permettre à un projet de visualiser les métriques de plusieurs projets, pour une vue unique multi-environnements","Limiter la rétention des métriques","Restreindre les droits de lecture sur les métriques","Choisir la région de stockage des métriques"],
+  answer:0,
+  explain:"C'est le mécanisme qui évite de naviguer projet par projet quand l'organisation en compte des dizaines." },
+{ id:"n1-hpa", level:1, d:"perf", dom:"Autoscaling GKE", type:"qcm",
+  q:"Que fait l'Horizontal Pod Autoscaler dans GKE ?",
+  choices:["Il ajuste le nombre de réplicas d'une charge selon le CPU, la mémoire ou une métrique personnalisée","Il ajuste les requests et limits des pods","Il ajoute des nœuds au cluster","Il répartit les pods entre les zones"],
+  answer:0,
+  explain:"Trois mécanismes distincts à ne pas mélanger : HPA pour le nombre de pods, VPA pour leur taille, Cluster Autoscaler pour le nombre de nœuds." },
+{ id:"n1-clusterautoscaler", level:1, d:"perf", dom:"Autoscaling GKE", type:"qcm",
+  q:"Quel événement déclenche le Cluster Autoscaler ?",
+  choices:["Des pods qui restent en état Pending faute de ressources disponibles sur les nœuds existants","Un CPU de nœud au-delà de 80 %","Un nombre de pods supérieur à une limite","Une alerte Cloud Monitoring"],
+  answer:0,
+  explain:"Il ne s'active que si les pods déclarent des requests : sans requests, le planificateur les place malgré tout et aucun nœud n'est ajouté." },
+{ id:"n1-autopilot", level:1, d:"perf", dom:"GKE", type:"qcm",
+  q:"Qu'apporte le mode Autopilot de GKE ?",
+  choices:["Google gère les nœuds, et la facturation porte sur les ressources demandées par les pods","Une mise à l'échelle plus rapide des nœuds","Un coût toujours inférieur au mode Standard","La suppression des quotas"],
+  answer:0,
+  explain:"En échange, certaines libertés disparaissent : pas de DaemonSet privilégié, pas d'accès aux nœuds. C'est le compromis à énoncer dans une recommandation." },
+{ id:"n1-cloudrun-min", level:1, d:"perf", dom:"Cloud Run", type:"qcm",
+  q:"À quoi servent les paramètres min-instances et max-instances de Cloud Run ?",
+  choices:["min-instances supprime le démarrage à froid en gardant des instances prêtes ; max-instances protège les dépendances d'un afflux","Ils fixent le nombre de requêtes par instance","Ils définissent la taille mémoire","Ils règlent la durée du délai d'attente"],
+  answer:0,
+  explain:"max-instances est un garde-fou souvent oublié : sans lui, une montée en charge de Cloud Run peut saturer la base de données en aval." },
+{ id:"n1-cud", level:1, d:"perf", dom:"Coûts", type:"input",
+  q:"Remise obtenue en engageant un usage sur un ou trois ans, jusqu'à environ 55 à 70 % selon le cas. Quel sigle de trois lettres ?",
+  accept:["cud","committed use discount","committed use discounts"],
+  explain:"À distinguer des remises d'utilisation continue, appliquées automatiquement sans engagement, et des Spot VMs, qui échangent le prix contre l'interruptibilité." },
+{ id:"n1-spot", level:1, d:"perf", dom:"Coûts", type:"qcm",
+  q:"Quelle est la contrepartie des Spot VMs, jusqu'à 60 à 91 % moins chères ?",
+  choices:["Elles peuvent être interrompues à tout moment par Google, avec un préavis court","Elles sont limitées à 24 heures d'exécution","Elles n'ont pas d'accès réseau","Elles ne supportent pas les disques persistants"],
+  answer:0,
+  explain:"Elles conviennent aux traitements par lots, à la CI et aux charges rejouables. Jamais à un service exposé aux utilisateurs sans redondance." },
+{ id:"n1-cdn", level:1, d:"perf", dom:"Réseau", type:"qcm",
+  q:"Que fait Cloud CDN ?",
+  choices:["Il met en cache le contenu en périphérie du réseau Google, ce qui réduit la latence et la charge des backends","Il répartit le trafic entre régions","Il chiffre le trafic sortant","Il accélère les requêtes de base de données"],
+  answer:0,
+  explain:"Il s'active sur un backend de l'Application Load Balancer externe. Son effet dépend entièrement de la justesse des en-têtes de cache." },
+{ id:"n1-recommender", level:1, d:"perf", dom:"Right-sizing", type:"qcm",
+  q:"Que propose Recommender, dans la famille Active Assist ?",
+  choices:["Des recommandations fondées sur l'usage observé : redimensionnement de machines, suppression de permissions inutilisées, engagements à souscrire","Des modèles d'architecture de référence","Des quotas automatiques","Des alertes de budget"],
+  answer:0,
+  explain:"L'intérêt pour l'examen : ces recommandations reposent sur une mesure, donc elles se défendent devant une direction, contrairement à une intuition." },
+{ id:"n1-mig", level:1, d:"perf", dom:"Compute Engine", type:"qcm",
+  q:"Sur quels critères l'autoscaler d'un managed instance group peut-il agir ?",
+  choices:["Le CPU, une métrique Cloud Monitoring, l'utilisation du load balancer, un planning, ou un mode prédictif","Le CPU uniquement","Le nombre de requêtes uniquement","La mémoire uniquement"],
+  answer:0,
+  explain:"La période d'initialisation, ou cool-down, est le réglage qui évite l'oscillation quand les VM sont lentes à démarrer." },
+
+
+/* ================= NIVEAU 2 — LES FAITS D'EXAMEN ================= */
+
+{ id:"n2-dispo-999", level:2, d:"sre", dom:"Tableau de disponibilité", type:"input",
+  q:"Combien de minutes d'indisponibilité un SLO de 99,9 % autorise-t-il sur 30 jours ? Donne le nombre arrondi.",
+  accept:["43","43,2","43.2","43 min","43 minutes"],
+  explain:"0,001 × 43 200 minutes = 43,2 minutes. C'est le chiffre à sortir de mémoire pour rendre un objectif tangible en réunion." },
+{ id:"n2-dispo-9995", level:2, d:"sre", dom:"Tableau de disponibilité", type:"qcm",
+  q:"À quelle indisponibilité mensuelle correspond un SLO de 99,95 % ?",
+  choices:["Environ 21,6 minutes","Environ 4,3 minutes","Environ 43,2 minutes","Environ 3,6 heures"],
+  answer:0,
+  explain:"Les repères sur 30 jours : 99 % ≈ 7,2 h, 99,5 % ≈ 3,6 h, 99,9 % ≈ 43 min, 99,95 % ≈ 21,6 min, 99,99 % ≈ 4,3 min." },
+{ id:"n2-dispo-9999", level:2, d:"sre", dom:"Tableau de disponibilité", type:"qcm",
+  q:"À quelle indisponibilité annuelle correspond un SLO de 99,99 % ?",
+  choices:["Environ 52,6 minutes","Environ 4,3 minutes","Environ 8,76 heures","Environ 1,8 jour"],
+  answer:0,
+  explain:"Soit un peu moins d'une heure par an. C'est l'ordre de grandeur qui rend une astreinte humaine insuffisante : il faut de l'automatisation." },
+{ id:"n2-sli-formule", level:2, d:"sre", dom:"SLI", type:"qcm",
+  q:"Quelle est la forme générique d'un bon SLI ?",
+  choices:["Événements bons divisés par événements valides, exprimé en pourcentage","Somme des temps d'indisponibilité","Moyenne des latences observées","Nombre d'incidents par mois"],
+  answer:0,
+  explain:"Le mot « valides » est essentiel : il justifie d'exclure les erreurs client 4xx d'un SLI de disponibilité, puisqu'elles ne traduisent pas une défaillance du service." },
+{ id:"n2-sli-percentile", level:2, d:"sre", dom:"SLI", type:"qcm",
+  q:"Pourquoi préférer un percentile comme p95 ou p99 à une moyenne pour un SLI de latence ?",
+  choices:["La moyenne masque la queue de distribution, c'est-à-dire précisément les utilisateurs qui souffrent","Le percentile est moins coûteux à calculer","La moyenne n'est pas disponible dans Cloud Monitoring","Le percentile lisse les variations"],
+  answer:0,
+  explain:"Une moyenne de 200 ms peut cacher 5 % de requêtes à 10 secondes. Le SLO de latence s'exprime donc comme un pourcentage de requêtes sous un seuil." },
+{ id:"n2-sli-point-mesure", level:2, d:"sre", dom:"SLI", type:"qcm",
+  q:"Où mesurer de préférence un SLI de disponibilité ?",
+  choices:["Au plus près de l'utilisateur, par exemple au load balancer, plutôt que sur le serveur applicatif","Sur le serveur applicatif, plus précis","Dans la base de données","Sur le poste client uniquement"],
+  answer:0,
+  explain:"Un serveur peut se déclarer en bonne santé pendant que le load balancer renvoie des 503. Le point de mesure change le chiffre, donc la décision." },
+{ id:"n2-toil-50", level:2, d:"sre", dom:"Toil", type:"input",
+  q:"Quel plafond Google fixe-t-il à la part de toil dans le temps d'un SRE ? Donne le pourcentage.",
+  accept:["50","50 %","50%","50 pourcent"],
+  explain:"Au-delà, l'équipe passe son temps à maintenir et ne construit plus rien : le service ne s'améliore pas et la charge continue de croître." },
+{ id:"n2-burnrate-144", level:2, d:"obs", dom:"Burn rate", type:"qcm",
+  q:"Dans l'alerting multi-fenêtres recommandé sur un SLO à 30 jours, quel burn rate déclenche une alerte urgente sur une fenêtre d'une heure ?",
+  choices:["14,4, ce qui correspond à 2 % du budget consommé","1, soit 10 % du budget","6, soit 5 % du budget","100, soit tout le budget"],
+  answer:0,
+  explain:"Les trois paliers classiques : 14,4 sur 1 h et 2 % du budget pour une page, 6 sur 6 h et 5 % pour une page, 1 sur 3 jours et 10 % pour un ticket." },
+{ id:"n2-burnrate-def", level:2, d:"obs", dom:"Burn rate", type:"qcm",
+  q:"Comment se définit le burn rate d'un budget d'erreur ?",
+  choices:["Le taux d'erreur observé divisé par le taux d'erreur autorisé : un burn rate de 1 consomme exactement le budget sur la fenêtre","Le pourcentage de budget restant","Le nombre d'alertes par heure","La dérivée du taux d'erreur"],
+  answer:0,
+  explain:"C'est ce qui permet d'alerter avant l'épuisement : à 14,4, il reste quelques heures avant de brûler un mois de budget." },
+{ id:"n2-multifenetre", level:2, d:"obs", dom:"Burn rate", type:"qcm",
+  q:"Pourquoi combiner une fenêtre longue et une fenêtre courte dans une alerte de burn rate ?",
+  choices:["La fenêtre longue évite les faux positifs, la fenêtre courte permet à l'alerte de se refermer rapidement quand le problème est terminé","Pour couvrir deux SLO différents","Pour réduire le coût des métriques","Parce que Cloud Monitoring l'impose"],
+  answer:0,
+  explain:"Sans la fenêtre courte, une alerte déclenchée reste ouverte longtemps après la résolution, ce qui use la confiance de l'astreinte." },
+{ id:"n2-symptomes", level:2, d:"obs", dom:"Alerting", type:"qcm",
+  q:"Sur quoi faut-il alerter en priorité ?",
+  choices:["Les symptômes vus par l'utilisateur, c'est-à-dire les SLO, plutôt que les causes comme un CPU à 90 %","Les causes, détectées plus tôt","Les deux avec la même sévérité","Les journaux d'erreur bruts"],
+  answer:0,
+  explain:"Un CPU à 90 % peut être parfaitement sain. Une alerte non actionnable est une alerte qui finit ignorée, ce qui est pire que pas d'alerte." },
+{ id:"n2-cb-timeout", level:2, d:"cicd", dom:"Cloud Build", type:"qcm",
+  q:"Quel est le timeout par défaut d'un build Cloud Build, et son maximum ?",
+  choices:["10 minutes par défaut, jusqu'à 24 heures si on le configure","1 heure par défaut, 24 heures au maximum","Aucun timeout par défaut","30 minutes par défaut, 2 heures au maximum"],
+  answer:0,
+  explain:"Le dépassement silencieux du timeout par défaut est une cause classique de build rouge sur un pipeline qui s'est allongé avec le temps." },
+{ id:"n2-cb-substitutions", level:2, d:"cicd", dom:"Cloud Build", type:"qcm",
+  q:"Quelle règle s'applique aux substitutions personnalisées dans un cloudbuild.yaml ?",
+  choices:["Leur nom doit commencer par un tiret bas, par exemple _MA_VAR","Elles doivent être en majuscules sans tiret bas","Elles sont limitées à cinq par build","Elles ne peuvent pas être surchargées par un trigger"],
+  answer:0,
+  explain:"Les variables intégrées sont PROJECT_ID, COMMIT_SHA, SHORT_SHA, BRANCH_NAME, TAG_NAME et BUILD_ID. Le tiret bas distingue les vôtres des leurs." },
+{ id:"n2-cb-waitfor", level:2, d:"cicd", dom:"Cloud Build", type:"qcm",
+  q:"Que signifie waitFor avec la valeur tiret dans une étape Cloud Build ?",
+  choices:["L'étape démarre immédiatement, sans attendre les étapes précédentes, ce qui permet de paralléliser","L'étape attend toutes les précédentes","L'étape est ignorée","L'étape attend une approbation manuelle"],
+  answer:0,
+  explain:"Par défaut, les étapes s'exécutent en série. waitFor transforme la liste en graphe de dépendances, premier levier pour raccourcir un pipeline." },
+{ id:"n2-cb-secrets", level:2, d:"cicd", dom:"Cloud Build", type:"qcm",
+  q:"Comment fournir un secret à une étape Cloud Build ?",
+  choices:["Par availableSecrets, qui référence une version de secret dans Secret Manager","Par une substitution personnalisée","Par une variable d'environnement dans le trigger","Par un fichier committé chiffré dans le dépôt"],
+  answer:0,
+  explain:"Les substitutions et les variables de trigger apparaissent dans les journaux de build : ce ne sont pas des emplacements de secret." },
+{ id:"n2-cb-sa", level:2, d:"cicd", dom:"Cloud Build", type:"qcm",
+  q:"Quelle est la bonne pratique concernant le compte de service d'un build ?",
+  choices:["Utiliser un compte de service spécifié par l'utilisateur, au moindre privilège, plutôt que le compte de build par défaut","Utiliser le compte par défaut, déjà restreint","Utiliser une clé JSON dédiée","Utiliser le compte Compute Engine par défaut"],
+  answer:0,
+  explain:"Le compte par défaut porte des droits larges sur le projet. Un compte dédié par pipeline limite ce qu'un build compromis peut atteindre." },
+{ id:"n2-cb-privatepool", level:2, d:"cicd", dom:"Cloud Build", type:"qcm",
+  q:"Quand faut-il un private pool Cloud Build ?",
+  choices:["Quand le build doit atteindre des ressources privées : Cloud SQL sans IP publique, cluster GKE privé, dépôt interne","Quand le build dépasse 10 minutes","Quand on utilise Kaniko","Quand le dépôt est sur GitHub"],
+  answer:0,
+  explain:"Les workers du pool par défaut vivent hors de votre VPC. Le private pool les place dans un réseau que vous pairez avec le vôtre." },
+{ id:"n2-ar-cleanup", level:2, d:"cicd", dom:"Artifact Registry", type:"qcm",
+  q:"À quoi servent les cleanup policies d'Artifact Registry ?",
+  choices:["Supprimer automatiquement les anciennes versions d'artefacts, pour contenir le coût de stockage","Supprimer les images vulnérables","Nettoyer le cache des dépôts remote","Révoquer les attestations expirées"],
+  answer:0,
+  explain:"Un pipeline qui pousse une image par commit accumule vite des téraoctets. La politique de nettoyage est le pendant des règles de cycle de vie de Cloud Storage." },
+{ id:"n2-deploy-strategies", level:2, d:"cicd", dom:"Stratégies de déploiement", type:"order",
+  q:"Classe ces stratégies de déploiement du risque le plus élevé au risque le plus faible pour les utilisateurs.",
+  steps:[
+    "Recreate : on arrête l'ancienne version puis on démarre la nouvelle",
+    "Rolling update : remplacement progressif des instances",
+    "Blue/green : bascule du trafic vers un environnement complet déjà testé",
+    "Canary : une petite part du trafic valide la nouvelle version avant généralisation" ],
+  explain:"Le coût suit l'ordre inverse : recreate ne coûte rien et interrompt le service, le canary coûte en outillage et en métriques mais limite l'exposition." },
+{ id:"n2-bluegreen-cout", level:2, d:"cicd", dom:"Stratégies de déploiement", type:"qcm",
+  q:"Quel est le principal inconvénient du blue/green ?",
+  choices:["Il faut maintenir deux environnements complets, donc doubler les ressources pendant la bascule","Le rollback est lent","Deux versions servent le trafic simultanément","Il nécessite un service mesh"],
+  answer:0,
+  explain:"En échange, le retour arrière est instantané : il suffit de rebasculer le trafic. C'est l'arbitrage à énoncer face à un rolling update." },
+{ id:"n2-cloudrun-traffic", level:2, d:"cicd", dom:"Cloud Run", type:"qcm",
+  q:"Comment envoyer 10 % du trafic d'un service Cloud Run vers une nouvelle révision ?",
+  choices:["gcloud run services update-traffic avec to-revisions et la révision à 10","En redéployant le service avec un libellé canary","En créant un second service et un load balancer","Ce n'est pas possible sur Cloud Run"],
+  answer:0,
+  explain:"L'option tag permet en plus de tester une révision sur une URL dédiée, sans lui envoyer une seule requête de production." },
+{ id:"n2-binauthz-dryrun", level:2, d:"cicd", dom:"Binary Authorization", type:"qcm",
+  q:"À quoi sert le mode dry-run de Binary Authorization ?",
+  choices:["Journaliser les violations de politique sans bloquer les déploiements, pour mesurer l'impact avant d'appliquer","Tester les attestations en préproduction uniquement","Signer les images sans les vérifier","Désactiver la politique pour un déploiement d'urgence"],
+  answer:0,
+  explain:"Le déploiement d'urgence passe, lui, par l'annotation break-glass, qui est journalisée. Les deux mécanismes sont souvent confondus." },
+{ id:"n2-slsa", level:2, d:"cicd", dom:"Chaîne d'approvisionnement", type:"qcm",
+  q:"Que produit Cloud Build pour tracer l'origine d'un artefact ?",
+  choices:["Une provenance vérifiable, de niveau SLSA 3, qui atteste comment et à partir de quoi l'image a été construite","Un SBOM signé par le développeur","Un rapport de vulnérabilités","Une attestation Binary Authorization"],
+  answer:0,
+  explain:"La provenance répond à « d'où vient cette image », le SBOM à « que contient-elle », l'attestation à « a-t-elle le droit de tourner »." },
+{ id:"n2-logging-exclusion", level:2, d:"obs", dom:"Cloud Logging", type:"qcm",
+  q:"Quel est le premier levier pour réduire la facture de Cloud Logging ?",
+  choices:["Les filtres d'exclusion, qui empêchent le stockage des entrées à faible valeur comme les sondes de santé","Réduire la rétention de _Required","Exporter tous les journaux vers BigQuery","Désactiver les journaux d'audit"],
+  answer:0,
+  explain:"_Required n'est ni modifiable ni facturé. Un export vers BigQuery ajoute un coût au lieu de l'enlever, sauf s'il remplace la rétention longue dans Logging." },
+{ id:"n2-logging-sink-agrege", level:2, d:"obs", dom:"Cloud Logging", type:"qcm",
+  q:"Quel drapeau rend un sink agrégé au niveau d'une organisation ou d'un dossier ?",
+  choices:["include-children, qui capte les journaux de toute la descendance","aggregate, à poser sur le bucket","all-projects, sur le Log Router","recursive, sur le filtre"],
+  answer:0,
+  explain:"C'est le mécanisme de centralisation : un seul sink au niveau organisation suffit à alimenter un projet de journalisation commun." },
+{ id:"n2-log-analytics", level:2, d:"obs", dom:"Cloud Logging", type:"qcm",
+  q:"Qu'apporte Log Analytics sur un bucket de journaux mis à niveau ?",
+  choices:["La possibilité d'interroger les journaux en SQL, sans export préalable vers BigQuery","Une rétention illimitée","Le chiffrement avec une clé client","Une alerte sur chaque entrée"],
+  answer:0,
+  explain:"C'est ce qui rend l'export vers BigQuery inutile dans beaucoup de cas : on garde une seule copie, interrogeable en SQL." },
+{ id:"n2-promql", level:2, d:"obs", dom:"Cloud Monitoring", type:"qcm",
+  q:"Quel langage de requête Google recommande-t-il aujourd'hui dans Cloud Monitoring ?",
+  choices:["PromQL, MQL étant en transition","MQL, PromQL n'étant pas supporté","SQL standard","KQL"],
+  answer:0,
+  explain:"C'est cohérent avec Managed Service for Prometheus : les mêmes requêtes servent aux métriques système et aux métriques applicatives." },
+{ id:"n2-managed-prometheus", level:2, d:"obs", dom:"GKE", type:"qcm",
+  q:"Qu'apporte Managed Service for Prometheus sur GKE ?",
+  choices:["Une collecte compatible Prometheus, déclarée par PodMonitoring, stockée dans Monarch et interrogée en PromQL, sans serveur Prometheus à exploiter","Un remplacement de Cloud Monitoring","Une collecte de journaux","Un service mesh"],
+  answer:0,
+  explain:"L'argument décisif en conception : plus de rétention locale à dimensionner, plus de haute disponibilité de Prometheus à construire." },
+{ id:"n2-snooze", level:2, d:"obs", dom:"Alerting", type:"qcm",
+  q:"À quoi sert un snooze dans Cloud Monitoring ?",
+  choices:["Mettre une alerte en sourdine pendant une fenêtre de maintenance planifiée","Supprimer définitivement une alerte","Réduire la sévérité d'une alerte","Regrouper plusieurs alertes"],
+  answer:0,
+  explain:"Sans snooze, une maintenance génère du bruit, et le bruit apprend à l'astreinte à ignorer les notifications." },
+{ id:"n2-dataaccess-cout", level:2, d:"boot", dom:"Journaux d'audit", type:"qcm",
+  q:"Quelle précaution prendre avant d'activer les journaux Data Access sur une organisation ?",
+  choices:["Mesurer le volume : ils sont désactivés par défaut précisément parce qu'ils peuvent générer un coût de journalisation considérable","Vérifier que la rétention est de 400 jours","Créer un sink vers Pub/Sub, obligatoire","Désactiver Admin Activity en contrepartie"],
+  answer:0,
+  explain:"On les active généralement par service et par type, sur les périmètres sensibles, plutôt que partout. Admin Activity, lui, n'est pas désactivable." },
+{ id:"n2-orgpolicy-regions", level:2, d:"boot", dom:"Organization Policies", type:"input",
+  q:"Quelle contrainte d'org policy limite les régions utilisables, pour une exigence de résidence des données ? Donne son nom après le préfixe constraints.",
+  accept:["gcp.resourcelocations","resourcelocations","gcp.resource locations"],
+  explain:"Les autres contraintes à connaître de mémoire : compute.vmExternalIpAccess, iam.disableServiceAccountKeyCreation et iam.allowedPolicyMemberDomains." },
+{ id:"n2-sa-key-constraint", level:2, d:"boot", dom:"Organization Policies", type:"qcm",
+  q:"Quelle contrainte empêche techniquement la création de clés JSON de comptes de service ?",
+  choices:["constraints/iam.disableServiceAccountKeyCreation","constraints/iam.allowedPolicyMemberDomains","constraints/compute.requireOsLogin","constraints/storage.uniformBucketLevelAccess"],
+  answer:0,
+  explain:"La poser suppose d'avoir d'abord migré les pipelines vers Workload Identity Federation, sinon on casse l'intégration continue du jour au lendemain." },
+{ id:"n2-tf-backend", level:2, d:"boot", dom:"Infrastructure as code", type:"qcm",
+  q:"Où placer l'état Terraform dans un bootstrap Google Cloud ?",
+  choices:["Dans un bucket Cloud Storage avec versioning, qui fournit aussi le verrouillage natif","Dans le dépôt Git, chiffré","Sur le poste de l'ingénieur qui applique","Dans Secret Manager"],
+  answer:0,
+  explain:"Le versioning du bucket est ce qui permet de revenir sur un état corrompu. Le verrouillage évite deux apply concurrents sur la même infrastructure." },
+{ id:"n2-tf-pipeline", level:2, d:"boot", dom:"Infrastructure as code", type:"qcm",
+  q:"Quel découpage de pipeline appliquer à du Terraform d'infrastructure ?",
+  choices:["Un plan automatique sur la pull request, puis un apply après fusion et revue","Un apply direct à chaque push","Un apply manuel depuis le poste des ingénieurs","Un plan et un apply dans la même étape"],
+  answer:0,
+  explain:"Le plan sur la pull request rend le changement d'infrastructure lisible avant d'être décidé, exactement comme une revue de code." },
+{ id:"n2-impersonation", level:2, d:"boot", dom:"IAM", type:"qcm",
+  q:"Comment un ingénieur peut-il agir avec les droits d'un compte de service sans détenir de clé ?",
+  choices:["Par impersonation, avec l'option impersonate-service-account et le rôle serviceAccountTokenCreator","En téléchargeant la clé JSON du compte","En ajoutant son compte au groupe du compte de service","En créant un rôle personnalisé identique"],
+  answer:0,
+  explain:"L'impersonation est journalisée et révocable instantanément en retirant le rôle. Une clé JSON fuitée reste valable jusqu'à sa suppression explicite." },
+{ id:"n2-cloudsql-ha", level:2, d:"perf", dom:"Bases de données", type:"qcm",
+  q:"Quels leviers améliorent les performances de lecture d'une base Cloud SQL saturée en lecture ?",
+  choices:["Des read replicas, un cache Memorystore, des index adaptés et un pooling de connexions via le Cloud SQL Auth Proxy","Augmenter uniquement la taille de l'instance","Passer en disque local SSD","Activer la haute disponibilité"],
+  answer:0,
+  explain:"La haute disponibilité protège la disponibilité, pas la performance : le réplica de bascule ne sert pas les lectures." },
+{ id:"n2-disques", level:2, d:"perf", dom:"Stockage", type:"qcm",
+  q:"Quel type de disque choisir pour une latence très faible, en acceptant que les données soient volatiles ?",
+  choices:["Local SSD, attaché physiquement à l'hôte et perdu à l'arrêt de la VM","pd-ssd","Hyperdisk","pd-balanced"],
+  answer:0,
+  explain:"Le Local SSD convient à un cache ou à un espace de travail temporaire, jamais à une donnée dont la perte n'est pas acceptable." },
+{ id:"n2-storage-classes", level:2, d:"perf", dom:"Cloud Storage", type:"qcm",
+  q:"Quel est l'ordre des classes Cloud Storage du plus chaud au plus froid ?",
+  choices:["Standard, Nearline, Coldline, Archive","Standard, Coldline, Nearline, Archive","Nearline, Standard, Archive, Coldline","Archive, Coldline, Nearline, Standard"],
+  answer:0,
+  explain:"Le prix de stockage descend et le prix d'accès monte le long de cette échelle. Les règles de cycle de vie automatisent la descente." },
+{ id:"n2-reseau-tier", level:2, d:"perf", dom:"Réseau", type:"qcm",
+  q:"Quelle est la différence entre les niveaux de service réseau Premium et Standard ?",
+  choices:["Premium transporte le trafic sur le réseau privé de Google au plus près de l'utilisateur ; Standard emprunte l'Internet public et coûte moins cher","Premium est plus sécurisé, Standard moins","Premium est régional, Standard global","Standard offre un meilleur SLA"],
+  answer:0,
+  explain:"C'est un arbitrage latence contre coût à poser explicitement. Certaines fonctions, dont le load balancing global, exigent le niveau Premium." },
+{ id:"n2-hpa-vpa", level:2, d:"perf", dom:"Autoscaling GKE", type:"qcm",
+  q:"Quelle précaution prendre en combinant HPA et VPA ?",
+  choices:["Ne pas les faire agir sur la même métrique, sinon ils se contredisent","Ne jamais les utiliser ensemble","Toujours activer VPA avant HPA","Les restreindre au mode Autopilot"],
+  answer:0,
+  explain:"HPA sur le CPU et VPA sur le CPU produisent une boucle instable. La combinaison acceptée est HPA sur une métrique applicative et VPA sur la mémoire." },
+{ id:"n2-quotas", level:2, d:"sre", dom:"Capacity planning", type:"qcm",
+  q:"Quelle pratique de gestion des quotas un énoncé attend-il avant un pic de charge connu ?",
+  choices:["Surveiller la consommation, alerter autour de 80 %, et demander les augmentations à l'avance","Demander l'augmentation au moment du pic","Supprimer les quotas du projet","Répartir la charge sur plusieurs projets au dernier moment"],
+  answer:0,
+  explain:"Une demande d'augmentation de quota n'est pas instantanée. C'est une cause récurrente d'incident lors d'un événement commercial planifié." },
+{ id:"n2-retry-backoff", level:2, d:"sre", dom:"Patterns de fiabilité", type:"qcm",
+  q:"Pourquoi ajouter du jitter aux réessais avec backoff exponentiel ?",
+  choices:["Pour désynchroniser les clients et éviter des vagues de réessais simultanées qui aggravent la panne","Pour réduire la latence moyenne","Pour respecter les quotas","Pour simplifier le code client"],
+  answer:0,
+  explain:"Sans jitter, tous les clients repartent au même instant : le service retombe dès qu'il se relève. C'est la tempête de réessais." },
+{ id:"n2-loadshedding", level:2, d:"sre", dom:"Patterns de fiabilité", type:"qcm",
+  q:"Qu'est-ce que le load shedding ?",
+  choices:["Rejeter délibérément une part de la charge, en 429 ou 503, pour que le reste continue d'être servi correctement","Répartir la charge entre régions","Mettre la charge en file d'attente","Réduire la taille des réponses"],
+  answer:0,
+  explain:"Il se couple à la dégradation gracieuse : plutôt qu'une panne totale pour tous, un service réduit, ou un refus net, pour une partie." },
+
+
+/* ====== NIVEAU 3 — SCÉNARIOS : BOOTSTRAPPING DE L'ORGANISATION ====== */
+
+{ id:"s-boot-projets", level:3, d:"boot", dom:"Hiérarchie", type:"qcm",
+  q:"Une entreprise démarre sur Google Cloud avec trois applications et trois environnements. Quel découpage proposez-vous ?",
+  choices:["Un projet par application et par environnement, regroupés dans des dossiers production et hors-production","Un projet unique avec des labels par application et par environnement","Un projet par application, les environnements séparés par des réseaux","Un projet par environnement, toutes applications confondues"],
+  answer:0,
+  explain:"Le projet est l'unité d'isolation, de quota et de facturation : c'est donc lui qui délimite le rayon d'impact. Les labels documentent, ils n'isolent rien." },
+{ id:"s-boot-heritage", level:3, d:"boot", dom:"IAM", type:"qcm",
+  q:"Une même baseline IAM et les mêmes contraintes doivent s'appliquer à tous les projets de production, présents et futurs. Où les poser ?",
+  choices:["Au niveau du dossier production, pour que tout projet qui y sera créé en hérite automatiquement","Sur chaque projet, par un script quotidien","Au niveau de l'organisation, pour ne rien oublier","Dans un module Terraform appliqué projet par projet"],
+  answer:0,
+  explain:"Poser au niveau organisation toucherait aussi les environnements de développement. Le dossier est le bon scope quand la règle dépend de l'environnement." },
+{ id:"s-boot-groupes", level:3, d:"boot", dom:"IAM", type:"qcm",
+  q:"Les arrivées et départs dans l'équipe plateforme imposent chaque mois des ajustements de droits, et un audit a relevé des accès résiduels. Quelle conception ?",
+  choices:["Accorder les rôles à des groupes Google et gérer l'appartenance aux groupes, jamais des rôles à des individus","Créer un rôle personnalisé par personne","Accorder les rôles aux individus mais les revoir chaque trimestre","Utiliser des comptes de service partagés par l'équipe"],
+  answer:0,
+  explain:"La stratégie IAM devient stable et le mouvement se gère dans l'annuaire. C'est aussi ce qui rend l'audit lisible : on lit des fonctions, pas des noms." },
+{ id:"s-boot-separation", level:3, d:"boot", dom:"IAM", type:"qcm",
+  q:"Un auditeur exige que la personne qui déploie en production ne soit pas celle qui administre les droits IAM. Quel principe appliquer, et comment ?",
+  choices:["La séparation des tâches : des groupes distincts pour le déploiement et pour l'administration IAM, sans rôle primitif Owner sur le projet","Donner Editor aux deux groupes","Créer un rôle personnalisé cumulant les deux besoins","Confier les deux fonctions à un compte de service unique"],
+  answer:0,
+  explain:"Le rôle Owner réunit tout, donc viole la séparation par construction. C'est la raison opérationnelle de bannir les rôles primitifs en production." },
+{ id:"s-boot-deny", level:3, d:"boot", dom:"IAM", type:"qcm",
+  q:"Une permission sensible doit être interdite à tout le monde dans un dossier, même aux comptes qui disposent d'un rôle l'incluant. Que faites-vous ?",
+  choices:["Une deny policy sur le dossier, évaluée avant les autorisations","Retirer tous les rôles concernés un par un","Une org policy","Un rôle personnalisé sans cette permission"],
+  answer:0,
+  explain:"Retirer les rôles un par un est un travail sans fin dès qu'un rôle prédéfini évolue. Le deny est une barrière qui survit aux changements de rôles." },
+{ id:"s-boot-sa-defaut", level:3, d:"boot", dom:"Comptes de service", type:"qcm",
+  q:"Un audit révèle que toutes les VM utilisent le compte de service Compute Engine par défaut, avec le rôle Editor. Quelle remédiation ?",
+  choices:["Créer un compte de service dédié par charge de travail, au moindre privilège, et retirer l'usage du compte par défaut","Retirer Editor au compte par défaut et le laisser en place pour toutes les VM","Remplacer le compte par défaut par des clés JSON par application","Supprimer le compte par défaut sans remplacement"],
+  answer:0,
+  explain:"Un compte unique à droits larges fait qu'une VM compromise donne accès à tout le projet. Le compte dédié ramène le rayon d'impact à une seule charge." },
+{ id:"s-boot-wif-github", level:3, d:"boot", dom:"Comptes de service", type:"qcm",
+  q:"Un pipeline GitHub Actions doit déployer sur Google Cloud, et la politique de sécurité interdit toute clé de compte de service à durée de vie longue. Quelle conception ?",
+  choices:["Workload Identity Federation : le jeton OIDC de GitHub est échangé contre des identifiants de courte durée, avec une condition sur le dépôt et la branche","Une clé JSON stockée dans les secrets GitHub, rotée tous les 90 jours","Un compte utilisateur de service avec mot de passe","Une clé JSON chiffrée dans le dépôt"],
+  answer:0,
+  explain:"La condition sur le dépôt et la branche est la partie qu'on oublie : sans elle, n'importe quel dépôt du même fournisseur peut réclamer le même jeton." },
+{ id:"s-boot-wi-gke", level:3, d:"boot", dom:"Comptes de service", type:"qcm",
+  q:"Des pods GKE doivent lire un bucket Cloud Storage sans monter de clé dans le conteneur. Quelle conception ?",
+  choices:["Workload Identity for GKE : le compte de service Kubernetes est associé à une identité Google qui porte le rôle sur le bucket","Monter la clé JSON dans un secret Kubernetes","Donner le rôle au compte de service du nœud","Autoriser allAuthenticatedUsers sur le bucket"],
+  answer:0,
+  explain:"Donner le rôle au compte du nœud le donne à tous les pods du nœud : l'isolation disparaît. Workload Identity accorde au pod, pas à la machine." },
+{ id:"s-boot-orgpolicy-ip", level:3, d:"boot", dom:"Organization Policies", type:"qcm",
+  q:"Aucune VM ne doit porter d'adresse IP externe, mais les VM doivent continuer à télécharger des paquets depuis Internet. Quelle conception ?",
+  choices:["La contrainte compute.vmExternalIpAccess en refus, complétée par Cloud NAT pour la sortie et Private Google Access pour les API Google","La contrainte seule, les VM n'ayant plus besoin d'Internet","Un pare-feu refusant le trafic entrant","Des IP externes conservées avec des règles de pare-feu strictes"],
+  answer:0,
+  explain:"La contrainte supprime l'exposition entrante ; Cloud NAT préserve la sortie. Confondre les deux est l'erreur classique de cette question." },
+{ id:"s-boot-residence", level:3, d:"boot", dom:"Organization Policies", type:"qcm",
+  q:"Une obligation réglementaire impose que les données restent dans l'Union européenne. Quelle mise en œuvre technique ?",
+  choices:["La contrainte gcp.resourceLocations limitée aux localisations européennes, appliquée au niveau organisation ou dossier","Une convention de nommage des ressources par région","Des labels region sur chaque ressource","Un rôle personnalisé interdisant les autres régions"],
+  answer:0,
+  explain:"Seule l'org policy empêche la création, y compris par un Owner. Les labels et les conventions ne font que documenter une intention." },
+{ id:"s-boot-sharedvpc", level:3, d:"boot", dom:"Réseau", type:"qcm",
+  q:"L'équipe réseau doit garder la main sur les sous-réseaux, le routage et les pare-feu, tandis que les équipes applicatives déploient leurs ressources en autonomie. Quelle conception ?",
+  choices:["Un Shared VPC : le réseau vit dans un projet hôte, les équipes attachent leurs ressources depuis des projets de service avec le rôle networkUser sur les sous-réseaux","Un VPC par équipe, reliés par peering","Un projet unique partagé par toutes les équipes","Un VPC par équipe avec des routes statiques"],
+  answer:0,
+  explain:"Le rôle networkUser est accordé sous-réseau par sous-réseau : c'est le levier qui permet de déléguer sans donner la main sur le plan d'adressage." },
+{ id:"s-boot-peering-transitif", level:3, d:"boot", dom:"Réseau", type:"qcm",
+  q:"Trois VPC sont connectés en chaîne par des peerings A vers B et B vers C. A n'arrive pas à joindre C. Pourquoi ?",
+  choices:["Le VPC peering n'est pas transitif : il faut un peering direct, ou une topologie en hub avec un appliance ou Network Connectivity Center","Une règle de pare-feu manque sur B","Les routes ne sont pas propagées automatiquement","Les plages d'adresses se chevauchent nécessairement"],
+  answer:0,
+  explain:"C'est la même limite que le peering de VNet chez les autres fournisseurs. Un énoncé qui parle de maillage complet doit faire penser à une autre topologie." },
+{ id:"s-boot-vpcsc", level:3, d:"boot", dom:"Réseau", type:"qcm",
+  q:"Un identifiant volé permettrait aujourd'hui de copier un jeu de données BigQuery vers un projet extérieur. Comment empêcher cette exfiltration ?",
+  choices:["Un périmètre VPC Service Controls autour des projets concernés, qui refuse les accès aux API depuis l'extérieur du périmètre","Des règles de pare-feu sortantes","Une deny policy IAM sur bigquery.tables.getData","Le chiffrement avec une clé client"],
+  answer:0,
+  explain:"VPC-SC traite précisément le cas d'identifiants valides utilisés depuis un mauvais endroit, ce qu'IAM, par construction, ne sait pas distinguer." },
+{ id:"s-boot-audit-central", level:3, d:"boot", dom:"Journaux d'audit", type:"qcm",
+  q:"Les journaux d'audit de tous les projets doivent être centralisés et conservés sept ans, avec une garantie d'inaltérabilité pour l'auditeur. Quelle conception ?",
+  choices:["Un sink agrégé au niveau organisation avec include-children, vers un bucket Cloud Storage d'un projet dédié, avec une retention policy verrouillée par Bucket Lock","La rétention du bucket _Required portée à sept ans","Un export BigQuery par projet","Une copie manuelle trimestrielle des journaux"],
+  answer:0,
+  explain:"La rétention de _Required est fixée à 400 jours et n'est pas modifiable. Le Bucket Lock est ce qui transforme une rétention en preuve opposable." },
+{ id:"s-boot-project-factory", level:3, d:"boot", dom:"Infrastructure as code", type:"qcm",
+  q:"Chaque nouvelle équipe réclame un projet, et les projets créés à la main diffèrent tous : API manquantes, pas de budget, pas de labels. Quelle conception ?",
+  choices:["Une project factory Terraform qui crée des projets standardisés : API activées, budget, labels, comptes de service, rattachement au Shared VPC","Une procédure écrite détaillée","Un modèle de projet cloné à la main","Un rôle personnalisé de création de projet"],
+  answer:0,
+  explain:"L'automatisation du bootstrap transforme une convention en garantie. C'est aussi ce qui rend la facturation par équipe exploitable dès le premier jour." },
+{ id:"s-boot-budget", level:3, d:"boot", dom:"Facturation", type:"qcm",
+  q:"La direction financière veut connaître le coût par équipe et être alertée avant un dépassement. Quelle conception ?",
+  choices:["Des labels normalisés sur les ressources, l'export de la facturation vers BigQuery, et des budgets avec alertes à 50, 90 et 100 %","Un projet par équipe et une lecture mensuelle de la console","Un rapport manuel à partir des factures PDF","Des quotas par projet"],
+  answer:0,
+  explain:"Les labels permettent la répartition à l'intérieur d'un projet, l'export BigQuery rend l'analyse possible, et le budget transforme le constat en alerte." },
+{ id:"s-boot-config-connector", level:3, d:"boot", dom:"Infrastructure as code", type:"qcm",
+  q:"Une équipe plateforme déjà outillée en GitOps Kubernetes veut gérer aussi ses ressources Google Cloud par le même flux. Quelle option ?",
+  choices:["Config Connector, ou Config Controller, qui expose les ressources Google Cloud comme des objets Kubernetes réconciliés en continu","Terraform appliqué par un job Kubernetes","gcloud dans un CronJob","Deployment Manager"],
+  answer:0,
+  explain:"L'intérêt n'est pas technique mais organisationnel : un seul modèle de réconciliation et un seul flux de revue pour le cluster et pour le cloud." },
+{ id:"s-boot-troubleshooter", level:3, d:"boot", dom:"IAM", type:"qcm",
+  q:"Un développeur affirme ne pas pouvoir écrire dans un bucket alors qu'un rôle semble le lui permettre. Quel outil utiliser avant toute modification ?",
+  choices:["Policy Troubleshooter, qui explique quelle stratégie accorde ou refuse la permission à ce principal sur cette ressource","Policy Recommender","Les journaux Admin Activity","Un rôle personnalisé de test"],
+  answer:0,
+  explain:"La cause est souvent une deny policy, un périmètre VPC-SC ou une condition IAM. Ajouter un rôle sans diagnostiquer élargit les droits sans régler le problème." },
+{ id:"s-boot-recommender-iam", level:3, d:"boot", dom:"IAM", type:"qcm",
+  q:"Un chantier de réduction des droits doit s'appuyer sur des faits et non sur des suppositions. Quel outil ?",
+  choices:["Policy Recommender, qui propose de retirer les permissions non utilisées sur la base de l'activité observée","Policy Troubleshooter","Les org policies","Le journal Policy Denied"],
+  answer:0,
+  explain:"Il repose sur 90 jours d'usage, ce qui impose de vérifier qu'aucune tâche trimestrielle ne va être cassée par le retrait." },
+{ id:"s-boot-breakglass-iam", level:3, d:"boot", dom:"IAM", type:"qcm",
+  q:"Comment accorder un accès élevé temporaire à un ingénieur pendant une intervention, avec expiration automatique ?",
+  choices:["Une attribution IAM avec une condition d'expiration, ou une impersonation limitée dans le temps, et une trace dans les journaux d'audit","Lui donner Owner et retirer le rôle plus tard","Lui remettre une clé JSON du compte de service d'administration","Créer un compte personnel supplémentaire"],
+  answer:0,
+  explain:"La condition d'expiration supprime l'étape humaine de révocation, c'est-à-dire celle qu'on oublie. La trace d'audit est ce qui rend l'élévation défendable." },
+
+
+/* ============ NIVEAU 3 — SCÉNARIOS : PIPELINES CI/CD ============ */
+
+{ id:"s-cicd-trigger-pr", level:3, d:"cicd", dom:"Cloud Build", type:"qcm",
+  q:"Les tests doivent tourner sur chaque pull request, mais une contribution extérieure ne doit pas pouvoir exécuter du code dans le projet sans contrôle. Quelle configuration ?",
+  choices:["Un trigger de pull request avec comment-control, qui exige le commentaire d'un mainteneur avant d'exécuter le build pour un contributeur externe","Un trigger sur push vers la branche principale uniquement","Un trigger manuel lancé par les mainteneurs","Un trigger planifié toutes les heures"],
+  answer:0,
+  explain:"Sans ce contrôle, une pull request malveillante fait tourner son propre cloudbuild.yaml avec le compte de service du pipeline." },
+{ id:"s-cicd-lent", level:3, d:"cicd", dom:"Performance du pipeline", type:"qcm",
+  q:"Un build dure 25 minutes, dont 12 à réinstaller les dépendances et 8 à reconstruire des couches Docker identiques. Quelles actions, par ordre d'efficacité ?",
+  choices:["Mettre en cache les dépendances et les couches, par exemple avec Kaniko et son cache, paralléliser les étapes indépendantes, puis augmenter le machineType si nécessaire","Augmenter d'abord le machineType","Passer sur un private pool","Réduire la couverture de tests"],
+  answer:0,
+  explain:"On commence par supprimer le travail inutile, ensuite seulement on achète de la puissance. Réduire les tests est une fausse économie." },
+{ id:"s-cicd-secret", level:3, d:"cicd", dom:"Sécurité du pipeline", type:"qcm",
+  q:"Une revue repère un jeton d'API en clair dans une substitution de trigger Cloud Build. Quelle remédiation ?",
+  choices:["Révoquer le jeton, le stocker dans Secret Manager et le consommer par availableSecrets, avec un rôle secretAccessor sur le seul secret concerné","Le déplacer dans une variable d'environnement du trigger","Le chiffrer et le committer dans le dépôt","Restreindre l'accès aux journaux de build"],
+  answer:0,
+  explain:"La révocation d'abord : un secret qui a été exposé dans des journaux est compromis, même si on le déplace ensuite au bon endroit." },
+{ id:"s-cicd-privatepool", level:3, d:"cicd", dom:"Cloud Build", type:"qcm",
+  q:"Les tests d'intégration doivent atteindre une instance Cloud SQL sans IP publique et un cluster GKE privé. Que faut-il ?",
+  choices:["Un private pool Cloud Build, pairé avec le VPC qui héberge ces ressources","Ouvrir temporairement l'accès public des ressources pendant le build","Un tunnel SSH monté depuis une étape du build","Un trigger exécuté depuis un projet du même VPC"],
+  answer:0,
+  explain:"Les workers du pool public n'ont pas d'adresse dans votre VPC : aucune règle de pare-feu ne peut les autoriser proprement." },
+{ id:"s-cicd-canary-auto", level:3, d:"cicd", dom:"Cloud Deploy", type:"qcm",
+  q:"Un déploiement en production doit exposer 10 % du trafic, vérifier automatiquement les métriques, puis continuer ou revenir en arrière sans intervention. Quelle conception ?",
+  choices:["Une stratégie canary Cloud Deploy avec des pourcentages progressifs, l'étape de vérification activée, et une automation de réparation","Un rolling update GKE avec maxSurge à 1","Un blue/green avec bascule manuelle","Un déploiement recreate hors heures ouvrées"],
+  answer:0,
+  explain:"La vérification est un job conteneurisé dont l'échec déclenche le retour arrière. Sans métriques exploitables, le canary n'est qu'un déploiement plus lent." },
+{ id:"s-cicd-approbation", level:3, d:"cicd", dom:"Cloud Deploy", type:"qcm",
+  q:"Toute mise en production doit être validée par un responsable, sans que cela bloque les promotions vers dev et staging. Quelle configuration ?",
+  choices:["requireApproval sur la seule target prod du delivery pipeline","Une approbation sur le trigger Cloud Build","Un rôle IAM restreint sur le projet de production","Une automation de promotion désactivée partout"],
+  answer:0,
+  explain:"L'approbation se pose sur la cible, pas sur le pipeline : c'est ce qui permet d'avoir un flux fluide en amont et une porte en aval." },
+{ id:"s-cicd-rollback", level:3, d:"cicd", dom:"Cloud Deploy", type:"qcm",
+  q:"Une version déployée provoque des erreurs en production. Quelle est la première action, et pourquoi est-elle fiable avec Cloud Deploy ?",
+  choices:["Redéployer la release précédente : étant immuable, elle contient les manifestes et les images exacts de ce qui fonctionnait","Corriger le code et relancer le pipeline complet","Mettre à l'échelle le service pour absorber les erreurs","Ouvrir un postmortem avant d'agir"],
+  answer:0,
+  explain:"Atténuer d'abord, enquêter ensuite. Reconstruire pour corriger rallonge l'incident et introduit un artefact qui n'a jamais tourné." },
+{ id:"s-cicd-binauthz", level:3, d:"cicd", dom:"Binary Authorization", type:"qcm",
+  q:"Seules les images construites par le pipeline, scannées et testées, doivent pouvoir tourner en production. Quelle chaîne mettez-vous en place ?",
+  choices:["Build, scan Artifact Analysis, tests, puis attestation signée par une clé KMS, et une politique Binary Authorization qui exige cette attestation à l'admission","Un scan de vulnérabilités bloquant dans le pipeline","Un rôle IAM restreignant les déploiements","Un dépôt privé Artifact Registry"],
+  answer:0,
+  explain:"Un contrôle dans le pipeline se contourne en déployant à la main. Binary Authorization est un contrôle à l'admission : il tient quel que soit le chemin emprunté." },
+{ id:"s-cicd-continuous-validation", level:3, d:"cicd", dom:"Binary Authorization", type:"qcm",
+  q:"Une politique Binary Authorization est en place, mais l'équipe veut aussi détecter les pods qui ne la respecteraient plus après coup. Quelle fonctionnalité ?",
+  choices:["La validation continue, qui vérifie périodiquement les pods en cours d'exécution et journalise les écarts","Le mode dry-run","L'annotation break-glass","Les cleanup policies d'Artifact Registry"],
+  answer:0,
+  explain:"L'admission ne couvre que l'instant du déploiement. Une attestation révoquée ou une politique durcie laisse des pods non conformes en place sans elle." },
+{ id:"s-cicd-dependency-confusion", level:3, d:"cicd", dom:"Artifact Registry", type:"qcm",
+  q:"Un paquet interne porte le même nom qu'un paquet public, et un build a récemment tiré la version publique. Quelle conception évite cette confusion de dépendances ?",
+  choices:["Un dépôt virtuel qui agrège le dépôt interne et un dépôt remote, avec la priorité donnée à l'interne","Renommer tous les paquets internes","Interdire les dépôts publics par règle de pare-feu","Épingler les versions dans le fichier de dépendances"],
+  answer:0,
+  explain:"L'épinglage aide mais ne protège pas une nouvelle dépendance. La priorité du dépôt virtuel règle le problème à la source, pour tous les builds." },
+{ id:"s-cicd-remote-ratelimit", level:3, d:"cicd", dom:"Artifact Registry", type:"qcm",
+  q:"Des builds échouent par intermittence sur un rate limit de Docker Hub. Quelle conception ?",
+  choices:["Un dépôt remote Artifact Registry qui sert de proxy et de cache vers Docker Hub","Relancer les builds en échec automatiquement","Payer un abonnement Docker Hub pour le compte de service","Copier les images à la main dans un dépôt standard"],
+  answer:0,
+  explain:"Le dépôt remote supprime la dépendance à un service externe dans le chemin critique du pipeline, ce qui est aussi un gain de fiabilité." },
+{ id:"s-cicd-ar-proximite", level:3, d:"cicd", dom:"Artifact Registry", type:"qcm",
+  q:"Les nœuds d'un cluster en europe-west1 tirent des images depuis un dépôt situé aux États-Unis, et le démarrage des pods est lent. Quelle correction ?",
+  choices:["Créer le dépôt dans la même région que le runtime, pour la latence et pour la sortie réseau","Augmenter la taille des nœuds","Pré-tirer les images par un DaemonSet","Réduire la taille des images uniquement"],
+  answer:0,
+  explain:"Réduire la taille des images aide aussi, mais la proximité du dépôt est le levier qui se règle en une fois et profite à tous les déploiements." },
+{ id:"s-cicd-gitops-derive", level:3, d:"cicd", dom:"GitOps", type:"qcm",
+  q:"Des modifications faites à la main dans un cluster divergent de ce qui est dans Git, et personne ne sait quelle est la référence. Quelle conception ?",
+  choices:["Config Sync ou Argo CD, qui réconcilient en continu l'état du cluster avec le dépôt et annulent la dérive","Un audit mensuel des manifestes","Retirer les droits kubectl à tout le monde","Un pipeline qui applique les manifestes à chaque commit"],
+  answer:0,
+  explain:"Un pipeline push applique au moment du commit et laisse la dérive s'installer ensuite. La réconciliation continue est ce qui fait de Git la source de vérité." },
+{ id:"s-cicd-policy-controller", level:3, d:"cicd", dom:"GitOps", type:"qcm",
+  q:"Il faut refuser tout manifeste qui déploierait un conteneur privilégié ou sans limites de ressources. Quelle solution ?",
+  choices:["Policy Controller, basé sur OPA Gatekeeper, qui refuse les manifestes non conformes à l'admission","Une revue de code obligatoire","Une alerte Cloud Monitoring sur les pods privilégiés","Un rôle IAM restreint sur le cluster"],
+  answer:0,
+  explain:"La revue humaine et l'alerte détectent après coup ; l'admission bloque avant. Le mode audit de Gatekeeper permet de mesurer avant de bloquer." },
+{ id:"s-cicd-repos-separes", level:3, d:"cicd", dom:"GitOps", type:"qcm",
+  q:"Pourquoi séparer le dépôt du code applicatif et le dépôt de configuration dans une démarche GitOps ?",
+  choices:["Pour que la promotion entre environnements soit un changement de configuration, sans nouveau build, et que les droits de revue diffèrent","Pour réduire la taille des dépôts","Parce que Config Sync l'impose","Pour accélérer les clones"],
+  answer:0,
+  explain:"Un même artefact traverse alors tous les environnements, ce qui est précisément la propriété recherchée : on promeut ce qui a été testé." },
+{ id:"s-cicd-mig-canary", level:3, d:"cicd", dom:"Compute Engine", type:"qcm",
+  q:"Une application tourne sur un managed instance group et doit recevoir une nouvelle version sur une petite partie des instances d'abord. Quelle mécanique ?",
+  choices:["Un rolling update avec deux templates et une version canary, en contrôlant maxSurge et maxUnavailable","Recréer le groupe avec le nouveau template","Un second MIG derrière un autre load balancer","Un déploiement blue/green de tout le groupe"],
+  answer:0,
+  explain:"maxSurge ajoute des instances avant d'en retirer, maxUnavailable fixe combien peuvent manquer : ce couple décide de l'impact utilisateur pendant la mise à jour." },
+{ id:"s-cicd-appengine-split", level:3, d:"cicd", dom:"App Engine", type:"qcm",
+  q:"Une application App Engine doit répartir le trafic entre deux versions, par exemple 90 et 10 %. Quelle commande de principe ?",
+  choices:["gcloud app services set-traffic avec des splits par version","gcloud app deploy avec le drapeau canary","gcloud run services update-traffic","gcloud compute instance-groups rolling-action"],
+  answer:0,
+  explain:"La répartition peut se faire par adresse IP ou par cookie : le cookie garantit qu'un même utilisateur reste sur la même version pendant sa session." },
+{ id:"s-cicd-shadow", level:3, d:"cicd", dom:"Stratégies de déploiement", type:"qcm",
+  q:"Une équipe veut valider une réécriture de service sur du trafic réel sans aucun risque pour les utilisateurs. Quelle stratégie, et quelle précaution ?",
+  choices:["Le shadow, qui duplique le trafic vers la nouvelle version sans renvoyer ses réponses, à condition de neutraliser ses écritures et ses appels sortants","Le canary à 1 %","Le blue/green","Le A/B testing"],
+  answer:0,
+  explain:"La précaution est l'essentiel de la réponse : un trafic miroir qui écrit en base ou appelle un service de paiement produit de vrais effets de bord." },
+{ id:"s-cicd-featureflag", level:3, d:"cicd", dom:"Livraison", type:"qcm",
+  q:"Une fonctionnalité doit être déployée en production mais activée seulement le jour du lancement commercial. Quelle pratique ?",
+  choices:["Un feature flag, qui découple le déploiement du code de l'activation de la fonctionnalité","Une branche de longue durée fusionnée le jour J","Un déploiement planifié la nuit du lancement","Un canary étalé jusqu'au jour J"],
+  answer:0,
+  explain:"Le code arrive en production progressivement et sans pression ; l'activation devient un changement de configuration réversible en quelques secondes." },
+{ id:"s-cicd-tests-pyramide", level:3, d:"cicd", dom:"Tests", type:"qcm",
+  q:"Un pipeline ne contient que des tests de bout en bout : il dure 40 minutes et échoue souvent sans raison claire. Quelle correction ?",
+  choices:["Rééquilibrer vers la pyramide : beaucoup de tests unitaires rapides, moins d'intégration, un petit socle de bout en bout, complété par des tests de fumée après déploiement","Relancer automatiquement les tests instables","Supprimer les tests de bout en bout","Augmenter la puissance des workers"],
+  answer:0,
+  explain:"Relancer un test instable masque le défaut et apprend à l'équipe à ignorer le rouge. La pyramide rend l'échec rapide et localisable." },
+{ id:"s-cicd-tf-plan", level:3, d:"cicd", dom:"Infrastructure as code", type:"qcm",
+  q:"Un changement Terraform d'infrastructure réseau a été appliqué directement en production et a coupé un service. Quelle conception de pipeline ?",
+  choices:["Un plan automatique sur la pull request, une revue obligatoire, puis un apply après fusion par un compte de service dédié, les humains n'ayant plus le droit d'appliquer","Un apply manuel par deux personnes","Un apply nocturne planifié","Un terraform validate en pré-commit"],
+  answer:0,
+  explain:"Retirer le droit d'apply aux humains est la partie qui tient dans le temps : sans cela, le pipeline devient un chemin optionnel les jours de pression." },
+
+
+/* ============ NIVEAU 3 — SCÉNARIOS : PRATIQUES SRE ============ */
+
+{ id:"s-sre-sli-choix", level:3, d:"sre", dom:"SLI", type:"qcm",
+  q:"Une équipe propose comme SLI principal le taux d'utilisation CPU de ses serveurs. Quelle objection, et quelle proposition ?",
+  choices:["Le CPU ne dit rien de l'expérience utilisateur : il faut un SLI de disponibilité et de latence mesuré sur les parcours critiques, au load balancer","Le CPU est acceptable s'il est mesuré en p95","Il faut y ajouter la mémoire et le disque","Le CPU convient pour un service interne"],
+  answer:0,
+  explain:"Un service peut être à 20 % de CPU et renvoyer des 500. Le SLI doit porter sur ce que l'utilisateur constate, pas sur l'état de la machine." },
+{ id:"s-sre-sli-pipeline", level:3, d:"sre", dom:"SLI", type:"qcm",
+  q:"Quels SLI retenir pour un pipeline de données par lots, dont les utilisateurs consomment les tables le matin ?",
+  choices:["La fraîcheur, l'exactitude, la couverture et le débit","La disponibilité et la latence des requêtes HTTP","Le CPU des workers","Le nombre de lignes traitées uniquement"],
+  answer:0,
+  explain:"La fraîcheur est le SLI décisif ici : une table exacte mais livrée à midi est inutilisable pour quelqu'un qui en a besoin à huit heures." },
+{ id:"s-sre-slo-trop-strict", level:3, d:"sre", dom:"SLO", type:"qcm",
+  q:"Une équipe fixe un SLO de 99,999 % sur un service interne de reporting, et consomme tout son temps en astreinte. Quelle recommandation ?",
+  choices:["Revoir le SLO à la baisse pour l'aligner sur le besoin réel des utilisateurs, car chaque neuf supplémentaire coûte de manière non linéaire","Renforcer l'astreinte","Multiplier les régions","Augmenter le budget d'erreur sans changer le SLO"],
+  answer:0,
+  explain:"Un SLO n'est pas une ambition morale : trop strict, il gèle les livraisons et épuise l'équipe pour une fiabilité dont personne ne profite." },
+{ id:"s-sre-slo-vs-sla", level:3, d:"sre", dom:"SLO", type:"qcm",
+  q:"Un contrat client fixe un SLA de 99,5 %. Quel SLO interne retenir, et pourquoi ?",
+  choices:["Un SLO plus strict, par exemple 99,9 %, pour disposer d'une marge de réaction avant que la pénalité contractuelle ne soit due","Exactement 99,5 %, pour ne pas sur-investir","Un SLO plus souple, le SLA étant la vraie contrainte","Aucun SLO, le SLA suffit"],
+  answer:0,
+  explain:"L'écart entre les deux est le temps dont l'ingénierie dispose pour réagir. Aligner SLO et SLA, c'est découvrir le problème en même temps que le client." },
+{ id:"s-sre-budget-epuise", level:3, d:"sre", dom:"Error budget", type:"qcm",
+  q:"Le budget d'erreur du trimestre est épuisé à la moitié du mois. Que prévoit une error budget policy ?",
+  choices:["Geler les livraisons non liées à la fiabilité et réorienter l'effort vers les correctifs, l'automatisation et les actions de postmortem","Augmenter le SLO pour retrouver du budget","Continuer à livrer en surveillant davantage","Suspendre l'astreinte"],
+  answer:0,
+  explain:"La politique doit être écrite et acceptée avant l'incident : décidée à chaud, elle se négocie, et la règle perd tout effet." },
+{ id:"s-sre-budget-dependance", level:3, d:"sre", dom:"Error budget", type:"qcm",
+  q:"Le budget d'erreur est consommé par les pannes d'un fournisseur externe, hors du contrôle de l'équipe. Quelle réponse ?",
+  choices:["Escalader, puis arbitrer : revoir l'architecture pour tolérer la panne de la dépendance, ou revoir le SLO qui promet plus que la dépendance ne permet","Geler les livraisons comme dans tous les cas","Exclure ces incidents du calcul du SLI","Changer de fournisseur immédiatement"],
+  answer:0,
+  explain:"Un SLO ne peut pas dépasser ce que ses dépendances permettent. Exclure les incidents du calcul reviendrait à mesurer autre chose que l'expérience utilisateur." },
+{ id:"s-sre-incident-roles", level:3, d:"sre", dom:"Gestion d'incidents", type:"qcm",
+  q:"Pendant un incident majeur, trois ingénieurs modifient la production en même temps et l'état du système devient illisible. Quelle organisation l'aurait évité ?",
+  choices:["Un Operations Lead désigné, seul à modifier le système, sous la coordination d'un Incident Commander qui ne dépanne pas","Un canal de discussion dédié","Un runbook plus détaillé","Une astreinte à deux personnes"],
+  answer:0,
+  explain:"La règle de l'unicité de la main sur la production est ce qui rend les actions attribuables et réversibles. Le canal dédié aide, il ne suffit pas." },
+{ id:"s-sre-incident-mitigation", level:3, d:"sre", dom:"Gestion d'incidents", type:"qcm",
+  q:"Un déploiement récent coïncide avec une hausse brutale des erreurs. L'équipe veut d'abord comprendre la cause. Quelle est la bonne priorité ?",
+  choices:["Atténuer d'abord, en revenant à la version précédente, et enquêter ensuite sur l'artefact retiré","Enquêter d'abord pour ne pas masquer la cause","Augmenter la capacité pour absorber les erreurs","Attendre de voir si le taux se stabilise"],
+  answer:0,
+  explain:"Rollback d'abord, enquête ensuite. La release immuable retirée reste disponible pour l'analyse : rien n'est perdu en revenant en arrière." },
+{ id:"s-sre-incident-passation", level:3, d:"sre", dom:"Gestion d'incidents", type:"qcm",
+  q:"Un incident dure au-delà du créneau de l'équipe en poste. Quelle pratique applique-t-on ?",
+  choices:["Une passation explicite du rôle d'Incident Commander, avec un état des lieux écrit et une confirmation de la reprise","Laisser l'équipe en poste finir l'incident","Clôturer l'incident et en ouvrir un nouveau","Escalader au management"],
+  answer:0,
+  explain:"L'implicite est l'ennemi d'un incident long : une passation non confirmée laisse l'incident sans pilote pendant quelques minutes décisives." },
+{ id:"s-sre-postmortem-actions", level:3, d:"sre", dom:"Postmortem", type:"qcm",
+  q:"Les postmortems de l'équipe sont bien rédigés mais rien ne change, et les mêmes incidents se répètent. Quel manque ?",
+  choices:["Des actions correctives avec un responsable, une échéance et un suivi d'avancement, traitées comme du travail prioritaire","Une rédaction plus détaillée de la chronologie","Une diffusion plus large du document","Une recherche de cause racine plus poussée"],
+  answer:0,
+  explain:"Un postmortem sans action suivie est un exercice d'écriture. Le critère de qualité est la liste d'actions réalisées, pas la longueur du document." },
+{ id:"s-sre-postmortem-blame", level:3, d:"sre", dom:"Postmortem", type:"qcm",
+  q:"Un postmortem conclut qu'un ingénieur a lancé la mauvaise commande. Quelle reformulation sans blâme ?",
+  choices:["Chercher pourquoi le système a permis cette commande sans garde-fou, sans confirmation ni possibilité de retour arrière","Nommer l'ingénieur et prévoir une formation","Interdire les commandes manuelles sans en proposer d'alternative","Conclure à une erreur humaine inévitable"],
+  answer:0,
+  explain:"La conclusion utile est un changement de système : confirmation, dry-run, automatisation. Nommer la personne ne réduit la probabilité de rien." },
+{ id:"s-sre-toil-mesure", level:3, d:"sre", dom:"Toil", type:"qcm",
+  q:"Une équipe passe la moitié de son temps à redémarrer des services et à traiter des tickets répétitifs. Quelle démarche ?",
+  choices:["Mesurer le toil pour identifier les tâches les plus coûteuses, les automatiser, puis supprimer la cause en améliorant le service","Recruter pour absorber la charge","Répartir l'astreinte sur plus de personnes","Prioriser les demandes par ordre d'arrivée"],
+  answer:0,
+  explain:"L'automatisation sans suppression de la cause fait disparaître la douleur mais pas le défaut. Les trois étapes se font dans cet ordre." },
+{ id:"s-sre-autohealing", level:3, d:"sre", dom:"Toil", type:"qcm",
+  q:"Un service est redémarré manuellement plusieurs fois par semaine après des blocages. Quelle automatisation immédiate ?",
+  choices:["Un health check avec autohealing sur le managed instance group, ou des probes liveness et readiness sur Kubernetes","Un script de redémarrage lancé par l'astreinte","Un redémarrage planifié chaque nuit","Une alerte supplémentaire pour réagir plus vite"],
+  answer:0,
+  explain:"L'autoréparation supprime le toil tout de suite, mais ne dispense pas de chercher la fuite ou l'interblocage à l'origine des blocages." },
+{ id:"s-sre-circuitbreaker", level:3, d:"sre", dom:"Patterns de fiabilité", type:"qcm",
+  q:"Un service appelle une dépendance en panne, ses threads s'accumulent en attente et il tombe à son tour. Quel pattern applique-t-on ?",
+  choices:["Un circuit breaker avec des timeouts courts, pour cesser d'appeler la dépendance défaillante et dégrader gracieusement","Des réessais plus nombreux","Une file d'attente devant la dépendance","Une mise à l'échelle du service appelant"],
+  answer:0,
+  explain:"La mise à l'échelle aggrave la situation en envoyant plus d'appels vers la dépendance. Le timeout et le disjoncteur sont ce qui isole la panne." },
+{ id:"s-sre-idempotence", level:3, d:"sre", dom:"Patterns de fiabilité", type:"qcm",
+  q:"Des réessais automatiques provoquent des doubles commandes chez certains clients. Quelle correction de conception ?",
+  choices:["Rendre l'opération idempotente, par une clé d'idempotence fournie par le client et vérifiée côté serveur","Supprimer les réessais","Allonger les timeouts","Mettre en place un verrou global"],
+  answer:0,
+  explain:"Les réessais sont indispensables sur un réseau. L'idempotence est ce qui les rend sûrs, et elle se conçoit dans l'API, pas dans le client." },
+{ id:"s-sre-degradation", level:3, d:"sre", dom:"Patterns de fiabilité", type:"qcm",
+  q:"Le service de recommandations d'un site marchand est en panne. Quelle conception évite que la page produit soit indisponible ?",
+  choices:["Une dégradation gracieuse : la page s'affiche sans le bloc de recommandations, avec un timeout court sur cet appel","Un réessai jusqu'au succès","Un cache des recommandations sans expiration","Une page d'erreur explicite"],
+  answer:0,
+  explain:"La question à se poser pour chaque dépendance : est-elle critique ou enrichissante ? Une dépendance enrichissante ne doit jamais être dans le chemin critique." },
+{ id:"s-sre-blast-radius", level:3, d:"sre", dom:"Rayon d'impact", type:"qcm",
+  q:"Une erreur de configuration poussée simultanément partout a provoqué une panne mondiale. Quelle conception limite ce risque ?",
+  choices:["Des releases progressives par cellules ou par régions, avec des points de contrôle sur les SLI entre chaque vague","Une revue de configuration à quatre yeux","Un gel des changements le vendredi","Une validation de syntaxe automatique"],
+  answer:0,
+  explain:"La progressivité est la seule protection qui tienne face à une configuration valide mais fausse : la première vague révèle le problème avant la deuxième." },
+{ id:"s-sre-gameday", level:3, d:"sre", dom:"Exercices", type:"qcm",
+  q:"L'équipe veut savoir si son plan de reprise et ses runbooks tiennent, sans attendre un vrai incident. Quelles pratiques ?",
+  choices:["Des game days avec injection de pannes contrôlées, et des Wheels of Misfortune pour s'entraîner aux rôles d'incident","Une relecture annuelle des runbooks","Un audit externe du plan","Une simulation sur papier par le management"],
+  answer:0,
+  explain:"Un runbook jamais exécuté est une hypothèse. L'exercice fait apparaître les étapes obsolètes, les droits manquants et les dépendances oubliées." },
+{ id:"s-sre-dr-strategie", level:3, d:"sre", dom:"Reprise après sinistre", type:"qcm",
+  q:"Une application tolère quelques dizaines de minutes d'arrêt et un budget contraint sur le secours. Quelle stratégie de reprise ?",
+  choices:["Pilot light : les données sont répliquées en continu et un socle minimal est prêt, le calcul étant monté au moment de la bascule","Actif-actif multi-région","Warm standby à pleine capacité","Sauvegarde et restauration seules"],
+  answer:0,
+  explain:"L'échelle à connaître : sauvegarde pour des heures, pilot light pour des dizaines de minutes, warm standby pour des minutes, actif-actif pour un arrêt quasi nul." },
+{ id:"s-sre-dr-cloudsql", level:3, d:"sre", dom:"Reprise après sinistre", type:"qcm",
+  q:"Une base Cloud SQL doit survivre à la perte d'une zone, puis à la perte d'une région. Quelle conception pour chacun des deux cas ?",
+  choices:["La haute disponibilité régionale pour la zone, et un réplica de lecture inter-régions promouvable pour la région","La haute disponibilité suffit dans les deux cas","Des sauvegardes automatiques suffisent dans les deux cas","Un réplica de lecture dans la même région pour les deux"],
+  answer:0,
+  explain:"La haute disponibilité de Cloud SQL est zonale par construction : elle ne protège pas de la perte de la région. Ce sont deux mécanismes distincts à nommer séparément." },
+{ id:"s-sre-dr-multiregion", level:3, d:"sre", dom:"Reprise après sinistre", type:"qcm",
+  q:"Un service web doit continuer à répondre malgré la perte d'une région, avec une bascule automatique du trafic. Quelle conception ?",
+  choices:["Un déploiement dans plusieurs régions derrière un Application Load Balancer global, qui retire automatiquement les backends en échec grâce aux health checks","Un load balancer régional par région et une bascule DNS manuelle","Un seul déploiement régional avec des sauvegardes","Un Cloud CDN devant un backend unique"],
+  answer:0,
+  explain:"Le load balancer global en anycast ne fournit qu'une adresse IP et route vers le backend sain le plus proche : la bascule n'exige aucune action humaine." },
+{ id:"s-sre-capacity", level:3, d:"sre", dom:"Capacity planning", type:"qcm",
+  q:"Un événement commercial va multiplier le trafic par cinq dans trois semaines. Quelle démarche de préparation ?",
+  choices:["Prévoir la croissance organique et inorganique, réaliser des tests de charge, vérifier et faire relever les quotas, puis préchauffer la capacité avec min-instances ou un planning d'autoscaling","Compter sur l'autoscaling le jour J","Doubler la capacité en permanence","Alerter l'astreinte la veille"],
+  answer:0,
+  explain:"L'autoscaling a un temps de réaction et s'arrête net à la limite d'un quota. Les deux pièges du jour J sont le délai de montée et le quota non relevé." },
+
+
+/* ============ NIVEAU 3 — SCÉNARIOS : SUPERVISION ============ */
+
+{ id:"s-obs-alerte-bruit", level:3, d:"obs", dom:"Alerting", type:"qcm",
+  q:"L'astreinte reçoit 40 notifications par nuit et les ignore. Quelle refonte de l'alerting ?",
+  choices:["Alerter sur les SLO et le burn rate, c'est-à-dire sur l'impact utilisateur, supprimer les alertes de cause non actionnables, et joindre un runbook à chaque alerte restante","Augmenter les seuils de toutes les alertes","Router les alertes vers un canal de discussion au lieu du téléphone","Doubler l'effectif d'astreinte"],
+  answer:0,
+  explain:"Le critère de survie d'une alerte : quelqu'un doit agir immédiatement et savoir quoi faire. Tout le reste est un tableau de bord ou un ticket." },
+{ id:"s-obs-burnrate-config", level:3, d:"obs", dom:"Burn rate", type:"qcm",
+  q:"Vous configurez l'alerting d'un SLO de disponibilité à 99,9 % sur 30 jours. Quelle configuration recommandée ?",
+  choices:["Deux alertes urgentes, à burn rate 14,4 sur une heure et 6 sur six heures, plus un ticket à burn rate 1 sur trois jours","Une seule alerte au premier pourcentage de budget consommé","Une alerte quand le budget est épuisé","Une alerte sur le taux d'erreur brut à 1 %"],
+  answer:0,
+  explain:"Alerter à l'épuisement arrive trop tard : il n'y a plus de marge. Les paliers de burn rate préviennent pendant qu'il reste du temps pour agir." },
+{ id:"s-obs-slo-monitoring", level:3, d:"obs", dom:"SLO monitoring", type:"qcm",
+  q:"Une équipe suit ses SLO dans un tableur, mis à jour à la main chaque semaine. Quelle amélioration côté plateforme ?",
+  choices:["Définir le SLO dans Cloud Monitoring, service, SLI, objectif et fenêtre, puis alerter sur le burn rate et afficher le budget restant dans un tableau de bord","Exporter les métriques vers BigQuery et construire un rapport SQL","Automatiser le remplissage du tableur","Mesurer le SLO uniquement lors des revues mensuelles"],
+  answer:0,
+  explain:"Un SLO calculé à la main est consulté une fois par semaine ; un SLO dans Monitoring devient une alerte. C'est la différence entre un indicateur et un garde-fou." },
+{ id:"s-obs-log-metric", level:3, d:"obs", dom:"Cloud Logging", type:"qcm",
+  q:"Un échec de paiement n'apparaît que dans un message applicatif, et il faut alerter dès qu'il dépasse un seuil. Quelle conception ?",
+  choices:["Une métrique basée sur les journaux, de type compteur, filtrée sur ce message, puis une alert policy sur cette métrique","Une alerte directement sur le filtre de journaux","Un export BigQuery avec une requête planifiée","Error Reporting"],
+  answer:0,
+  explain:"La métrique basée sur les journaux est le pont entre Logging et Monitoring. En type distribution, elle permet en plus d'observer des percentiles." },
+{ id:"s-obs-logs-cout", level:3, d:"obs", dom:"Coûts de supervision", type:"qcm",
+  q:"La facture Cloud Logging a triplé, surtout à cause de sondes de santé et de journaux de debug. Quelles actions, par ordre ?",
+  choices:["Des filtres d'exclusion sur ces entrées à faible valeur, puis un ajustement de la rétention des buckets personnalisés, et un sink vers Cloud Storage pour ce qui doit être conservé longtemps","Réduire la rétention de _Required","Désactiver les journaux d'audit Admin Activity","Exporter tout vers BigQuery"],
+  answer:0,
+  explain:"On commence par ne plus ingérer ce qui n'a pas de valeur. _Required n'est ni facturé ni modifiable, et Admin Activity n'est pas désactivable." },
+{ id:"s-obs-dataaccess", level:3, d:"obs", dom:"Journaux d'audit", type:"qcm",
+  q:"Un auditeur veut savoir qui a lu une table sensible. Quelle action, et avec quelle réserve ?",
+  choices:["Activer les journaux Data Access sur le service concerné, en mesurant le volume généré, car ils sont désactivés par défaut pour cette raison","Lire les journaux Admin Activity, qui contiennent déjà les lectures","Activer Data Access sur toute l'organisation","Créer une métrique basée sur les journaux"],
+  answer:0,
+  explain:"Admin Activity ne trace que les changements de configuration, pas les accès aux données. L'activation ciblée est la réponse complète." },
+{ id:"s-obs-trace", level:3, d:"obs", dom:"Trace", type:"qcm",
+  q:"Une requête traverse sept microservices et sa latence p99 a doublé, sans que personne ne sache où. Quel outil, et comment instrumenter ?",
+  choices:["Cloud Trace, avec une instrumentation OpenTelemetry qui propage le contexte de trace entre les services","Cloud Profiler sur chaque service","Les journaux de chaque service, corrélés à la main","Une métrique de latence par service"],
+  answer:0,
+  explain:"Sans propagation du contexte, chaque service produit des spans isolés et la vue de bout en bout est impossible : c'est la partie à ne pas oublier." },
+{ id:"s-obs-profiler", level:3, d:"obs", dom:"Profiler", type:"qcm",
+  q:"Un service consomme beaucoup plus de CPU depuis une mise à jour, et la trace montre que le temps est passé dans ce service lui-même. Quel outil ensuite ?",
+  choices:["Cloud Profiler, qui tourne en continu en production avec un surcoût de quelques pour cent et désigne les fonctions coûteuses","Cloud Trace avec plus de spans","Un test de charge en préproduction","Error Reporting"],
+  answer:0,
+  explain:"La séquence d'enquête : les métriques disent quoi, la trace dit où, le profil dit pourquoi. Chacun répond à une seule des trois questions." },
+{ id:"s-obs-error-reporting", level:3, d:"obs", dom:"Error Reporting", type:"qcm",
+  q:"Il faut être prévenu dès qu'un nouveau type d'exception apparaît en production, sans noyer l'équipe sous les occurrences connues. Quel outil ?",
+  choices:["Error Reporting, qui regroupe les exceptions par signature, les compte et alerte sur les nouvelles","Une métrique basée sur les journaux sur severity ERROR","Un uptime check","Cloud Trace"],
+  answer:0,
+  explain:"Le regroupement par signature est l'apport décisif : une exception qui se produit mille fois est un seul problème, et une nouvelle signature est un signal." },
+{ id:"s-obs-gke-oom", level:3, d:"obs", dom:"GKE", type:"qcm",
+  q:"Des pods sont régulièrement tués en OOMKilled sans que personne ne s'en aperçoive avant les plaintes utilisateurs. Quelle supervision mettre en place ?",
+  choices:["Des alertes sur OOMKilled et sur le nombre de redémarrages, le suivi des requests face à l'usage réel, et une alerte sur les pods Pending ou CrashLoopBackOff","Une alerte sur le CPU des nœuds","Un uptime check externe","Un tableau de bord consulté chaque matin"],
+  answer:0,
+  explain:"L'écart entre requests et usage réel est la mesure qui permet de corriger durablement, en complément de l'alerte qui signale l'événement." },
+{ id:"s-obs-gke-prometheus", level:3, d:"obs", dom:"GKE", type:"qcm",
+  q:"Les applications exposent déjà des métriques au format Prometheus, et l'équipe ne veut pas exploiter de serveur Prometheus hautement disponible. Quelle solution ?",
+  choices:["Managed Service for Prometheus, déclaré par des ressources PodMonitoring, avec des requêtes PromQL dans Cloud Monitoring","Un serveur Prometheus dans le cluster avec un stockage persistant","Convertir toutes les métriques en métriques personnalisées via l'API Monitoring","Des métriques basées sur les journaux"],
+  answer:0,
+  explain:"On garde l'instrumentation existante et on supprime l'exploitation du stockage et de la haute disponibilité : c'est tout l'argument de conception." },
+{ id:"s-obs-multiprojet", level:3, d:"obs", dom:"Cloud Monitoring", type:"qcm",
+  q:"Une organisation compte 60 projets et les équipes veulent un tableau de bord unique par environnement. Quelle conception ?",
+  choices:["Un projet de scoping par environnement, dont le metrics scope agrège les projets concernés","Un export de toutes les métriques vers BigQuery","Un tableau de bord par projet, consolidé à la main","Une copie des métriques dans un projet central"],
+  answer:0,
+  explain:"Le metrics scope évite toute duplication de données : c'est une vue, pas une copie, donc rien à synchroniser ni à payer deux fois." },
+{ id:"s-obs-uptime-prive", level:3, d:"obs", dom:"Disponibilité", type:"qcm",
+  q:"Un service interne, sans exposition publique, doit être sondé de l'extérieur de son propre processus. Quelle option ?",
+  choices:["Un private uptime check, qui sonde une ressource interne au VPC","Un uptime check public vers l'IP privée","Une probe readiness Kubernetes","Une métrique de disponibilité calculée par l'application"],
+  answer:0,
+  explain:"Une probe Kubernetes est vue depuis le cluster, pas depuis le réseau. Le contrôle privé mesure le chemin réseau complet jusqu'au service." },
+{ id:"s-obs-notification", level:3, d:"obs", dom:"Alerting", type:"qcm",
+  q:"Une alerte urgente doit réveiller l'astreinte et créer un incident dans l'outil de garde, et chaque notification doit contenir la procédure. Quelle configuration ?",
+  choices:["Un canal de notification vers l'outil d'astreinte, par exemple PagerDuty ou un webhook, et le champ documentation de l'alert policy renseigné avec le lien du runbook","Un envoi par courriel à la liste de l'équipe","Un message dans un canal de discussion","Un ticket créé manuellement par le premier qui voit l'alerte"],
+  answer:0,
+  explain:"Le champ documentation est le détail qui change tout à trois heures du matin : l'alerte arrive avec ce qu'il faut faire, pas seulement avec un symptôme." },
+{ id:"s-obs-absence", level:3, d:"obs", dom:"Alerting", type:"qcm",
+  q:"Un traitement planifié n'a pas tourné pendant deux jours, et aucune alerte ne s'est déclenchée puisqu'il n'a produit aucune erreur. Quel type de condition fallait-il ?",
+  choices:["Une condition d'absence de métrique, qui alerte quand aucune donnée n'arrive pendant une durée donnée","Un seuil bas sur le taux d'erreur","Un uptime check","Une alerte sur le taux de croissance"],
+  answer:0,
+  explain:"Un silence ressemble à un succès sur un tableau de bord. L'absence de données est une des conditions les plus utiles et des plus oubliées." },
+{ id:"s-obs-log-analytics", level:3, d:"obs", dom:"Cloud Logging", type:"qcm",
+  q:"Une analyse ad hoc doit croiser des journaux sur trois mois en SQL, et l'équipe veut éviter un export et une double facturation. Quelle option ?",
+  choices:["Mettre le bucket de journaux à niveau pour Log Analytics et l'interroger en SQL sur place","Exporter vers BigQuery par un sink","Télécharger les journaux et les analyser localement","Créer des métriques basées sur les journaux"],
+  answer:0,
+  explain:"L'export vers BigQuery reste pertinent pour joindre les journaux à d'autres jeux de données, mais il ajoute une copie à stocker et à payer." },
+{ id:"s-obs-sink-pubsub", level:3, d:"obs", dom:"Cloud Logging", type:"qcm",
+  q:"Un SIEM externe doit recevoir en continu certains journaux de sécurité. Quelle destination de sink ?",
+  choices:["Pub/Sub, qui permet une consommation en flux par un système externe","Cloud Storage, relu périodiquement","BigQuery, interrogé par le SIEM","Un bucket de journaux dans un autre projet"],
+  answer:0,
+  explain:"Les quatre destinations possibles sont Cloud Storage pour l'archive, BigQuery pour l'analyse, Pub/Sub pour le flux, et un bucket de journaux pour la centralisation." },
+{ id:"s-obs-pii", level:3, d:"obs", dom:"Conformité", type:"qcm",
+  q:"Une revue découvre des numéros de carte dans les journaux applicatifs. Quelles actions ?",
+  choices:["Corriger l'application pour ne plus journaliser ces champs, purger ou restreindre l'accès aux entrées existantes, et outiller la détection avec Sensitive Data Protection","Restreindre l'accès aux journaux au seul rôle privateLogViewer","Réduire la rétention à sept jours","Chiffrer le bucket de journaux avec une clé client"],
+  answer:0,
+  explain:"Tout ce qui ne traite pas la source laisse le problème se reproduire au prochain déploiement. La correction applicative est la première action, pas la dernière." },
+
+
+/* ====== NIVEAU 3 — SCÉNARIOS : OPTIMISATION DES PERFORMANCES ====== */
+
+{ id:"s-perf-demarche", level:3, d:"perf", dom:"Démarche", type:"qcm",
+  q:"Une direction demande d'optimiser les performances d'une application jugée lente, sans autre précision. Par quoi commencez-vous ?",
+  choices:["Mesurer : métriques, traces et profils, pour identifier le goulot d'étranglement avant toute modification","Augmenter la taille des instances","Ajouter un cache devant la base","Activer Cloud CDN"],
+  answer:0,
+  explain:"Optimiser sans mesurer, c'est déplacer le goulot au hasard. La boucle attendue est mesurer, corriger, remesurer, puis arbitrer coût et fiabilité." },
+{ id:"s-perf-requests", level:3, d:"perf", dom:"Autoscaling GKE", type:"qcm",
+  q:"Des pods restent en Pending et le Cluster Autoscaler n'ajoute aucun nœud. Quelle cause la plus probable ?",
+  choices:["Les pods ne déclarent pas de requests, donc l'autoscaler ne sait pas quelle capacité il manque","Le cluster a atteint son nombre maximal de nœuds par défaut","L'HPA est désactivé","Les nœuds sont en mode Autopilot"],
+  answer:0,
+  explain:"Sans requests, le planificateur place les pods au hasard de la place disponible et l'autoscaler n'a aucun signal. Les requests sont la base de tout le dimensionnement." },
+{ id:"s-perf-hpa-custom", level:3, d:"perf", dom:"Autoscaling GKE", type:"qcm",
+  q:"Un service de traitement asynchrone doit se mettre à l'échelle selon la profondeur de sa file, pas selon le CPU. Quelle conception ?",
+  choices:["Un HPA sur une métrique personnalisée ou externe, par exemple le nombre de messages non acquittés de la souscription Pub/Sub","Un HPA sur le CPU avec un seuil plus bas","Un VPA sur la mémoire","Un CronJob qui ajuste le nombre de réplicas"],
+  answer:0,
+  explain:"Le CPU d'un consommateur de file ne reflète pas le retard accumulé. La métrique qui compte est la profondeur de la file, ou l'âge du plus vieux message." },
+{ id:"s-perf-vpa", level:3, d:"perf", dom:"Autoscaling GKE", type:"qcm",
+  q:"Les requests mémoire des charges ont été fixées au doigt mouillé et le cluster est surdimensionné. Quelle approche ?",
+  choices:["Activer le VPA en mode recommandation pour obtenir des valeurs fondées sur l'usage, puis appliquer, en évitant de le combiner avec un HPA sur la même métrique","Diviser toutes les requests par deux","Passer en Autopilot sans changer les requests","Activer HPA et VPA ensemble sur la mémoire"],
+  answer:0,
+  explain:"En Autopilot, la facturation porte sur les requests des pods : des requests mal réglées coûtent cher sans rien apporter." },
+{ id:"s-perf-coldstart", level:3, d:"perf", dom:"Cloud Run", type:"qcm",
+  q:"Un service Cloud Run peu sollicité présente des latences très élevées sur la première requête après une période creuse. Quelle correction, et à quel coût ?",
+  choices:["Fixer min-instances à une valeur supérieure à zéro, en acceptant de payer des instances au repos","Augmenter la mémoire allouée","Augmenter la concurrence par instance","Passer en max-instances illimité"],
+  answer:0,
+  explain:"L'arbitrage à énoncer : le démarrage à froid se paie en latence ou en instances inactives. Alléger l'image et l'initialisation réduit la facture des deux côtés." },
+{ id:"s-perf-maxinstances", level:3, d:"perf", dom:"Cloud Run", type:"qcm",
+  q:"Un pic de trafic sur Cloud Run a saturé le pool de connexions de la base de données en aval. Quelle conception ?",
+  choices:["Limiter max-instances en cohérence avec la capacité de la base, et mutualiser les connexions, par exemple avec le Cloud SQL Auth Proxy ou un pooler","Augmenter la taille de l'instance de base de données","Supprimer la limite d'instances pour absorber le pic","Ajouter un cache applicatif"],
+  answer:0,
+  explain:"Une mise à l'échelle sans limite transforme un pic de trafic en panne de base : le nombre de connexions croît avec le nombre d'instances." },
+{ id:"s-perf-concurrence", level:3, d:"perf", dom:"Cloud Run", type:"qcm",
+  q:"Un service Cloud Run a une concurrence fixée à 1 et consomme beaucoup d'instances pour un trafic modeste. Quelle action, et quelle vérification ?",
+  choices:["Augmenter la concurrence par instance si le code est capable de traiter plusieurs requêtes en parallèle sans état partagé","Augmenter min-instances","Réduire la mémoire pour baisser le coût unitaire","Passer sur GKE"],
+  answer:0,
+  explain:"La vérification est indispensable : un code non thread-safe traite mal plusieurs requêtes simultanées, et le gain de coût se paie en bugs intermittents." },
+{ id:"s-perf-mig-cooldown", level:3, d:"perf", dom:"Compute Engine", type:"qcm",
+  q:"Un managed instance group ajoute et retire des VM en permanence, et les VM mettent trois minutes à démarrer. Quel réglage ?",
+  choices:["Allonger la période d'initialisation, ou cool-down, pour que la métrique d'une VM qui démarre ne soit pas prise en compte trop tôt","Baisser le seuil de CPU cible","Fixer un nombre d'instances constant","Passer en autoscaling prédictif uniquement"],
+  answer:0,
+  explain:"Sans cool-down adapté, l'autoscaler mesure une VM qui n'a pas fini de démarrer, en conclut qu'il en manque, et l'oscillation s'entretient." },
+{ id:"s-perf-mig-predictif", level:3, d:"perf", dom:"Compute Engine", type:"qcm",
+  q:"Le trafic suit un cycle quotidien très régulier, et la montée en charge réactive arrive toujours quelques minutes trop tard. Quelle option ?",
+  choices:["L'autoscaling prédictif, qui anticipe la montée à partir de l'historique, ou un planning d'autoscaling sur les créneaux connus","Un seuil de CPU plus bas","Un nombre minimal d'instances calé sur le pic","Un load balancer supplémentaire"],
+  answer:0,
+  explain:"Quand la charge est prévisible, on anticipe plutôt qu'on réagit. Caler le minimum sur le pic fonctionne aussi, et coûte toute la journée." },
+{ id:"s-perf-lb-global", level:3, d:"perf", dom:"Réseau", type:"qcm",
+  q:"Des utilisateurs répartis sur trois continents subissent des latences élevées vers un backend unique en Europe. Quelle conception ?",
+  choices:["Déployer les backends dans plusieurs régions derrière un Application Load Balancer global en anycast, avec Cloud CDN pour le contenu statique","Un load balancer régional par continent et une bascule DNS","Augmenter la bande passante du backend européen","Activer le niveau réseau Standard"],
+  answer:0,
+  explain:"L'anycast fait entrer le trafic sur le réseau de Google au plus près de l'utilisateur. Le niveau Standard irait dans le sens inverse du besoin." },
+{ id:"s-perf-cdn-cache", level:3, d:"perf", dom:"Réseau", type:"qcm",
+  q:"Cloud CDN est activé mais le taux de hit reste proche de zéro. Quelle cause la plus probable ?",
+  choices:["Les réponses du backend ne portent pas d'en-têtes de cache exploitables, ou contiennent des éléments qui les rendent non cachables","Le niveau réseau est en Standard","Le backend est dans une seule région","Le load balancer est régional"],
+  answer:0,
+  explain:"Un CDN ne devine pas ce qui est cachable : tout dépend de Cache-Control, de la variation d'en-têtes et des cookies présents dans les réponses." },
+{ id:"s-perf-healthcheck", level:3, d:"perf", dom:"Réseau", type:"qcm",
+  q:"Pendant les déploiements, des utilisateurs reçoivent des erreurs alors que les instances sont retirées proprement. Quels réglages examiner ?",
+  choices:["Le connection draining du backend et le calibrage des health checks, pour laisser les requêtes en cours se terminer avant le retrait","La taille des instances","Le niveau de service réseau","La région du load balancer"],
+  answer:0,
+  explain:"Sans vidange des connexions, le retrait d'un backend coupe les requêtes en vol. Des health checks trop lents laissent au contraire du trafic partir vers une instance morte." },
+{ id:"s-perf-rightsizing", level:3, d:"perf", dom:"Right-sizing", type:"qcm",
+  q:"Un parc de VM est utilisé à 8 % de CPU en moyenne et la facture est jugée excessive. Quelle démarche défendable ?",
+  choices:["Appliquer les recommandations de Recommender, en vérifiant les pics et non la seule moyenne, et envisager des types de machines personnalisés","Diviser par deux la taille de toutes les VM","Passer tout le parc en Spot","Supprimer les VM les moins utilisées"],
+  answer:0,
+  explain:"La moyenne cache les pics : redimensionner sur la moyenne crée des incidents. La recommandation s'appuie sur une mesure, c'est ce qui la rend opposable." },
+{ id:"s-perf-cud-vs-spot", level:3, d:"perf", dom:"Coûts", type:"qcm",
+  q:"Une plateforme comporte un socle stable de production et des traitements par lots nocturnes interruptibles. Quelle stratégie de coût ?",
+  choices:["Des committed use discounts sur le socle stable, et des Spot VMs pour les lots interruptibles","Des Spot VMs partout","Des CUD sur l'ensemble du parc","Le tarif à la demande partout, pour garder la souplesse"],
+  answer:0,
+  explain:"On engage ce qui est prévisible et on arbitre le reste. Souscrire un engagement sur une charge intermittente revient à payer de la capacité inutilisée." },
+{ id:"s-perf-arret-programme", level:3, d:"perf", dom:"Coûts", type:"qcm",
+  q:"Les environnements de développement tournent 24 heures sur 24 alors qu'ils ne servent qu'en journée. Quelle action simple ?",
+  choices:["Des instance schedules qui arrêtent et redémarrent les VM selon un calendrier","Passer ces VM en Spot","Réduire leur taille de moitié","Souscrire un engagement sur ces VM"],
+  answer:0,
+  explain:"Éteindre une VM douze heures par jour supprime environ la moitié de son coût de calcul, sans aucune dégradation pour les utilisateurs concernés." },
+{ id:"s-perf-storage-lifecycle", level:3, d:"perf", dom:"Cloud Storage", type:"qcm",
+  q:"Un bucket conserve des exports consultés la première semaine puis quasiment jamais, et il grossit sans fin. Quelle conception ?",
+  choices:["Des règles de cycle de vie qui font descendre les objets vers Nearline, Coldline puis Archive, avec une suppression au terme de la durée de conservation","Tout conserver en Standard","Tout placer en Archive dès l'écriture","Supprimer manuellement chaque trimestre"],
+  answer:0,
+  explain:"Placer tout en Archive d'emblée coûte cher en accès pendant la première semaine : le profil d'accès dicte le palier, pas l'âge seul." },
+{ id:"s-perf-db-lecture", level:3, d:"perf", dom:"Bases de données", type:"qcm",
+  q:"Une base Cloud SQL sature sur des lectures répétitives d'un catalogue qui change une fois par jour. Quels leviers, par ordre ?",
+  choices:["Un cache Memorystore devant les lectures, des read replicas pour le reste, et la vérification des index et du pooling de connexions","Augmenter la taille de l'instance","Activer la haute disponibilité","Migrer vers une autre base de données"],
+  answer:0,
+  explain:"Le rapport entre fréquence de lecture et fréquence de changement désigne le cache. La haute disponibilité ne sert pas la performance." },
+{ id:"s-perf-pipeline-cout", level:3, d:"perf", dom:"Performance du pipeline", type:"qcm",
+  q:"Les builds coûtent cher et durent longtemps, et l'équipe envisage des workers plus puissants. Quel ordre de traitement ?",
+  choices:["D'abord supprimer le travail inutile par du cache et des tests sélectifs, paralléliser, alléger les images de build, et seulement ensuite envisager des machines plus puissantes ou un private pool dimensionné","Passer directement sur les plus grosses machines disponibles","Réduire la fréquence des builds","Lancer les builds uniquement la nuit"],
+  answer:0,
+  explain:"Payer plus pour refaire plus vite un travail inutile reste du gaspillage. Le cache et le parallélisme réduisent à la fois le temps et la facture." },
+
+
+/* ====== CODE À COMPLÉTER — GCLOUD, YAML, PROMQL, TERRAFORM ====== */
+
+{ id:"c-gcloud-iam", level:2, d:"boot", dom:"gcloud", type:"input",
+  q:"Complète la commande qui accorde un rôle sur un projet. Quel sous-groupe de commandes manque à la place de ??? ?",
+  code:"gcloud projects ??? mon-projet \\\n  --member=\"group:sre@example.com\" \\\n  --role=\"roles/monitoring.editor\"",
+  accept:["add-iam-policy-binding","add iam policy binding"],
+  explain:"Les trois paramètres reflètent les trois pièces d'IAM : le principal, le rôle, et la ressource qui sert de portée. On accorde à un groupe, jamais à une personne." },
+{ id:"c-gcloud-impersonate", level:2, d:"boot", dom:"gcloud", type:"qcm",
+  q:"Que fait exactement cette commande ?",
+  code:"gcloud storage ls gs://mon-bucket \\\n  --impersonate-service-account=deployer@mon-projet.iam.gserviceaccount.com",
+  choices:["Elle exécute la commande avec les droits du compte de service, en obtenant un jeton de courte durée, sans aucune clé téléchargée","Elle crée une clé JSON temporaire sur le disque","Elle change le compte actif de la configuration gcloud","Elle ajoute l'utilisateur au compte de service"],
+  answer:0,
+  explain:"Elle exige le rôle serviceAccountTokenCreator sur le compte visé, et chaque usage apparaît dans les journaux d'audit." },
+{ id:"c-gcloud-orgpolicy", level:3, d:"boot", dom:"gcloud", type:"qcm",
+  q:"Quel est l'effet de cette politique appliquée à un dossier ?",
+  code:"name: folders/123456789/policies/compute.vmExternalIpAccess\nspec:\n  rules:\n    - denyAll: true",
+  choices:["Aucune VM des projets de ce dossier ne peut recevoir d'adresse IP externe, même créée par un Owner","Les IP externes existantes sont supprimées immédiatement","Seuls les comptes de service sont concernés","Le trafic entrant est bloqué par un pare-feu"],
+  answer:0,
+  explain:"Une org policy limite ce qui est possible, indépendamment d'IAM, et ne touche pas l'existant : il faut un inventaire séparé pour remédier." },
+{ id:"c-gcloud-sink", level:3, d:"obs", dom:"gcloud", type:"input",
+  q:"Ce sink doit capter les journaux de tous les projets de l'organisation. Quel drapeau manque à la place de ??? ?",
+  code:"gcloud logging sinks create audit-central \\\n  storage.googleapis.com/projects/log-central/buckets/audit \\\n  --organization=123456789 \\\n  --???  \\\n  --log-filter='logName:\"cloudaudit.googleapis.com\"'",
+  accept:["include-children","includechildren"],
+  explain:"Sans ce drapeau, le sink ne voit que les journaux de l'organisation elle-même et rien des projets qu'elle contient." },
+{ id:"c-cb-parallele", level:3, d:"cicd", dom:"cloudbuild.yaml", type:"qcm",
+  q:"Dans quel ordre ces étapes s'exécutent-elles ?",
+  code:"steps:\n  - id: lint\n    name: 'node:20'\n    waitFor: ['-']\n  - id: test\n    name: 'node:20'\n    waitFor: ['-']\n  - id: build\n    name: 'gcr.io/kaniko-project/executor:latest'\n    waitFor: ['lint', 'test']",
+  choices:["lint et test démarrent ensemble immédiatement, et build attend que les deux soient terminées","Les trois étapes s'exécutent en série dans l'ordre du fichier","build démarre en premier","Les trois étapes démarrent en parallèle"],
+  answer:0,
+  explain:"waitFor avec un tiret signifie « ne dépend de rien ». C'est le levier numéro un pour raccourcir un pipeline sans rien supprimer." },
+{ id:"c-cb-secret", level:3, d:"cicd", dom:"cloudbuild.yaml", type:"input",
+  q:"Ce build doit lire un secret de Secret Manager. Quelle clé de premier niveau manque à la place de ??? ?",
+  code:"???:\n  secretManager:\n    - versionName: projects/mon-projet/secrets/token-api/versions/latest\n      env: 'TOKEN_API'\nsteps:\n  - name: 'gcr.io/cloud-builders/curl'\n    entrypoint: bash\n    args: ['-c', 'curl -H \"Authorization: Bearer $$TOKEN_API\" https://api.exemple.fr']\n    secretEnv: ['TOKEN_API']",
+  accept:["availablesecrets","available secrets"],
+  explain:"Le double dollar est indispensable : il empêche Cloud Build de substituer la variable au moment du rendu, et laisse le shell la résoudre à l'exécution." },
+{ id:"c-cb-substitution", level:2, d:"cicd", dom:"cloudbuild.yaml", type:"qcm",
+  q:"Pourquoi ce fichier échoue-t-il à la validation ?",
+  code:"substitutions:\n  REGION: europe-west1\nsteps:\n  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'\n    args: ['gcloud', 'run', 'deploy', 'api', '--region', '$REGION']",
+  choices:["Une substitution personnalisée doit commencer par un tiret bas, donc _REGION","Les substitutions ne peuvent pas être utilisées dans args","Il manque un champ entrypoint","REGION est un mot réservé de Cloud Run"],
+  answer:0,
+  explain:"Le tiret bas sépare vos variables de celles de la plateforme comme PROJECT_ID ou SHORT_SHA, dont la liste peut s'enrichir." },
+{ id:"c-cb-timeout", level:2, d:"cicd", dom:"cloudbuild.yaml", type:"qcm",
+  q:"Un build qui dure 15 minutes échoue avec ce fichier. Pourquoi ?",
+  code:"steps:\n  - name: 'maven:3.9'\n    entrypoint: mvn\n    args: ['verify']\noptions:\n  machineType: E2_HIGHCPU_8",
+  choices:["Aucun timeout n'est déclaré, donc la valeur par défaut de 10 minutes s'applique","machineType n'est pas compatible avec Maven","Il manque le champ images","Le champ entrypoint est interdit avec Maven"],
+  answer:0,
+  explain:"Il faut déclarer timeout explicitement, jusqu'à 24 heures. C'est une panne qui apparaît un jour sans qu'aucune ligne du fichier n'ait changé." },
+{ id:"c-cd-canary", level:3, d:"cicd", dom:"clouddeploy.yaml", type:"qcm",
+  q:"Que décrit cette configuration ?",
+  code:"serialPipeline:\n  stages:\n    - targetId: staging\n    - targetId: prod\n      strategy:\n        canary:\n          canaryDeployment:\n            percentages: [10, 50]\n            verify: true",
+  choices:["Une mise en production en trois paliers de trafic, 10 % puis 50 % puis 100 %, chaque palier étant suivi d'une vérification dont l'échec interrompt la progression","Trois déploiements successifs sur trois clusters","Un blue/green avec 10 % de ressources supplémentaires","Une répartition permanente du trafic entre deux versions"],
+  answer:0,
+  explain:"La vérification est un job conteneurisé : sans test réellement capable de détecter la régression, le canary ne fait que ralentir le déploiement." },
+{ id:"c-cd-approval", level:2, d:"cicd", dom:"clouddeploy.yaml", type:"input",
+  q:"Cette cible doit exiger une validation humaine avant tout déploiement. Quel champ manque à la place de ??? ?",
+  code:"apiVersion: deploy.cloud.google.com/v1\nkind: Target\nmetadata:\n  name: prod\n???: true\nrun:\n  location: projects/mon-prod/locations/europe-west1",
+  accept:["requireapproval","require approval"],
+  explain:"L'approbation se déclare sur la cible, pas sur le pipeline : les promotions vers dev et staging restent fluides, seule la production ouvre une porte." },
+{ id:"c-gcloud-run-traffic", level:2, d:"cicd", dom:"gcloud", type:"input",
+  q:"Complète la commande qui envoie 10 % du trafic vers une révision Cloud Run. Quel sous-groupe manque à la place de ??? ?",
+  code:"gcloud run services ??? api \\\n  --region=europe-west1 \\\n  --to-revisions=api-00042-abc=10",
+  accept:["update-traffic","update traffic"],
+  explain:"Avec le drapeau tag, on obtient une URL dédiée pour tester une révision sans lui envoyer la moindre requête de production." },
+{ id:"c-promql-erreurs", level:3, d:"obs", dom:"PromQL", type:"qcm",
+  q:"Que calcule cette requête ?",
+  code:"sum(rate(http_requests_total{code=~\"5..\"}[5m]))\n  /\nsum(rate(http_requests_total[5m]))",
+  choices:["Le taux d'erreur serveur sur une fenêtre glissante de cinq minutes, c'est-à-dire le complément d'un SLI de disponibilité","Le nombre total de requêtes en erreur","La latence moyenne des requêtes","Le nombre de requêtes par seconde"],
+  answer:0,
+  explain:"Le SLI de disponibilité est 1 moins cette valeur. On exclut volontairement les codes 4xx, qui traduisent une erreur du client et non du service." },
+{ id:"c-promql-latence", level:3, d:"obs", dom:"PromQL", type:"input",
+  q:"Cette requête doit renvoyer la latence au 95e percentile à partir d'un histogramme. Quelle fonction manque à la place de ??? ?",
+  code:"???(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+  accept:["histogram_quantile","histogramquantile"],
+  explain:"L'agrégation doit conserver l'étiquette le, qui porte les bornes des tranches : sans elle, le calcul du quantile n'a plus de support." },
+{ id:"c-promql-saturation", level:3, d:"perf", dom:"PromQL", type:"qcm",
+  q:"Que révèle cette requête sur un cluster GKE ?",
+  code:"sum(kube_pod_container_resource_requests{resource=\"memory\"}) by (namespace)\n  /\nsum(kube_node_status_allocatable{resource=\"memory\"})",
+  choices:["La part de la mémoire allouable du cluster réservée par les requests de chaque namespace, donc le surdimensionnement éventuel","La consommation réelle de mémoire par namespace","Le nombre de pods par nœud","Le taux d'éviction des pods"],
+  answer:0,
+  explain:"L'écart entre cette valeur et l'usage réel est exactement ce que le VPA permet de corriger, et ce que la facturation Autopilot fait payer." },
+{ id:"c-logging-filtre", level:2, d:"obs", dom:"Cloud Logging", type:"qcm",
+  q:"Quelles entrées ce filtre sélectionne-t-il ?",
+  code:"resource.type=\"k8s_container\"\nresource.labels.cluster_name=\"prod\"\nseverity>=ERROR\njsonPayload.message:\"timeout\"",
+  choices:["Les journaux de conteneurs du cluster prod, de sévérité ERROR ou supérieure, dont le message contient le mot timeout","Toutes les erreurs de tous les clusters","Les journaux dont le message est exactement timeout","Les journaux d'audit du cluster prod"],
+  answer:0,
+  explain:"Les deux points réalisent une recherche de sous-chaîne, là où le signe égal exige une correspondance exacte. C'est la nuance utile dans ces filtres." },
+{ id:"c-logging-metric", level:3, d:"obs", dom:"gcloud", type:"qcm",
+  q:"À quoi sert cette commande, et que faut-il faire ensuite ?",
+  code:"gcloud logging metrics create echecs-paiement \\\n  --description=\"Echecs de paiement applicatifs\" \\\n  --log-filter='resource.type=\"cloud_run_revision\" AND jsonPayload.event=\"payment_failed\"'",
+  choices:["Elle crée une métrique de type compteur à partir des journaux ; il reste à créer une alert policy sur cette métrique pour être prévenu","Elle crée directement une alerte","Elle exporte les journaux vers BigQuery","Elle supprime les entrées correspondantes du bucket _Default"],
+  answer:0,
+  explain:"La métrique rend l'information observable, l'alerte la rend actionnable. Créer la première sans la seconde ne change rien pour l'astreinte." },
+{ id:"c-tf-backend", level:2, d:"boot", dom:"Terraform", type:"input",
+  q:"Ce bloc configure le stockage distant de l'état Terraform. Quel type de backend manque à la place de ??? ?",
+  code:"terraform {\n  backend \"???\" {\n    bucket = \"tf-state-org\"\n    prefix = \"reseau/prod\"\n  }\n}",
+  accept:["gcs","google cloud storage"],
+  explain:"Le backend gcs fournit le verrouillage nativement. Le versioning du bucket est ce qui permet de revenir sur un état corrompu." },
+{ id:"c-tf-sa", level:3, d:"boot", dom:"Terraform", type:"qcm",
+  q:"Quel problème de conception ce code révèle-t-il ?",
+  code:"resource \"google_service_account_key\" \"deployer\" {\n  service_account_id = google_service_account.deployer.name\n}\n\noutput \"cle\" {\n  value = google_service_account_key.deployer.private_key\n}",
+  choices:["Il crée une clé de compte de service à durée de vie illimitée et l'expose dans l'état et les outputs : il faut passer par Workload Identity Federation","Il manque le champ key_algorithm","L'output devrait être marqué sensitive, ce qui suffirait","La clé doit être créée dans un autre projet"],
+  answer:0,
+  explain:"Marquer l'output sensitive ne change rien : la clé reste en clair dans le fichier d'état. La bonne réponse est de ne pas créer de clé du tout." },
+{ id:"c-gke-probe", level:3, d:"sre", dom:"Kubernetes", type:"qcm",
+  q:"Quel défaut cette configuration présente-t-elle ?",
+  code:"livenessProbe:\n  httpGet: { path: /sante, port: 8080 }\n  initialDelaySeconds: 1\n  periodSeconds: 2\n  failureThreshold: 1",
+  choices:["Les réglages sont trop agressifs : une application lente à démarrer ou une latence passagère provoque des redémarrages en boucle","Il manque une probe readiness, ce qui est le seul problème","Le chemin doit être /healthz","failureThreshold doit valoir 0"],
+  answer:0,
+  explain:"La liveness redémarre : trop sensible, elle transforme un ralentissement en panne. La readiness, elle, retire seulement l'instance du service." },
+{ id:"c-gcloud-cud", level:2, d:"perf", dom:"gcloud", type:"qcm",
+  q:"Que liste cette commande, et comment s'en servir ?",
+  code:"gcloud recommender recommendations list \\\n  --project=mon-projet --location=europe-west1-b \\\n  --recommender=google.compute.instance.MachineTypeRecommender \\\n  --format=\"table(content.overview.currentMachineType.name, content.overview.recommendedMachineType.name)\"",
+  choices:["Les recommandations de redimensionnement de VM fondées sur l'usage observé, à confronter aux pics avant d'être appliquées","Les engagements d'utilisation à souscrire","Les VM à supprimer","Les quotas disponibles dans la zone"],
+  answer:0,
+  explain:"La recommandation repose sur une mesure, ce qui la rend défendable ; la vérification des pics reste nécessaire pour ne pas créer un incident." },
+
+
+/* ================= ÉTUDES DE CAS ================= */
+
+/* --- Cas A : Altostrat Retail --- */
+{ id:"casA-1", level:3, d:"boot", dom:"Hiérarchie", type:"qcm", scen:"A",
+  q:"Quelle organisation de la hiérarchie proposez-vous à Altostrat pour démarrer ?",
+  choices:["Des dossiers production, hors-production et services partagés, avec un projet par application et par environnement, créés par une project factory Terraform","Un projet unique avec des labels par application","Un projet par équipe, tous environnements confondus","Un dossier par application, avec un seul projet dedans"],
+  answer:0,
+  explain:"Le projet délimite le rayon d'impact et les quotas ; le dossier porte les politiques qui dépendent de l'environnement. La factory garantit que tout nouveau projet est conforme dès sa création." },
+{ id:"casA-2", level:3, d:"boot", dom:"Comptes de service", type:"qcm", scen:"A",
+  q:"Les pipelines tournent aujourd'hui avec des clés JSON stockées dans l'outil de CI externe. Quelle remédiation ?",
+  choices:["Workload Identity Federation avec une condition sur le dépôt et la branche, puis la contrainte iam.disableServiceAccountKeyCreation une fois la migration faite","Une rotation automatique des clés tous les 30 jours","Un chiffrement des clés avec Cloud KMS avant stockage","Un compte de service unique pour tous les pipelines"],
+  answer:0,
+  explain:"L'ordre compte : poser la contrainte avant d'avoir migré casse la chaîne de livraison. On supprime la possibilité une fois que personne n'en dépend plus." },
+{ id:"casA-3", level:3, d:"cicd", dom:"Chaîne d'approvisionnement", type:"qcm", scen:"A",
+  q:"Seules les images construites par le pipeline et scannées doivent pouvoir tourner en production. Quelle chaîne ?",
+  choices:["Cloud Build, scan Artifact Analysis, attestation signée par une clé KMS, puis une politique Binary Authorization exigeant cette attestation, d'abord en dry-run","Un scan bloquant dans le pipeline Cloud Build","Un dépôt Artifact Registry privé et des droits IAM restreints","Une revue de code obligatoire avant chaque déploiement"],
+  answer:0,
+  explain:"Un contrôle dans le pipeline se contourne par un déploiement manuel ; le contrôle à l'admission tient quel que soit le chemin. Le dry-run mesure l'impact avant de bloquer." },
+{ id:"casA-4", level:3, d:"cicd", dom:"Cloud Deploy", type:"qcm", scen:"A",
+  q:"La mise en production doit être progressive, vérifiée automatiquement, et validée par un responsable. Quelle configuration ?",
+  choices:["Un delivery pipeline Cloud Deploy avec requireApproval sur la cible prod, une stratégie canary à paliers et l'étape de vérification activée","Un rolling update GKE avec maxSurge à 1 et une approbation sur le trigger de build","Un blue/green manuel avec bascule par le load balancer","Un déploiement recreate planifié la nuit"],
+  answer:0,
+  explain:"Les trois exigences se traduisent par trois réglages distincts : la stratégie pour la progressivité, verify pour le contrôle automatique, requireApproval pour la porte humaine." },
+{ id:"casA-5", level:3, d:"sre", dom:"SLO", type:"qcm", scen:"A",
+  q:"Le SLA client est de 99,5 %. Quel SLO interne, et sur quel SLI ?",
+  choices:["Un SLO plus strict, par exemple 99,9 %, sur un SLI de disponibilité et un SLI de latence mesurés au load balancer sur les parcours critiques","Un SLO de 99,5 %, identique au SLA","Un SLO de 99,999 % pour se donner de la marge","Un SLO sur le CPU des instances"],
+  answer:0,
+  explain:"La marge entre SLO et SLA est le temps de réaction de l'ingénierie. Le point de mesure au load balancer est ce qui rapproche le chiffre du vécu utilisateur." },
+{ id:"casA-6", level:3, d:"obs", dom:"Burn rate", type:"qcm", scen:"A",
+  q:"Comment alerter sur ce SLO sans réveiller l'astreinte pour rien ?",
+  choices:["Des alertes de burn rate multi-fenêtres : 14,4 sur une heure et 6 sur six heures en urgence, 1 sur trois jours en ticket, chacune avec le lien du runbook","Une alerte dès le premier pourcentage de budget consommé","Une alerte quand le budget est épuisé","Une alerte sur le taux d'erreur brut dépassant 0,1 %"],
+  answer:0,
+  explain:"La fenêtre longue filtre le bruit, la fenêtre courte referme l'alerte quand c'est terminé. Alerter à l'épuisement arrive trop tard pour agir." },
+{ id:"casA-7", level:3, d:"sre", dom:"Error budget", type:"qcm", scen:"A",
+  q:"Les équipes produit et plateforme s'opposent sur le rythme des livraisons. Quel dispositif les met d'accord ?",
+  choices:["Une error budget policy écrite et acceptée à l'avance : on livre tant qu'il reste du budget, on gèle les évolutions quand il est épuisé","Un comité de validation hebdomadaire des mises en production","Un gel des livraisons le vendredi","Un objectif de nombre de déploiements par semaine"],
+  answer:0,
+  explain:"Le budget d'erreur remplace un débat d'opinion par une mesure partagée. Écrite à chaud, la règle se négocie et perd tout effet." },
+{ id:"casA-8", level:3, d:"perf", dom:"Coûts", type:"qcm", scen:"A",
+  q:"La facture doit baisser sans dégrader le site, avec un socle stable et des traitements nocturnes interruptibles. Quelle stratégie ?",
+  choices:["Des committed use discounts sur le socle, des Spot VMs pour les lots, des instance schedules sur les environnements de développement, et le right-sizing guidé par Recommender","Des Spot VMs sur l'ensemble de la plateforme","Un engagement de trois ans sur tout le parc","Une réduction de moitié de la taille de toutes les instances"],
+  answer:0,
+  explain:"Chaque levier s'applique au profil de charge qui lui correspond. Le Spot sur un site exposé aux clients échangerait une économie contre une panne." },
+
+/* --- Cas B : Cymbal Média --- */
+{ id:"casB-1", level:3, d:"obs", dom:"GKE", type:"qcm", scen:"B",
+  q:"Les applications exposent déjà des métriques Prometheus et l'équipe ne veut pas exploiter de serveur Prometheus. Quelle conception ?",
+  choices:["Managed Service for Prometheus, déclaré par des ressources PodMonitoring, avec des requêtes PromQL dans Cloud Monitoring","Un serveur Prometheus hautement disponible dans le cluster","Une conversion de toutes les métriques en métriques personnalisées via l'API Monitoring","Des métriques basées sur les journaux"],
+  answer:0,
+  explain:"On conserve l'instrumentation existante et on supprime le stockage et la haute disponibilité à exploiter. C'est le gain à mettre en avant dans la recommandation." },
+{ id:"casB-2", level:3, d:"obs", dom:"Coûts de supervision", type:"qcm", scen:"B",
+  q:"La facture de journalisation explose, portée par les sondes de santé et les journaux de debug. Quelles actions, dans quel ordre ?",
+  choices:["Des filtres d'exclusion sur les entrées à faible valeur, puis un ajustement de la rétention des buckets personnalisés, et un sink vers Cloud Storage pour la conservation longue","Réduire la rétention du bucket _Required","Désactiver les journaux d'audit Admin Activity","Exporter l'intégralité des journaux vers BigQuery"],
+  answer:0,
+  explain:"On arrête d'abord d'ingérer l'inutile. _Required est gratuit et non modifiable, Admin Activity n'est pas désactivable, et un export ajoute une copie à payer." },
+{ id:"casB-3", level:3, d:"perf", dom:"Autoscaling GKE", type:"qcm", scen:"B",
+  q:"Pendant les pics de diffusion, des pods restent en Pending et aucun nœud n'est ajouté. Quelle cause examiner en premier ?",
+  choices:["L'absence de requests sur les pods, sans lesquelles le Cluster Autoscaler n'a aucun signal de capacité manquante","Le quota de CPU de la région, nécessairement atteint","L'HPA mal configuré","Le mode Autopilot du cluster"],
+  answer:0,
+  explain:"Les requests sont la base de tout le dimensionnement GKE. Le quota régional est la seconde hypothèse, à vérifier juste après." },
+{ id:"casB-4", level:3, d:"perf", dom:"Réseau", type:"qcm", scen:"B",
+  q:"Les spectateurs des trois continents subissent une latence élevée et les vignettes statiques pèsent lourd. Quelle conception ?",
+  choices:["Des backends dans plusieurs régions derrière un Application Load Balancer global en niveau Premium, avec Cloud CDN sur le contenu statique","Un load balancer régional par continent et une bascule DNS par zone géographique","Une augmentation de la bande passante du backend principal","Un passage au niveau de service réseau Standard pour réduire le coût"],
+  answer:0,
+  explain:"L'anycast du load balancer global fait entrer le trafic sur le réseau de Google au plus près de l'utilisateur ; le CDN enlève le statique du chemin." },
+{ id:"casB-5", level:3, d:"sre", dom:"Gestion d'incidents", type:"qcm", scen:"B",
+  q:"Pendant la dernière panne, plusieurs ingénieurs ont modifié la production en parallèle et l'état est devenu illisible. Quelle organisation adopter ?",
+  choices:["Un Incident Commander qui coordonne sans dépanner, un Operations Lead seul autorisé à modifier le système, un Communications Lead, et une passation explicite lors des changements d'équipe","Une astreinte à deux personnes avec un canal dédié","Un runbook plus détaillé pour chaque service","Une validation du management avant toute action en production"],
+  answer:0,
+  explain:"L'unicité de la main sur la production rend les actions attribuables et réversibles. Une validation hiérarchique allongerait l'incident sans rien clarifier." },
+{ id:"casB-6", level:3, d:"sre", dom:"Postmortem", type:"qcm", scen:"B",
+  q:"Les postmortems sont rédigés mais les mêmes incidents reviennent. Que corriger ?",
+  choices:["Conclure chaque postmortem par des actions correctives avec responsable, échéance et suivi, priorisées comme du travail de production","Détailler davantage la chronologie des incidents","Diffuser les documents plus largement dans l'entreprise","Rechercher une cause racine unique pour chaque incident"],
+  answer:0,
+  explain:"Le critère de qualité d'un postmortem est le nombre d'actions effectivement réalisées. Un incident récurrent est d'abord un problème de suivi, pas de rédaction." },
+{ id:"casB-7", level:3, d:"sre", dom:"Reprise après sinistre", type:"qcm", scen:"B",
+  q:"La plateforme doit survivre à la perte d'une région, avec un budget de secours contraint et quelques dizaines de minutes d'arrêt tolérées. Quelle stratégie ?",
+  choices:["Pilot light : données répliquées en continu, socle minimal prêt dans la seconde région, capacité de calcul montée au moment de la bascule, le tout exercé en game day","Actif-actif multi-région à pleine capacité","Sauvegarde et restauration seules","Warm standby à capacité nominale"],
+  answer:0,
+  explain:"L'objectif d'arrêt toléré désigne la stratégie, le budget confirme le choix, et l'exercice est ce qui transforme le plan en capacité réelle." },
+{ id:"casB-8", level:3, d:"cicd", dom:"GitOps", type:"qcm", scen:"B",
+  q:"Les clusters divergent de ce qui est dans Git, après des correctifs appliqués à la main pendant les incidents. Quelle conception ?",
+  choices:["Config Sync ou Argo CD pour réconcilier en continu depuis un dépôt de configuration séparé du code, complété par Policy Controller pour refuser les manifestes non conformes","Un pipeline qui applique les manifestes à chaque commit","Le retrait des droits kubectl à toutes les équipes","Un audit mensuel des écarts de configuration"],
+  answer:0,
+  explain:"La réconciliation continue annule la dérive, y compris celle introduite de bonne foi un soir d'incident. Retirer kubectl sans alternative rendrait les incidents ingérables." },
+];
+
+/* ---------- Scénarios des études de cas ---------- */
+const SCENARIOS = {
+A: { title: "Altostrat Retail",
+      text: "Altostrat démarre sur Google Cloud avec trois applications et trois environnements, sans hiérarchie établie : les projets sont créés à la main et aucun ne se ressemble. Les pipelines d'intégration continue tournent sur un outil externe avec des clés JSON de comptes de service stockées dans ses secrets. Le site marchand est sous SLA client de 99,5 %. Les équipes produit et plateforme s'opposent sur le rythme des mises en production. La direction financière exige une baisse de la facture, sachant que la plateforme comporte un socle de production stable, des traitements par lots nocturnes interruptibles et des environnements de développement allumés en permanence." },
+  B: { title: "Cymbal Média",
+      text: "Cymbal diffuse de la vidéo à des spectateurs répartis sur trois continents, depuis des clusters GKE dont les applications exposent déjà des métriques au format Prometheus. La facture de Cloud Logging a triplé, portée par les sondes de santé et les journaux de debug. Pendant les pics de diffusion, des pods restent bloqués en Pending. La dernière panne majeure a vu plusieurs ingénieurs modifier la production en parallèle, et les postmortems rédigés depuis n'ont pas empêché les incidents de se répéter. Des correctifs appliqués à la main pendant les incidents ont fait diverger les clusters de leur configuration de référence. La plateforme doit enfin survivre à la perte d'une région, avec un budget de secours contraint." }
+};
+
+/* ---------- Labs guidés ---------- */
+const LABS = [
+{ id:"lab1", title:"Lab 1 · Bootstrap : hiérarchie, org policy et héritage", time:"≈ 45 min",
+  obj:"Poser un dossier, y appliquer une contrainte d'organisation, et constater ce que l'héritage change par rapport à IAM.",
+  steps:[
+    "Crée un dossier bac-a-sable sous ton organisation, et un projet dedans.",
+    "Applique la contrainte compute.vmExternalIpAccess en refus total sur le dossier.",
+    "Tente de créer une VM avec une IP externe depuis ce projet, en tant qu'Owner : lis le message de refus.",
+    "Ajoute Cloud NAT et Private Google Access, puis vérifie que la VM sans IP externe atteint toujours apt et les API Google.",
+    "Applique gcp.resourceLocations limitée aux régions européennes, et tente une création en us-central1.",
+    "Retire les contraintes, puis supprime le projet et le dossier." ],
+  cli:"gcloud resource-manager folders create --display-name=\"bac-a-sable\" --organization=<orgId>\ngcloud projects create pcde-lab1-<unique> --folder=<folderId>\ngcloud org-policies set-policy politique-ip.yaml   # denyAll sur compute.vmExternalIpAccess, scope folders/<folderId>\ngcloud compute instances create vm-test --zone=europe-west1-b --project=pcde-lab1-<unique>\ngcloud compute routers create r-nat --network=default --region=europe-west1 --project=pcde-lab1-<unique>\ngcloud compute routers nats create nat-sortie --router=r-nat --region=europe-west1 --auto-allocate-nat-external-ips --nat-all-subnet-ip-ranges --project=pcde-lab1-<unique>\ngcloud org-policies delete compute.vmExternalIpAccess --folder=<folderId>\ngcloud projects delete pcde-lab1-<unique>\ngcloud resource-manager folders delete <folderId>",
+  verif:"tu sais énoncer la différence entre une org policy et un rôle IAM à partir d'un refus que tu as provoqué toi-même." },
+
+{ id:"lab2", title:"Lab 2 · Supprimer les clés : Workload Identity Federation", time:"≈ 50 min",
+  obj:"Faire authentifier un pipeline externe sans clé JSON, puis interdire techniquement la création de clés.",
+  steps:[
+    "Crée un pool d'identités de charge de travail et un fournisseur OIDC pour ton dépôt GitHub.",
+    "Crée un compte de service deployer et donne-lui un rôle minimal, par exemple run.developer sur un projet de test.",
+    "Autorise le principal fédéré à emprunter ce compte, avec une condition sur le dépôt ET la branche.",
+    "Dans un workflow GitHub Actions, utilise google-github-actions/auth sans clé, et affiche l'identité obtenue.",
+    "Vérifie dans les journaux d'audit la trace de l'échange de jeton.",
+    "Modifie la condition pour une autre branche et constate le refus : c'est la preuve que la restriction fonctionne.",
+    "Applique enfin iam.disableServiceAccountKeyCreation sur le projet et tente de créer une clé JSON." ],
+  cli:"gcloud iam workload-identity-pools create github --location=global --display-name=\"GitHub\"\ngcloud iam workload-identity-pools providers create-oidc github-oidc --location=global --workload-identity-pool=github --issuer-uri=\"https://token.actions.githubusercontent.com\" --attribute-mapping=\"google.subject=assertion.sub,attribute.repository=assertion.repository\"\ngcloud iam service-accounts create deployer\ngcloud iam service-accounts add-iam-policy-binding deployer@<projet>.iam.gserviceaccount.com --role=roles/iam.workloadIdentityUser --member=\"principalSet://iam.googleapis.com/projects/<num>/locations/global/workloadIdentityPools/github/attribute.repository/<org>/<depot>\"\ngcloud iam service-accounts keys create cle.json --iam-account=deployer@<projet>.iam.gserviceaccount.com   # doit échouer une fois la contrainte posée\ngcloud iam workload-identity-pools delete github --location=global",
+  verif:"aucune clé JSON n'existe plus dans ton projet, et le pipeline déploie quand même." },
+
+{ id:"lab3", title:"Lab 3 · Pipeline Cloud Build : cache, parallélisme et secret", time:"≈ 55 min",
+  obj:"Construire un pipeline lent, puis le rendre rapide en mesurant chaque gain.",
+  steps:[
+    "Écris un cloudbuild.yaml en série : installation des dépendances, tests, build de l'image, poussée vers Artifact Registry. Note la durée.",
+    "Ajoute waitFor avec un tiret sur le lint et les tests pour les lancer en parallèle. Remesure.",
+    "Passe le build d'image à Kaniko avec cache activé, relance deux fois, et compare la seconde exécution à la première.",
+    "Augmente le machineType et remesure : note le gain réel par rapport au coût.",
+    "Mets un jeton dans Secret Manager et consomme-le par availableSecrets, avec le double dollar dans l'étape.",
+    "Vérifie dans les journaux de build que le secret n'apparaît pas en clair.",
+    "Remplace le compte de service par défaut par un compte dédié au moindre privilège, et constate quels rôles manquent.",
+    "Supprime le dépôt, le secret et le trigger." ],
+  cli:"gcloud artifacts repositories create apps --repository-format=docker --location=europe-west1\ngcloud secrets create token-api --replication-policy=automatic\necho -n \"valeur-de-test\" | gcloud secrets versions add token-api --data-file=-\ngcloud iam service-accounts create cb-runner\ngcloud projects add-iam-policy-binding <projet> --member=\"serviceAccount:cb-runner@<projet>.iam.gserviceaccount.com\" --role=roles/artifactregistry.writer\ngcloud builds submit --config=cloudbuild.yaml --service-account=projects/<projet>/serviceAccounts/cb-runner@<projet>.iam.gserviceaccount.com .\ngcloud builds list --limit=5 --format=\"table(id, status, duration)\"\ngcloud artifacts repositories delete apps --location=europe-west1 --quiet\ngcloud secrets delete token-api --quiet",
+  verif:"tu peux chiffrer, en secondes, ce que le cache et le parallélisme ont apporté — avant d'avoir payé une machine plus grosse." },
+
+{ id:"lab4", title:"Lab 4 · Cloud Deploy : canary, vérification et retour arrière", time:"≈ 55 min",
+  obj:"Promouvoir une release jusqu'en production, puis provoquer un échec pour voir le rollback à l'œuvre.",
+  steps:[
+    "Crée un delivery pipeline à trois cibles Cloud Run : dev, staging et prod, avec requireApproval sur prod.",
+    "Crée une release depuis une image qui répond correctement, et promeus-la jusqu'à staging.",
+    "Déclare une stratégie canary sur prod avec les paliers 10 puis 50, et l'étape de vérification activée.",
+    "Promeus vers prod, approuve, et observe la répartition du trafic entre révisions à chaque palier.",
+    "Crée une seconde release depuis une image volontairement cassée, et promeus-la : la vérification doit échouer.",
+    "Redéploie la release précédente et chronomètre le retour à la normale.",
+    "Compare ce temps à celui qu'aurait pris un correctif passant par un nouveau build.",
+    "Supprime le pipeline, les services Cloud Run et le dépôt d'images." ],
+  cli:"gcloud deploy apply --file=clouddeploy.yaml --region=europe-west1\ngcloud deploy releases create rel-001 --delivery-pipeline=api-pipeline --region=europe-west1 --images=api=europe-west1-docker.pkg.dev/<projet>/apps/api:v1\ngcloud deploy releases promote --release=rel-001 --delivery-pipeline=api-pipeline --region=europe-west1\ngcloud deploy rollouts approve <rollout> --release=rel-001 --delivery-pipeline=api-pipeline --region=europe-west1\ngcloud run services describe api --region=europe-west1 --format=\"value(status.traffic)\"\ngcloud deploy targets delete prod --region=europe-west1 --quiet\ngcloud run services delete api --region=europe-west1 --quiet",
+  verif:"tu as mesuré qu'un retour arrière sur release immuable se compte en secondes, pas en minutes de build." },
+
+{ id:"lab5", title:"Lab 5 · Binary Authorization : du dry-run au blocage", time:"≈ 50 min",
+  obj:"N'autoriser que des images attestées, en mesurant l'impact avant de bloquer quoi que ce soit.",
+  steps:[
+    "Crée une clé de signature dans Cloud KMS et un attestor Binary Authorization qui s'y réfère.",
+    "Active Binary Authorization sur un cluster GKE avec une politique en dry-run exigeant l'attestation.",
+    "Déploie une image non attestée : elle passe, mais l'écart est journalisé — retrouve l'entrée dans Cloud Logging.",
+    "Fais signer l'image par l'attestor depuis une étape de build, après le scan.",
+    "Passe la politique en mode bloquant, puis retente l'image non attestée : elle doit être refusée à l'admission.",
+    "Teste l'annotation break-glass sur un déploiement d'urgence, et retrouve sa trace dans les journaux.",
+    "Active la validation continue et observe ce qu'elle rapporte sur les pods déjà en place.",
+    "Supprime le cluster, l'attestor et la clé." ],
+  cli:"gcloud kms keyrings create binauthz --location=global\ngcloud kms keys create attestor-key --keyring=binauthz --location=global --purpose=asymmetric-signing --default-algorithm=rsa-sign-pkcs1-4096-sha512\ngcloud container binauthz attestors create prod-attestor --attestation-authority-note=<note> --attestation-authority-note-project=<projet>\ngcloud container clusters create cluster-lab5 --zone=europe-west1-b --num-nodes=1 --binauthz-evaluation-mode=PROJECT_SINGLETON_POLICY_ENFORCE\ngcloud container binauthz policy import politique.yaml   # globalPolicyEvaluationMode, enforcementMode DRYRUN_AUDIT_LOG_ONLY puis ENFORCED_BLOCK_AND_AUDIT_LOG\ngcloud container binauthz attestations sign-and-create --artifact-url=<image@sha256:...> --attestor=prod-attestor --keyversion=<version>\ngcloud container clusters delete cluster-lab5 --zone=europe-west1-b --quiet",
+  verif:"tu sais pourquoi un scan bloquant dans le pipeline ne remplace pas un contrôle à l'admission." },
+
+{ id:"lab6", title:"Lab 6 · SLO, burn rate et alerte qui sert à quelque chose", time:"≈ 50 min",
+  obj:"Définir un SLO dans Cloud Monitoring et déclencher une alerte de burn rate en injectant de vraies erreurs.",
+  steps:[
+    "Déploie un service Cloud Run qui renvoie un code 500 pour une part réglable des requêtes.",
+    "Crée un SLO de disponibilité à 99,9 % sur une fenêtre glissante de 30 jours, à partir des métriques de requêtes.",
+    "Crée deux alert policies de burn rate : 14,4 sur une heure et 6 sur six heures, avec le lien d'un runbook dans le champ documentation.",
+    "Envoie du trafic avec 5 % d'erreurs et observe le budget se consommer sur le tableau de bord du SLO.",
+    "Monte à 30 % d'erreurs et constate le déclenchement de l'alerte à fenêtre courte.",
+    "Reviens à 0 % d'erreur et chronomètre le temps que met l'alerte à se refermer.",
+    "Ajoute une condition d'absence de métrique et arrête le service pour la déclencher.",
+    "Supprime le service, le SLO et les alertes." ],
+  cli:"gcloud run deploy flaky --image=<image> --region=europe-west1 --allow-unauthenticated\ngcloud monitoring dashboards list\ngcloud alpha monitoring policies create --policy-from-file=alerte-burnrate.yaml\nhey -z 5m -q 20 -c 10 https://<url-du-service>/   # ou ab, ou une boucle curl\ngcloud alpha monitoring policies list --format=\"table(displayName, enabled)\"\ngcloud run services delete flaky --region=europe-west1 --quiet",
+  verif:"tu as vu l'alerte s'ouvrir avant l'épuisement du budget, puis se refermer d'elle-même — c'est tout l'intérêt du multi-fenêtres." },
+
+{ id:"lab7", title:"Lab 7 · Observabilité GKE : métriques, logs, trace et profil", time:"≈ 60 min",
+  obj:"Mener une enquête complète sur une latence, en suivant l'ordre métriques, traces, profils.",
+  steps:[
+    "Déploie sur GKE deux services instrumentés en OpenTelemetry, l'un appelant l'autre, avec propagation du contexte.",
+    "Déclare une ressource PodMonitoring et vérifie que Managed Service for Prometheus collecte bien les métriques exposées.",
+    "Construis un tableau de bord des quatre signaux dorés à partir de requêtes PromQL.",
+    "Introduis une latence artificielle dans le service aval, puis identifie-la dans Cloud Trace.",
+    "Introduis une boucle coûteuse en CPU, et localise la fonction fautive avec Cloud Profiler.",
+    "Crée une métrique basée sur les journaux sur un message d'erreur applicatif, et alerte dessus.",
+    "Fixe des requests volontairement trop basses pour provoquer un OOMKilled, et retrouve l'événement.",
+    "Supprime le cluster." ],
+  cli:"gcloud container clusters create-auto cluster-lab7 --region=europe-west1\nkubectl apply -f podmonitoring.yaml\nkubectl apply -f services-otel.yaml\ngcloud logging metrics create erreurs-app --log-filter='resource.type=\"k8s_container\" AND severity>=ERROR AND jsonPayload.message:\"timeout\"'\nkubectl get events --field-selector reason=OOMKilling -A\ngcloud container clusters delete cluster-lab7 --region=europe-west1 --quiet",
+  verif:"pour chacune des deux pannes, tu sais dire quel outil a répondu quoi : quoi, où, puis pourquoi." },
+
+{ id:"lab8", title:"Lab 8 · Mise à l'échelle et coût : mesurer avant d'acheter", time:"≈ 50 min",
+  obj:"Faire réagir un autoscaler sous charge, puis chiffrer les leviers de coût sur des mesures.",
+  steps:[
+    "Déploie une charge GKE sans requests, envoie du trafic, et constate que le Cluster Autoscaler n'ajoute rien.",
+    "Ajoute des requests, relance la charge, et observe les nœuds apparaître.",
+    "Ajoute un HPA sur une métrique applicative, par exemple la profondeur d'une souscription Pub/Sub, et vérifie qu'il suit la file et non le CPU.",
+    "Sur un service Cloud Run, mesure la latence de la première requête après une période creuse, puis fixe min-instances à 1 et remesure.",
+    "Limite max-instances en cohérence avec la capacité d'une base Cloud SQL, et provoque un pic pour le vérifier.",
+    "Lis les recommandations Recommender de redimensionnement et confronte-les aux pics, pas à la moyenne.",
+    "Pose un budget de facturation avec alertes à 50, 90 et 100 %, et exporte la facturation vers BigQuery.",
+    "Écris en trois lignes la recommandation de coût que tu défendrais, avec les chiffres obtenus. Puis supprime tout." ],
+  cli:"gcloud container clusters create cluster-lab8 --zone=europe-west1-b --num-nodes=1 --enable-autoscaling --min-nodes=1 --max-nodes=5\nkubectl apply -f charge-sans-requests.yaml\nkubectl get pods -w\nkubectl describe pod <pod> | sed -n '/Events/,$p'\ngcloud run deploy froid --image=<image> --region=europe-west1 --min-instances=0\ngcloud run services update froid --region=europe-west1 --min-instances=1 --max-instances=10\ngcloud recommender recommendations list --project=<projet> --location=europe-west1-b --recommender=google.compute.instance.MachineTypeRecommender\ngcloud billing budgets create --billing-account=<compte> --display-name=budget-labs --budget-amount=50EUR\ngcloud container clusters delete cluster-lab8 --zone=europe-west1-b --quiet",
+  verif:"tu peux expliquer pourquoi des pods Pending ne déclenchent aucun nœud sans requests, et chiffrer le prix du confort de min-instances." },
+];
+
+/* =====================================================================
+   MOTEUR DU QUIZ
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const LS_ERRORS = "gcp-devops-errors";
+
+const getErrors = () => { try { return JSON.parse(localStorage.getItem(LS_ERRORS)) || []; } catch { return []; } };
+const setErrors = a => localStorage.setItem(LS_ERRORS, JSON.stringify([...new Set(a)]));
+
+/* =====================================================================
+   MOTEUR DE MAÎTRISE — répétition espacée (Leitner)
+   État par question : { box, due, seen, lapses, danger, reco, lastMs }
+   ===================================================================== */
+const LS_SRS = "gcp-devops-srs";
+const BOX_DAYS = [0, 1, 2, 4, 8, 16, 30];   // intervalle en jours par palier
+const NEW_CAP = 8;                           // nouvelles questions max par session
+const DAY = 86400000;
+
+const getSrs = () => { try { return JSON.parse(localStorage.getItem(LS_SRS)) || {}; } catch { return {}; } };
+const setSrs = o => localStorage.setItem(LS_SRS, JSON.stringify(o));
+const srsOf = (srs, id) => srs[id] || { box: 0, due: 0, seen: 0, lapses: 0, danger: false, reco: false, lastMs: 0 };
+
+/* Temps de lecture plancher : en dessous, c'est de la reconnaissance, pas du raisonnement */
+function minReasonMs(q) {
+  const len = (q.q || "").length + (q.code || "").length;
+  return Math.max(2000, Math.min(6000, 1200 + 20 * len));
+}
+
+/* Applique le résultat d'une réponse et renvoie l'état mis à jour */
+function srsApply(q, ok, conf, ms, isReveal) {
+  const srs = getSrs();
+  const s = { ...srsOf(srs, q.id) };
+  const before = s.box;
+  s.seen++;
+  s.lastMs = ms;
+
+  // Détection de reconnaissance : correct, déjà vu, et trop rapide pour avoir raisonné
+  s.reco = !!(ok && !isReveal && s.seen >= 2 && ms < minReasonMs(q));
+
+  if (isReveal || !ok) {
+    if (before >= 3) s.lapses++;           // on oublie quelque chose qu'on maîtrisait
+    s.box = 0;
+    s.danger = !isReveal && before >= 3;   // se tromper sur une question déjà ancrée = croyance fausse
+  } else {
+    s.box = Math.min(6, s.box + 1);
+    s.danger = false;                      // réussite → on lève le drapeau
+  }
+  s.due = Date.now() + BOX_DAYS[s.box] * DAY;
+  srs[q.id] = s;
+  setSrs(srs);
+  return s;
+}
+
+/* Construit la session du jour : croyances fausses d'abord, puis les dues, puis du neuf */
+function buildMaitrise(n) {
+  const srs = getSrs(), now = Date.now();
+  const danger = [], due = [], fresh = [], future = [];
+  byDom(QUESTIONS).forEach(q => {
+    const s = srs[q.id];
+    if (!s) { fresh.push(q); return; }
+    if (s.danger) danger.push(q);
+    else if (s.due <= now) due.push(q);
+    else future.push({ q, due: s.due });
+  });
+  const out = [...shuffle(danger), ...shuffle(due)];
+  if (out.length < n) out.push(...shuffle(fresh).slice(0, Math.min(NEW_CAP, n - out.length)));
+  if (out.length < n) {
+    future.sort((a, b) => a.due - b.due);
+    out.push(...future.slice(0, n - out.length).map(x => x.q));
+  }
+  return out.slice(0, n);
+}
+
+function srsStats() {
+  const srs = getSrs(), now = Date.now();
+  let croyances = 0, due = 0, mastered = 0, reco = 0, vus = 0;
+  const parDomaine = {};
+  Object.entries(srs).forEach(([id, s]) => {
+    vus++;
+    if (s.danger) {
+      croyances++;
+      const q = QUESTIONS.find(x => x.id === id);
+      if (q && q.d) parDomaine[q.d] = (parDomaine[q.d] || 0) + 1;
+    }
+    else if (s.due <= now) due++;
+    if (s.box >= 5) mastered++;
+    if (s.reco) reco++;
+  });
+  return { croyances, due, mastered, reco, nouveaux: QUESTIONS.length - vus, parDomaine };
+}
+
+function refreshDash() {
+  const s = srsStats();
+  $("dCroyances").textContent = s.croyances;
+  $("dDue").textContent = s.due;
+  $("dMastered").textContent = s.mastered;
+  $("dReco").textContent = s.reco;
+  $("dNew").textContent = s.nouveaux;
+  $("nmaitrise").textContent = (s.croyances + s.due) > 0
+    ? (s.croyances + s.due) + " en attente"
+    : (s.nouveaux > 0 ? "nouveau" : "à jour");
+  let note;
+  if (s.croyances > 0) {
+    const pires = Object.entries(s.parDomaine).sort((a, b) => b[1] - a[1])
+      .map(([k, v]) => DOM_LABEL[k] + " (" + v + ")").join(", ");
+    note = "🚨 " + s.croyances + " question(s) déjà ancrée(s) où tu t'es retrompé — le plus urgent à corriger." +
+           (pires ? " Domaines concernés : " + pires + "." : "");
+  }
+  else if (s.due > 0)
+    note = "🔁 " + s.due + " question(s) arrivent à échéance. Le bon moment pour les revoir est maintenant, pas avant.";
+  else if (s.nouveaux > 0)
+    note = "✅ Rien à réviser : la prochaine session introduira jusqu'à " + Math.min(NEW_CAP, s.nouveaux) + " nouvelles questions.";
+  else
+    note = "🏆 Toute la banque est planifiée. Reviens quand des questions arriveront à échéance.";
+  $("dNote").textContent = note;
+}
+
+/* Enregistre la réponse dans le planificateur et renvoie les bandeaux à afficher */
+function recordAndFlag(q, ok, conf, isReveal) {
+  const ms = Date.now() - (session.startedAt || Date.now());
+  if (q.d) {
+    const pd = session.perDom || (session.perDom = {});
+    const pe = pd[q.d] || (pd[q.d] = { ok: 0, total: 0 });
+    pe.total++; if (ok && !isReveal) pe.ok++;
+  }
+  const s = srsApply(q, ok, conf, ms, isReveal);
+
+  let html = "";
+  if (s.danger) {
+    html += '<div class="srs-flag danger">🚨 Tu t\'es trompé sur une question que tu avais déjà ancrée — ' +
+            'c\'est le type d\'erreur qui coûte des points sans prévenir. Elle repassera en priorité jusqu\'à ce que tu la réussisses.</div>';
+  }
+  if (s.reco) {
+    html += '<div class="srs-flag reco">⏱️ Répondu en ' + (ms / 1000).toFixed(1) + ' s : trop vite pour avoir raisonné. ' +
+            'Tu as probablement reconnu la question plutôt que raisonné — la progression est volontairement freinée.</div>';
+  }
+  const j = BOX_DAYS[s.box];
+  html += '<p class="srs-next">📅 Prochaine révision : ' +
+          (j === 0 ? "dès la prochaine session" : j === 1 ? "demain" : "dans " + j + " jours") +
+          " · palier " + s.box + "/6</p>";
+  return html;
+}
+
+const escapeReg = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const norm = s => (s || "").toLowerCase()
+  .normalize("NFD").replace(/[̀-ͯ]/g, "")
+  .replace(/[^a-z0-9]+/g, " ").trim();
+
+function isCorrect(user, accepts) {
+  const u = norm(user);
+  if (!u) return false;
+  return accepts.some(a => {
+    const v = norm(a);
+    if (!v) return false;
+    if (u === v) return true;
+    return new RegExp("(^| )" + escapeReg(v) + "( |$)").test(u); // réponse contenue mot-à-mot
+  });
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let session = null; // { list, idx, score, streak, wrongIds, selectedChoice, answered }
+
+/* ---------- Accueil ---------- */
+let pickCount = 20;
+let domFilter = "all";
+const DOM_LABEL = { boot:"Bootstrapping", cicd:"CI/CD", sre:"Pratiques SRE", obs:"Supervision", perf:"Performances" };
+$("countSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  pickCount = parseInt(b.dataset.n, 10);
+  [...$("countSeg").children].forEach(x => x.classList.toggle("on", x === b));
+});
+$("domSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  domFilter = b.dataset.d;
+  [...$("domSeg").children].forEach(x => x.classList.toggle("on", x === b));
+  refreshCounts();
+});
+const byDom = qs => domFilter === "all" ? qs : qs.filter(q => q.d === domFilter);
+
+function poolFor(mode) {
+  if (mode === "mix") return byDom(QUESTIONS);
+  if (mode === "err") { const errs = getErrors(); return byDom(QUESTIONS.filter(q => errs.includes(q.id))); }
+  if (mode === "code") return byDom(QUESTIONS.filter(q => q.code));
+  if (mode === "cas") return byDom(QUESTIONS.filter(q => q.scen || q.type === "order"));
+  return byDom(QUESTIONS.filter(q => q.level === Number(mode)));
+}
+
+/* Examen blanc : mélange pondéré tous formats, études de cas groupées en fin (comme le vrai examen) */
+/* Pourcentages officiels PCDE :
+     bootstrapping de l'organisation ~15 % · pipelines CI/CD ~25 %
+     pratiques SRE ~23 % · supervision ~21 % · optimisation des performances ~16 % */
+/* 42 questions pondérées + UNE étude de cas tirée au sort (8 questions) = 50,
+   soit la longueur d'un vrai PCDE. Le vrai examen ne sert qu'un case study. */
+const BLANC_WEIGHTS = { boot: 6, cicd: 11, sre: 10, obs: 9, perf: 6 };
+function buildExamBlanc() {
+  const list = [];
+  Object.entries(BLANC_WEIGHTS).forEach(([dk, n]) => {
+    const pool = QUESTIONS.filter(q => q.d === dk && !q.scen && (q.level >= 2 || q.code || q.type === "order"));
+    list.push(...shuffle(pool).slice(0, n));
+  });
+  const out = shuffle(list);
+  const groups = {};
+  QUESTIONS.filter(q => q.scen).forEach(q => (groups[q.scen] = groups[q.scen] || []).push(q));
+  const tire = shuffle(Object.values(groups))[0];   // une seule étude de cas, groupée en fin
+  if (tire) out.push(...tire);
+  return out;
+}
+
+const getLabsDone = () => { try { return JSON.parse(localStorage.getItem("gcp-devops-labs")) || []; } catch { return []; } };
+const setLabsDone = a => localStorage.setItem("gcp-devops-labs", JSON.stringify([...new Set(a)]));
+
+function refreshCounts() {
+  $("n1").textContent = QUESTIONS.filter(q => q.level === 1).length + " q";
+  $("n2").textContent = QUESTIONS.filter(q => q.level === 2).length + " q";
+  $("n3").textContent = QUESTIONS.filter(q => q.level === 3).length + " q";
+  $("ncode").textContent = poolFor("code").length + " q";
+  $("ncas").textContent = poolFor("cas").length + " q";
+  $("nblanc").textContent = "≈ 50 q";
+  $("nmix").textContent = poolFor("mix").length + " q";
+  $("nerr").textContent = poolFor("err").length + " q";
+  $("nlabs").textContent = getLabsDone().length + " / " + LABS.length;
+  refreshDash();
+}
+
+document.querySelectorAll(".mode-btn").forEach(b => b.addEventListener("click", () => {
+  const mode = b.dataset.mode;
+  if (mode === "labs") { renderLabs(); show("labs"); return; }
+  let list;
+  if (mode === "maitrise") {
+    list = buildMaitrise(pickCount === 0 ? QUESTIONS.length : pickCount);
+    if (!list.length) { alert("Rien à réviser pour le moment — reviens plus tard !"); return; }
+  } else if (mode === "blanc") {
+    list = buildExamBlanc();
+  } else {
+    const pool = poolFor(mode);
+    if (!pool.length) { alert("Aucune erreur enregistrée pour l'instant — joue d'abord un quiz !"); return; }
+    list = shuffle(pool).slice(0, pickCount === 0 ? pool.length : pickCount);
+  }
+  session = { mode, list, idx: 0, score: 0, streak: 0, wrongIds: [], selectedChoice: null, answered: false, perDom: {} };
+  show("quiz"); renderQuestion();
+}));
+
+/* ---------- Écrans ---------- */
+function show(name) {
+  ["home", "quiz", "end", "labs"].forEach(n =>
+    $("screen-" + n).classList.toggle("hidden", n !== name));
+  if (name === "home") refreshCounts();
+}
+
+/* ---------- Labs ---------- */
+function renderLabs() {
+  const done = getLabsDone();
+  const list = $("labsList");
+  list.innerHTML = "";
+  LABS.forEach(l => {
+    const d = document.createElement("details");
+    d.className = "lab" + (done.includes(l.id) ? " done" : "");
+    const cliSafe = l.cli.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    d.innerHTML =
+      "<summary>" + (done.includes(l.id) ? "✅ " : "⬜ ") + l.title +
+      ' <span class="lab-time">' + l.time + "</span></summary>" +
+      '<p class="lab-obj"><b>Objectif :</b> ' + l.obj + "</p>" +
+      "<ol>" + l.steps.map(s => "<li>" + s + "</li>").join("") + "</ol>" +
+      '<pre class="qcode">' + cliSafe + "</pre>" +
+      '<p class="lab-verif"><b>Lab réussi si :</b> ' + l.verif + "</p>" +
+      '<button class="btn ghost lab-toggle">' + (done.includes(l.id) ? "Marquer non terminé" : "✅ Marquer terminé") + "</button>";
+    d.querySelector(".lab-toggle").addEventListener("click", () => {
+      const cur = getLabsDone();
+      setLabsDone(cur.includes(l.id) ? cur.filter(x => x !== l.id) : [...cur, l.id]);
+      renderLabs();
+    });
+    list.appendChild(d);
+  });
+}
+
+/* ---------- Question ---------- */
+function renderQuestion() {
+  const q = session.list[session.idx];
+  session.answered = false; session.selectedChoice = null;
+  $("qLevel").textContent = "Niveau " + q.level;
+  $("qLevel").className = "pill lv" + q.level;
+  $("qDom").textContent = (DOM_LABEL[q.d] ? DOM_LABEL[q.d] + " · " : "") + q.dom;
+  $("qCount").textContent = (session.idx + 1) + " / " + session.list.length;
+  $("qBar").style.width = (session.idx / session.list.length * 100) + "%";
+  $("qText").textContent = q.q;
+  $("qFeedback").innerHTML = "";
+  $("btnReveal").classList.remove("hidden");
+  $("btnNext").classList.add("hidden");
+
+  $("btnValidate").classList.remove("hidden");
+  session.startedAt = Date.now();
+
+  const scen = q.scen && SCENARIOS[q.scen];
+  $("qScenario").innerHTML = scen
+    ? '<div class="scenario"><div class="sc-title">📋 Étude de cas — ' + scen.title + "</div><p>" + scen.text + "</p></div>"
+    : "";
+
+  const zone = $("qInputZone");
+  zone.innerHTML = "";
+  if (q.code) {
+    const pre = document.createElement("pre");
+    pre.className = "qcode";
+    pre.textContent = q.code;
+    zone.appendChild(pre);
+  }
+  if (q.type === "input") {
+    const inp = document.createElement("input");
+    inp.type = "text"; inp.id = "answerInput";
+    inp.placeholder = "Écris ta réponse…";
+    inp.autocomplete = "off"; inp.spellcheck = false;
+    zone.appendChild(inp);
+    inp.focus();
+  } else if (q.type === "order") {
+    session.orderPick = [];
+    session.orderShuffled = shuffle(q.steps);
+    const wrap = document.createElement("div");
+    wrap.innerHTML = '<p class="order-hint">Clique les étapes dans le bon ordre (re-clique une étape choisie pour la retirer) :</p>' +
+      '<div class="order-list" id="orderPicked"></div><div class="order-list" id="orderAvail"></div>';
+    zone.appendChild(wrap);
+    renderOrder(q);
+  } else {
+    const div = document.createElement("div");
+    div.className = "choices";
+    shuffle(q.choices.map((c, i) => ({ c, i }))).forEach(({ c, i }) => {
+      const btn = document.createElement("button");
+      btn.className = "choice"; btn.textContent = c; btn.dataset.orig = i;
+      btn.addEventListener("click", () => {
+        if (session.answered) return;
+        session.selectedChoice = i;
+        div.querySelectorAll(".choice").forEach(x => x.classList.toggle("sel", x === btn));
+      });
+      div.appendChild(btn);
+    });
+    zone.appendChild(div);
+  }
+}
+
+function renderOrder(q) {
+  const picked = $("orderPicked"), avail = $("orderAvail");
+  picked.innerHTML = ""; avail.innerHTML = "";
+  session.orderPick.forEach((s, i) => {
+    const b = document.createElement("button");
+    b.className = "order-item picked";
+    b.textContent = (i + 1) + ". " + s;
+    b.addEventListener("click", () => {
+      if (session.answered) return;
+      session.orderPick = session.orderPick.filter(x => x !== s);
+      renderOrder(q);
+    });
+    picked.appendChild(b);
+  });
+  session.orderShuffled.filter(s => !session.orderPick.includes(s)).forEach(s => {
+    const b = document.createElement("button");
+    b.className = "order-item";
+    b.textContent = s;
+    b.addEventListener("click", () => {
+      if (session.answered) return;
+      session.orderPick.push(s);
+      renderOrder(q);
+    });
+    avail.appendChild(b);
+  });
+}
+
+/* ---------- Validation ---------- */
+function validate(conf) {
+  if (session.answered) return;
+  const q = session.list[session.idx];
+  let ok;
+  if (q.type === "input") {
+    const val = $("answerInput").value;
+    if (!val.trim()) { $("answerInput").focus(); return; }
+    ok = isCorrect(val, q.accept);
+    $("answerInput").disabled = true;
+  } else if (q.type === "order") {
+    if (session.orderPick.length !== q.steps.length) return;
+    ok = q.steps.every((s, i) => session.orderPick[i] === s);
+    document.querySelectorAll(".order-item").forEach(b => b.disabled = true);
+  } else {
+    if (session.selectedChoice === null) return;
+    ok = session.selectedChoice === q.answer;
+    document.querySelectorAll(".choice").forEach(btn => {
+      const i = Number(btn.dataset.orig);
+      btn.disabled = true;
+      if (i === q.answer) btn.classList.add("good");
+      else if (i === session.selectedChoice) btn.classList.add("bad");
+    });
+  }
+  session.answered = true;
+  const srsHtml = recordAndFlag(q, ok, conf || 2, false);
+
+  const errs = getErrors();
+  if (ok) {
+    session.score++; session.streak++;
+    setErrors(errs.filter(id => id !== q.id)); // maîtrisée → sort du mode erreurs
+  } else {
+    session.streak = 0;
+    session.wrongIds.push(q.id);
+    setErrors([...errs, q.id]);
+  }
+  $("score").textContent = session.score;
+  $("streak").textContent = session.streak;
+
+  const goodAnswer = q.type === "input" ? q.accept[0]
+    : q.type === "order" ? q.steps.map((s, i) => (i + 1) + ". " + s).join("<br>")
+    : q.choices[q.answer];
+  const fb = document.createElement("div");
+  fb.className = "feedback " + (ok ? "ok" : "ko");
+  fb.innerHTML =
+    '<div class="verdict">' + (ok ? "✅ Bonne réponse !" : "❌ Raté") + "</div>" +
+    (ok ? "" : '<p class="rep">Réponse attendue : <b>' + goodAnswer + "</b></p>") +
+    '<p class="exp">' + q.explain + "</p>" + srsHtml;
+  $("qFeedback").innerHTML = "";
+  $("qFeedback").appendChild(fb);
+
+  $("btnValidate").classList.add("hidden");
+  $("btnReveal").classList.add("hidden");
+  $("btnNext").classList.remove("hidden");
+  $("btnNext").focus();
+  $("qBar").style.width = ((session.idx + 1) / session.list.length * 100) + "%";
+}
+
+/* ---------- Correction sans répondre (« Je ne sais pas ») ---------- */
+function reveal() {
+  if (session.answered) return;
+  const q = session.list[session.idx];
+  session.answered = true;
+  const srsHtml = recordAndFlag(q, false, 1, true);
+
+  if (q.type === "input") {
+    $("answerInput").disabled = true;
+  } else if (q.type === "order") {
+    document.querySelectorAll(".order-item").forEach(b => b.disabled = true);
+  } else {
+    document.querySelectorAll(".choice").forEach(btn => {
+      btn.disabled = true;
+      if (Number(btn.dataset.orig) === q.answer) btn.classList.add("good");
+    });
+  }
+
+  // Compte comme une erreur : série remise à zéro + ajout au mode « Rejouer mes erreurs »
+  session.streak = 0;
+  session.wrongIds.push(q.id);
+  setErrors([...getErrors(), q.id]);
+  $("streak").textContent = session.streak;
+
+  const goodAnswer = q.type === "input" ? q.accept[0]
+    : q.type === "order" ? q.steps.map((s, i) => (i + 1) + ". " + s).join("<br>")
+    : q.choices[q.answer];
+  const fb = document.createElement("div");
+  fb.className = "feedback info";
+  fb.innerHTML =
+    '<div class="verdict">💡 Correction</div>' +
+    '<p class="rep">La bonne réponse était : <b>' + goodAnswer + "</b></p>" +
+    '<p class="exp">' + q.explain + "</p>" + srsHtml;
+  $("qFeedback").innerHTML = "";
+  $("qFeedback").appendChild(fb);
+
+  $("btnValidate").classList.add("hidden");
+  $("btnReveal").classList.add("hidden");
+  $("btnNext").classList.remove("hidden");
+  $("btnNext").focus();
+  $("qBar").style.width = ((session.idx + 1) / session.list.length * 100) + "%";
+}
+
+function next() {
+  if (session.idx + 1 < session.list.length) { session.idx++; renderQuestion(); }
+  else endSession();
+}
+
+/* ---------- Fin ---------- */
+function endSession() {
+  const total = session.list.length, s = session.score;
+  const pct = Math.round(s / total * 100);
+  $("endScore").textContent = s + " / " + total;
+  let v;
+  if (pct >= 90) v = "🏆 Niveau certification — continue comme ça !";
+  else if (pct >= 70) v = "💪 Solide ! Tu serais au-dessus des 700 points.";
+  else if (pct >= 50) v = "📚 En bonne voie — rejoue tes erreurs.";
+  else v = "🌱 C'est en forgeant… rejoue cette série !";
+  $("endVerdict").textContent = v;
+
+  // Bilan par domaine officiel, trié du plus faible au plus fort
+  const pd = session.perDom || {};
+  $("endByDom").innerHTML = Object.entries(pd)
+    .filter(([, o]) => o.total > 0)
+    .sort((a, b) => (a[1].ok / a[1].total) - (b[1].ok / b[1].total))
+    .map(([k, o]) => {
+      const p = Math.round(o.ok / o.total * 100);
+      const icon = p >= 75 ? "✅" : p >= 50 ? "⚠️" : "❌";
+      return '<span class="dl">' + icon + " " + (DOM_LABEL[k] || k) + '</span><span class="dv">' +
+             o.ok + "/" + o.total + " · " + p + "%</span>";
+    }).join("");
+
+  $("endDetail").textContent = pct + " % de bonnes réponses · " +
+    (total - s) + " erreur(s) ajoutée(s) au mode « Rejouer mes erreurs » (" + getErrors().length + " au total)";
+  $("btnReplayErrors").style.display = getErrors().length ? "" : "none";
+  show("end");
+}
+
+/* ---------- Boutons & clavier ---------- */
+$("btnValidate").addEventListener("click", () => validate(2));
+$("btnReveal").addEventListener("click", reveal);
+$("btnNext").addEventListener("click", next);
+$("btnQuit").addEventListener("click", () => show("home"));
+$("btnHome").addEventListener("click", () => show("home"));
+$("btnLabsHome").addEventListener("click", () => show("home"));
+$("btnReplayErrors").addEventListener("click", () => {
+  const pool = poolFor("err");
+  if (!pool.length) { show("home"); return; }
+  session = { mode: "err", list: shuffle(pool), idx: 0, score: 0, streak: 0, wrongIds: [], selectedChoice: null,
+              answered: false, perDom: {} };
+  show("quiz"); renderQuestion();
+});
+document.addEventListener("keydown", e => {
+  if ($("screen-quiz").classList.contains("hidden")) return;
+  if (e.key !== "Enter") return;
+  if (session && session.answered) next(); else validate(2);
+});
+
+refreshCounts();
+show("home");
+</script>
+
+
+<!--CSL:FOOT-->
+<script src="../../assets/shell.js" data-csl-root="../../"></script>
+<script>
+if("serviceWorker" in navigator && (location.protocol==="https:"||location.hostname==="localhost")){
+  addEventListener("load",()=>navigator.serviceWorker.register("../../sw.js").catch(()=>{}));
+}
+</script>
+<!--/CSL:FOOT-->
+</body>
+</html>
